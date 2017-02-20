@@ -11,6 +11,16 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
+
+    productFlavors {
+        stage {
+            applicationId "com.rena21c.madmax.stage"
+        }
+        dev {
+            applicationId "com.rena21c.madmax.dev"
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
