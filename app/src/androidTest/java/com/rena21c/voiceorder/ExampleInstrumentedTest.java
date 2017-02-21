@@ -21,7 +21,7 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.rena21c.madmax.dev", appContext.getPackageName());
+        assertEquals("com.rena21c.voiceorder.dev", appContext.getPackageName());
     }
 
     @Test
