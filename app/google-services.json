@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "454858980584",
+    "firebase_url": "https://voiceorderdev.firebaseio.com",
+    "project_id": "voiceorderdev",
+    "storage_bucket": "voiceorderdev.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:454858980584:android:5f8968609b7d656a",
+        "android_client_info": {
+          "package_name": "com.rena21c.voiceorder.dev"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "454858980584-i3bft9q9s5tlng0r8idd8mqrffee2887.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDl-9HNNZuEdMefp85MJhTaeMp3LyaHDi8"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
