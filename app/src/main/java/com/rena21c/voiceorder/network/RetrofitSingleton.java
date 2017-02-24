@@ -4,11 +4,11 @@ package com.rena21c.voiceorder.network;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class RetrofitProvider {
+public class RetrofitSingleton {
 
     private static Retrofit INSTANCE = null;
 
-    private RetrofitProvider() {
+    private RetrofitSingleton() {
 
     }
 
