@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">VoiceOrder</string>
+    <string name="guide_instructions">버튼을 터치한 후,\n주문할 품목과\n수량을 말해주세요!</string>
+    <string name="guide_example">예) 양파 3단, 고구마 한 포대, 물수건 100개 </string>
 </resources>
