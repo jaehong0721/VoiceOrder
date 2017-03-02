@@ -1,11 +1,17 @@
 <resources>
 
-    <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+    <style name="VoiceOrderTheme" parent="Theme.AppCompat.Light">
+
+        <item name="colorPrimary">@color/primaryYellow</item>
+        <item name="colorPrimaryDark">@color/primaryBrown</item>
+        <item name="colorAccent">@color/primaryBrown</item>
+
+        <item name="colorControlNormal">@color/primaryBrown</item>
+        <item name="colorControlActivated">@color/primaryBrown</item>
+        <item name="colorControlHighlight">@color/primaryYellow</item>
+
+        <item name="android:textColor">@color/primaryBrown</item>
+
     </style>
 
 </resources>

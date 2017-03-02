@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
-    
-    <color name="sea">#2D8985</color>
+    <color name="primaryYellow">#FFC145</color>
+    <color name="primaryBrown">#390405</color>
 
-    <color name="textGuide">#CCFFFFFF</color>
+    <color name="textGuideInstruction">#643A3B</color>
 </resources>

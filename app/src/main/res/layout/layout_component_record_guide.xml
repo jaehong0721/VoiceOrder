@@ -13,7 +13,7 @@
         android:id="@+id/tvGuide"
         android:text="@string/guide_instructions"
         android:textSize="@dimen/guideInstructionsTextSize"
-        android:textColor="@color/textGuide"
+        android:textColor="@color/textGuideInstruction"
         android:gravity="center"
    />
 
@@ -24,7 +24,7 @@
         android:id="@+id/tvExample"
         android:text="@string/guide_example"
         android:textSize="@dimen/guideExampleTextSize"
-        android:textColor="@color/textGuide"
+        android:textColor="@color/textGuideInstruction"
         android:gravity="center"
         android:layout_below="@+id/tvGuide"
         android:layout_alignParentLeft="true"
