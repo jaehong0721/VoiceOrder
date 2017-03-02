@@ -38,7 +38,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
     private RelativeLayout buttonLayout;
     private ImageView ivAnimation;
     private ImageView ivBackground;
-    private ImageView ivPlay;
+    private ImageView ivRecord;
     private ImageView ivStop;
 
     private activateRecorderListener listener;
@@ -62,8 +62,8 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
 
     private void init() {
-        ivPlay = (ImageView)findViewById(R.id.ivPlay);
-        ivPlay.setOnClickListener(this);
+        ivRecord = (ImageView)findViewById(R.id.ivRecord);
+        ivRecord.setOnClickListener(this);
       
         ivBackground = (ImageView)findViewById(R.id.ivBackground);
         ivAnimation = (ImageView)findViewById(R.id.ivAnimation);
@@ -121,7 +121,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
         if(isRecord) {
             isRecord = false;
-            //listener.btn_stop();
+            //listener.stop();
             setRecordButton();
 
         }
@@ -136,7 +136,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         ivBackground.animate().scaleX(BACKGROUND_SCALE_RECORD_X).scaleY(BACKGROUND_SCALE_RECORD_Y).start();
         buttonLayout.animate().translationYBy(100).setDuration(100).start();
         startPulseAnimationRecordBtn();
-        ivPlay.setVisibility(View.VISIBLE);
+        ivRecord.setVisibility(View.VISIBLE);
         ivStop.setVisibility(View.INVISIBLE);
     }
 
@@ -144,7 +144,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         ivBackground.animate().scaleX(BACKGROUND_SCALE_STOP_X).scaleY(BACKGROUND_SCALE_STOP_Y).start();
         buttonLayout.animate().translationYBy(-100).setDuration(100).start();
         startPulseAnimationStopBtn();
-        ivPlay.setVisibility(View.INVISIBLE);
+        ivRecord.setVisibility(View.INVISIBLE);
         ivStop.setVisibility(View.VISIBLE);
     }
 
