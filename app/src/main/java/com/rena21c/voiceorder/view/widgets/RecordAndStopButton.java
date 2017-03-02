@@ -17,13 +17,13 @@ import com.rena21c.voiceorder.R;
 
 public class RecordAndStopButton extends FrameLayout implements View.OnClickListener{
 
-    
+
     private boolean isRecord = false;
     private RelativeLayout buttonLayout;
 
     private ImageView ivAnimation;
-    private ImageView ivPlayAndStop;
     private ImageView ivBackground;
+    private ImageView ivPlay;
     private ImageView ivStop;
 
     private activateRecorderListener listener;
@@ -42,8 +42,8 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
         inflate(context, R.layout.widget_record_and_stop_button, this);
 
-        ivPlayAndStop = (ImageView)findViewById(R.id.ivPlayAndStop);
-        ivPlayAndStop.setOnClickListener(this);
+        ivPlay = (ImageView)findViewById(R.id.ivPlay);
+        ivPlay.setOnClickListener(this);
 
         ivBackground = (ImageView)findViewById(R.id.ivBackground);
         ivAnimation = (ImageView)findViewById(R.id.ivAnimation);
@@ -108,7 +108,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         ivBackground.animate().scaleX(1.0F).scaleY(1.0F).start();
         buttonLayout.animate().translationYBy(100).setDuration(100).start();
         startPulseAnimationRecordBtn();
-        ivPlayAndStop.setVisibility(View.VISIBLE);
+        ivPlay.setVisibility(View.VISIBLE);
         ivStop.setVisibility(View.INVISIBLE);
     }
 
@@ -116,7 +116,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         ivBackground.animate().scaleX(0.9F).scaleY(0.9F).start();
         buttonLayout.animate().translationYBy(-100).setDuration(100).start();
         startPulseAnimationStopBtn();
-        ivPlayAndStop.setVisibility(View.INVISIBLE);
+        ivPlay.setVisibility(View.INVISIBLE);
         ivStop.setVisibility(View.VISIBLE);
     }
 }
