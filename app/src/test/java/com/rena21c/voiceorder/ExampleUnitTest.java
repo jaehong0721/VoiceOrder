@@ -1,4 +1,4 @@
-package com.rena21c.madmax;
+package com.rena21c.voiceorder;
 
 import org.junit.Test;
 
