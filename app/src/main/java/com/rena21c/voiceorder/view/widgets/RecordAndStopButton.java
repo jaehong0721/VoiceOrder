@@ -17,6 +17,7 @@ import com.rena21c.voiceorder.R;
 
 public class RecordAndStopButton extends FrameLayout implements View.OnClickListener{
 
+
     private final float BACKGROUND_SCALE_RECORD_X = 1.0F;
     private final float BACKGROUND_SCALE_RECORD_Y = 1.0F;
     private final float BACKGROUND_SCALE_STOP_X = 1.1F;
@@ -36,8 +37,8 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
     private RelativeLayout buttonLayout;
     private ImageView ivAnimation;
-    private ImageView ivPlayAndStop;
     private ImageView ivBackground;
+    private ImageView ivPlay;
     private ImageView ivStop;
 
     private activateRecorderListener listener;
@@ -59,10 +60,11 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         startPulseAnimationRecordBtn();
     }
 
-    private void init() {
-        ivPlayAndStop = (ImageView)findViewById(R.id.ivPlayAndStop);
-        ivPlayAndStop.setOnClickListener(this);
 
+    private void init() {
+        ivPlay = (ImageView)findViewById(R.id.ivPlay);
+        ivPlay.setOnClickListener(this);
+      
         ivBackground = (ImageView)findViewById(R.id.ivBackground);
         ivAnimation = (ImageView)findViewById(R.id.ivAnimation);
         buttonLayout = (RelativeLayout) findViewById(R.id.buttonLayout);
@@ -134,7 +136,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         ivBackground.animate().scaleX(BACKGROUND_SCALE_RECORD_X).scaleY(BACKGROUND_SCALE_RECORD_Y).start();
         buttonLayout.animate().translationYBy(100).setDuration(100).start();
         startPulseAnimationRecordBtn();
-        ivPlayAndStop.setVisibility(View.VISIBLE);
+        ivPlay.setVisibility(View.VISIBLE);
         ivStop.setVisibility(View.INVISIBLE);
     }
 
@@ -142,7 +144,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         ivBackground.animate().scaleX(BACKGROUND_SCALE_STOP_X).scaleY(BACKGROUND_SCALE_STOP_Y).start();
         buttonLayout.animate().translationYBy(-100).setDuration(100).start();
         startPulseAnimationStopBtn();
-        ivPlayAndStop.setVisibility(View.INVISIBLE);
+        ivPlay.setVisibility(View.INVISIBLE);
         ivStop.setVisibility(View.VISIBLE);
     }
 
