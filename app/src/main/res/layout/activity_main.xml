@@ -4,13 +4,13 @@
     android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/sea"
+    android:background="@color/primaryYellow"
     tools:context="com.rena21c.voiceorder.activities.MainActivity">
 
     <com.rena21c.voiceorder.view.components.RecordGuideLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/relativeLayout"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true">
     </com.rena21c.voiceorder.view.components.RecordGuideLayout>
