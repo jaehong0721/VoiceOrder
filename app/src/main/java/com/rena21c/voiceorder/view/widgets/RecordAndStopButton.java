@@ -18,9 +18,24 @@ import com.rena21c.voiceorder.R;
 public class RecordAndStopButton extends FrameLayout implements View.OnClickListener{
 
 
-    private boolean isRecord = false;
-    private RelativeLayout buttonLayout;
+    private final float BACKGROUND_SCALE_RECORD_X = 1.0F;
+    private final float BACKGROUND_SCALE_RECORD_Y = 1.0F;
+    private final float BACKGROUND_SCALE_STOP_X = 1.1F;
+    private final float BACKGROUND_SCALE_STOP_Y = 1.1F;
 
+    private final float FROM_ALPHA = 0.5F;
+    private final float TO_ALPHA = 0;
+
+    private final float PULSE_SCALE_RECORD_X = 1.3F;
+    private final float PULSE_SCALE_RECORD_Y = 1.3F;
+    private final float PULSE_SCALE_STOP_X = 1.4F;
+    private final float PULSE_SCALE_STOP_Y = 1.4F;
+
+    private final int PULSE_CYCLE = 1000;
+
+    private boolean isRecord = false;
+
+    private RelativeLayout buttonLayout;
     private ImageView ivAnimation;
     private ImageView ivBackground;
     private ImageView ivPlay;
@@ -41,50 +56,63 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         super(context, attrs);
 
         inflate(context, R.layout.widget_record_and_stop_button, this);
+        init();
+        startPulseAnimationRecordBtn();
+    }
 
+
+    private void init() {
         ivPlay = (ImageView)findViewById(R.id.ivPlay);
         ivPlay.setOnClickListener(this);
-
+      
         ivBackground = (ImageView)findViewById(R.id.ivBackground);
         ivAnimation = (ImageView)findViewById(R.id.ivAnimation);
         buttonLayout = (RelativeLayout) findViewById(R.id.buttonLayout);
         ivStop = (ImageView)findViewById(R.id.ivStop);
         ivStop.setOnClickListener(this);
-        startPulseAnimationRecordBtn();
     }
 
     public void startPulseAnimationRecordBtn() {
+        ivAnimation.clearAnimation();
+
         AnimationSet set = new AnimationSet(true);
-        set.setDuration(1000);
+        set.setDuration(PULSE_CYCLE);
         set.setInterpolator(new LinearInterpolator());
 
-        AlphaAnimation alphaAnimation = new AlphaAnimation(0.5F, 0);
+        AlphaAnimation alphaAnimation = new AlphaAnimation(FROM_ALPHA, TO_ALPHA);
         alphaAnimation.setRepeatCount(-1);
         set.addAnimation(alphaAnimation);
 
-        ScaleAnimation scaleAnimation = new ScaleAnimation(1.0F,1.5F,1.0F,1.5F, Animation.RELATIVE_TO_SELF, 0.5F, Animation.RELATIVE_TO_SELF, 0.5F);
+        ScaleAnimation scaleAnimation = new ScaleAnimation(BACKGROUND_SCALE_RECORD_X, PULSE_SCALE_RECORD_X,
+                                                            BACKGROUND_SCALE_RECORD_Y, PULSE_SCALE_RECORD_Y,
+                                                            Animation.RELATIVE_TO_SELF, 0.5F,
+                                                            Animation.RELATIVE_TO_SELF, 0.5F);
         scaleAnimation.setRepeatCount(-1);
         set.addAnimation(scaleAnimation);
 
-        ivAnimation.clearAnimation();
         ivAnimation.startAnimation(set);
 
     }
 
     public void startPulseAnimationStopBtn() {
+        ivAnimation.clearAnimation();
+
         AnimationSet set = new AnimationSet(true);
-        set.setDuration(1000);
+        set.setDuration(PULSE_CYCLE);
         set.setInterpolator(new LinearInterpolator());
 
         AlphaAnimation alphaAnimation = new AlphaAnimation(0.5F, 0);
         alphaAnimation.setRepeatCount(-1);
         set.addAnimation(alphaAnimation);
 
-        ScaleAnimation scaleAnimation = new ScaleAnimation(0.9F,1.4F,0.9F,1.4F, Animation.RELATIVE_TO_SELF, 0.5F, Animation.RELATIVE_TO_SELF, 0.5F);
+        ScaleAnimation scaleAnimation = new ScaleAnimation(BACKGROUND_SCALE_STOP_X, PULSE_SCALE_STOP_X,
+                                                            BACKGROUND_SCALE_STOP_Y, PULSE_SCALE_STOP_Y,
+                                                            Animation.RELATIVE_TO_SELF, 0.5F,
+                                                            Animation.RELATIVE_TO_SELF, 0.5F);
         scaleAnimation.setRepeatCount(-1);
         set.addAnimation(scaleAnimation);
 
-        ivAnimation.clearAnimation();
+
         ivAnimation.startAnimation(set);
     }
 
@@ -93,7 +121,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
         if(isRecord) {
             isRecord = false;
-            //listener.stop();
+            //listener.btn_stop();
             setRecordButton();
 
         }
@@ -105,7 +133,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
     }
 
     public void setRecordButton() {
-        ivBackground.animate().scaleX(1.0F).scaleY(1.0F).start();
+        ivBackground.animate().scaleX(BACKGROUND_SCALE_RECORD_X).scaleY(BACKGROUND_SCALE_RECORD_Y).start();
         buttonLayout.animate().translationYBy(100).setDuration(100).start();
         startPulseAnimationRecordBtn();
         ivPlay.setVisibility(View.VISIBLE);
@@ -113,10 +141,11 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
     }
 
     public void setStopButton() {
-        ivBackground.animate().scaleX(0.9F).scaleY(0.9F).start();
+        ivBackground.animate().scaleX(BACKGROUND_SCALE_STOP_X).scaleY(BACKGROUND_SCALE_STOP_Y).start();
         buttonLayout.animate().translationYBy(-100).setDuration(100).start();
         startPulseAnimationStopBtn();
         ivPlay.setVisibility(View.INVISIBLE);
         ivStop.setVisibility(View.VISIBLE);
     }
+
 }
