@@ -4,4 +4,8 @@
     <color name="primaryBrown">#390405</color>
 
     <color name="textGuideInstruction">#643A3B</color>
+    <color name="wave1">#60FFC145</color>
+    <color name="wave2">#70FFC145</color>
+    <color name="wave3">#80FFC145</color>
+    <color name="wave4">#90FFC145</color>
 </resources>

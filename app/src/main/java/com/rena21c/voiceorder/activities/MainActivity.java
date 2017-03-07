@@ -1,18 +1,66 @@
 package com.rena21c.voiceorder.activities;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
+import com.rena21c.voiceorder.view.components.OrderListLayout;
+import com.rena21c.voiceorder.view.components.RecordGuideLayout;
+import com.rena21c.voiceorder.view.components.RecordingLayout;
+import com.rena21c.voiceorder.view.components.ReplaceableLayout;
+import com.rena21c.voiceorder.view.widgets.RecordAndStopButton;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements RecordAndStopButton.activateRecorderListener{
+
+    private ActionBarViewModel actionBarViewModel;
+    private ReplaceableLayout replaceableLayout;
+    private RecordAndStopButton recordAndStopButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
 
-        ActionBarViewModel.createWithActionBar(getSupportActionBar());
+        init();
+
+        if(checkFirstRun()) {
+            recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_GUIDE_LAYOUT);
+            replaceableLayout.replaceChildView(RecordGuideLayout.getInstance(this));
+        }
+        else {
+            recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_ORDER_LIST_LAYOUT);
+            actionBarViewModel.changWhiteColor();
+        }
+    }
+
+    private boolean checkFirstRun() {
+        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
+        boolean isFirst = sharedPreferences.getBoolean("isFirst", true);
+        if(isFirst) {
+            sharedPreferences.edit().putBoolean("isFirst", false).commit();
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
+
+    private void init() {
+        actionBarViewModel = ActionBarViewModel.createWithActionBar(getSupportActionBar());
+
+        replaceableLayout = (ReplaceableLayout)findViewById(R.id.replaceableLayout);
+        recordAndStopButton = (RecordAndStopButton)findViewById(R.id.btnRecordAndStop);
+        recordAndStopButton.setListener(this);
+    }
+
+    @Override
+    public void record() {
+        replaceableLayout.replaceChildView(RecordingLayout.getInstance(this));
+    }
+
+    @Override
+    public void stop() {
+        replaceableLayout.replaceChildView(OrderListLayout.getInstance(this));
     }
 }
