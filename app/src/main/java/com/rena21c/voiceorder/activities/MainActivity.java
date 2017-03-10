@@ -5,7 +5,7 @@ import android.os.Bundle;
 
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
-import com.rena21c.voiceorder.view.components.OrderListLayout;
+import com.rena21c.voiceorder.view.components.OrderViewPagerLayout;
 import com.rena21c.voiceorder.view.components.RecordGuideLayout;
 import com.rena21c.voiceorder.view.components.RecordingLayout;
 import com.rena21c.voiceorder.view.components.ReplaceableLayout;
@@ -13,7 +13,6 @@ import com.rena21c.voiceorder.view.widgets.RecordAndStopButton;
 
 public class MainActivity extends BaseActivity implements RecordAndStopButton.activateRecorderListener{
 
-    private ActionBarViewModel actionBarViewModel;
     private ReplaceableLayout replaceableLayout;
     private RecordAndStopButton recordAndStopButton;
 
@@ -26,11 +25,11 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
         if(checkFirstRun()) {
             recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_GUIDE_LAYOUT);
-            replaceableLayout.replaceChildView(RecordGuideLayout.getInstance(this));
+            replaceableLayout.replaceChildView(RecordGuideLayout.getInstance(this, replaceableLayout).getView());
         }
         else {
             recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_ORDER_LIST_LAYOUT);
-            actionBarViewModel.changWhiteColor();
+            replaceableLayout.replaceChildView(OrderViewPagerLayout.getInstance(this, replaceableLayout).getView());
         }
     }
 
@@ -47,7 +46,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
     }
 
     private void init() {
-        actionBarViewModel = ActionBarViewModel.createWithActionBar(getSupportActionBar());
+        ActionBarViewModel.createWithActionBar(getApplicationContext(), getSupportActionBar());
 
         replaceableLayout = (ReplaceableLayout)findViewById(R.id.replaceableLayout);
         recordAndStopButton = (RecordAndStopButton)findViewById(R.id.btnRecordAndStop);
@@ -56,11 +55,11 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
     @Override
     public void record() {
-        replaceableLayout.replaceChildView(RecordingLayout.getInstance(this));
+        replaceableLayout.replaceChildView(RecordingLayout.getInstance(this, replaceableLayout).getView());
     }
 
     @Override
     public void stop() {
-        replaceableLayout.replaceChildView(OrderListLayout.getInstance(this));
+        replaceableLayout.replaceChildView(OrderViewPagerLayout.getInstance(this, replaceableLayout).getView());
     }
 }

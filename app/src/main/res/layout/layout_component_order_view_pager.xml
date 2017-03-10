@@ -8,4 +8,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
     </android.support.v4.view.ViewPager>
+
+
+    <com.rena21c.voiceorder.view.widgets.ViewPagerIndicator
+        android:id="@+id/viewPagerIndicator"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="17dp">
+    </com.rena21c.voiceorder.view.widgets.ViewPagerIndicator>
 </RelativeLayout>

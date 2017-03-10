@@ -10,7 +10,7 @@
         android:layout_alignParentTop="true"
         android:scaleType="fitXY"
         android:src="@drawable/wave"
-        android:background="@color/wave1"/>
+        android:background="@color/primaryYellow"/>
 
     <TextView
         android:id="@+id/textView"
@@ -21,32 +21,5 @@
         android:textColor="@color/primaryBrown"
         android:textSize="18sp"
         android:layout_marginTop="38dp"/>
-    <!--
-            <ImageView
-                android:id="@+id/ivWave2"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginTop="10dp"
-                android:scaleType="fitXY"
-                android:src="@drawable/wave"
-                android:background="@color/wave3"/>
-
-            <ImageView
-                android:id="@+id/wave3"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginBottom="10dp"
-                android:scaleType="centerCrop"
-                android:src="@drawable/wave"
-                android:background="@color/wave2"/>
-
-            <ImageView
-                android:id="@+id/wave4"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:src="@drawable/wave"
-                android:background="@color/wave1"/>
-                -->
 
 </RelativeLayout>

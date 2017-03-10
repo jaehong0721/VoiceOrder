@@ -37,7 +37,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
     private final float PULSE_SCALE_STOP_X = 1.4F;
     private final float PULSE_SCALE_STOP_Y = 1.4F;
 
-    private final int PULSE_CYCLE = 1000;
+    private final int PULSE_CYCLE = 700;
 
     private boolean isRecord = false;
 
@@ -78,11 +78,18 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         ivStop.setOnClickListener(this);
     }
 
+    public void setInitHeight(int height) {
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)buttonLayout.getLayoutParams();
+        params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, getResources().getDisplayMetrics());
+        buttonLayout.setLayoutParams(params);
+    }
+
     private void startPulseAnimationRecordBtn() {
         ivAnimation.clearAnimation();
 
         AnimationSet set = new AnimationSet(true);
         set.setDuration(PULSE_CYCLE);
+        set.setStartOffset(400);
         set.setInterpolator(new LinearInterpolator());
 
         AlphaAnimation alphaAnimation = new AlphaAnimation(FROM_ALPHA, TO_ALPHA);
@@ -105,6 +112,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
         AnimationSet set = new AnimationSet(true);
         set.setDuration(PULSE_CYCLE);
+        set.setStartOffset(500);
         set.setInterpolator(new LinearInterpolator());
 
         AlphaAnimation alphaAnimation = new AlphaAnimation(0.5F, 0);
@@ -139,41 +147,37 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
     }
 
     private void setRecordButton() {
-        Animation ani = new ShowAnim(buttonLayout, HEIGHT_WITH_ORDER_LIST_LAYOUT);
-        ani.setDuration(200);
-        buttonLayout.startAnimation(ani);
+        Animation shortHeightAni = new showHeightChangeAnimation(buttonLayout, HEIGHT_WITH_ORDER_LIST_LAYOUT);
+        shortHeightAni.setDuration(200);
+        buttonLayout.startAnimation(shortHeightAni);
 
         ivBackground.animate().setInterpolator(new BounceInterpolator()).scaleX(BACKGROUND_SCALE_RECORD_X).scaleY(BACKGROUND_SCALE_RECORD_Y).start();
 
         startPulseAnimationRecordBtn();
+
         ivRecord.setVisibility(View.VISIBLE);
         ivStop.setVisibility(View.INVISIBLE);
     }
 
     private void setStopButton() {
-        Animation ani = new ShowAnim(buttonLayout, HEIGHT_WITH_RECORDING_LAYOUT);
-        ani.setDuration(200);
-        buttonLayout.startAnimation(ani);
+        Animation longHeightAni = new showHeightChangeAnimation(buttonLayout, HEIGHT_WITH_RECORDING_LAYOUT);
+        longHeightAni.setDuration(200);
+        buttonLayout.startAnimation(longHeightAni);
 
         ivBackground.animate().setInterpolator(new BounceInterpolator()).scaleX(BACKGROUND_SCALE_STOP_X).scaleY(BACKGROUND_SCALE_STOP_Y).start();
 
         startPulseAnimationStopBtn();
+
         ivRecord.setVisibility(View.INVISIBLE);
         ivStop.setVisibility(View.VISIBLE);
     }
 
-    public void setInitHeight(int height) {
-        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)buttonLayout.getLayoutParams();
-        params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, getResources().getDisplayMetrics());
-        buttonLayout.setLayoutParams(params);
-    }
-
-    public class ShowAnim extends Animation {
+    public class showHeightChangeAnimation extends Animation {
         int startHeight;
         int targetHeight;
         View view;
 
-        public ShowAnim(View view, int targetHeight) {
+        public showHeightChangeAnimation(View view, int targetHeight) {
             this.view = view;
             this.startHeight = view.getHeight();
             this.targetHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, targetHeight, getResources().getDisplayMetrics());

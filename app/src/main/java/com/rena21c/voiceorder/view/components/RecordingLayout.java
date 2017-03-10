@@ -1,35 +1,39 @@
 package com.rena21c.voiceorder.view.components;
 
 import android.content.Context;
-import android.util.AttributeSet;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageView;
+import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import com.rena21c.voiceorder.R;
 
 public class RecordingLayout extends RelativeLayout {
 
-    private static View view;
+    private static RecordingLayout INSTANCE;
+    private View view;
 
-    private ImageView ivWave1;
-
-    public RecordingLayout(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        Log.e("RecordingLayout", "constructor");
-        ivWave1 = (ImageView)findViewById(R.id.ivWave1);
+    private RecordingLayout(Context context, ViewGroup rootView) {
+        super(context);
+        init(context, rootView);
     }
 
-    public static View getInstance(Context context) {
-        if(view == null) {
-            Log.e("RecordingLayout", "getInstance");
-            view = inflate(context, R.layout.layout_component_recording, null);
-            return view;
+    private void init(Context context, ViewGroup rootView) {
+        LayoutInflater layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        view = layoutInflater.inflate(R.layout.layout_component_recording, rootView, false);
+    }
+
+    public static RecordingLayout getInstance(Context context, ViewGroup rootView) {
+        if(INSTANCE == null) {
+            INSTANCE = new RecordingLayout(context, rootView);
+            return INSTANCE;
         }
         else {
-            return view;
+            return INSTANCE;
         }
     }
 
+    public View getView() {
+        return view;
+    }
 }

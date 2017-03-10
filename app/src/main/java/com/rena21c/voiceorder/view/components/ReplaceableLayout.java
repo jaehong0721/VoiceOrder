@@ -15,7 +15,6 @@ public class ReplaceableLayout extends RelativeLayout{
     }
 
     public void replaceChildView(View childView) {
-        childView.setLayoutParams(new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
         removeAllViews();
         addView(childView);
     }
