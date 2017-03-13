@@ -8,8 +8,7 @@ import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
 import com.rena21c.voiceorder.R;
-import com.rena21c.voiceorder.etc.ViewPagerItemManager;
-import com.rena21c.voiceorder.view.adapter.OrderViewPagerAdapter;
+import com.rena21c.voiceorder.view.adapters.OrderViewPagerAdapter;
 import com.rena21c.voiceorder.view.widgets.ViewPagerIndicator;
 
 
@@ -21,7 +20,6 @@ public class OrderViewPagerLayout extends RelativeLayout {
     private ViewPager viewPager;
     private ViewPagerIndicator viewPagerIndicator;
     private View view;
-    private ViewPagerItemManager viewPagerItemManager;
 
     private OrderViewPagerLayout(Context context, ViewGroup rootView) {
         super(context);
@@ -33,14 +31,13 @@ public class OrderViewPagerLayout extends RelativeLayout {
         LayoutInflater layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         view = layoutInflater.inflate(R.layout.layout_component_order_view_pager, rootView, false);
 
-        viewPagerItemManager = new ViewPagerItemManager(context);
-
         viewPagerIndicator = (ViewPagerIndicator)view.findViewById(R.id.viewPagerIndicator);
-        viewPagerIndicator.createDot(viewPagerItemManager.getItems().size());
+        viewPager = (ViewPager)view.findViewById(R.id.viewPager);
+        orderViewPagerAdapter = new OrderViewPagerAdapter(context);
+
+        viewPagerIndicator.createDot(orderViewPagerAdapter.getOrders().size());
         viewPagerIndicator.selectDot(0);
 
-        viewPager = (ViewPager)view.findViewById(R.id.viewPager);
-        orderViewPagerAdapter = new OrderViewPagerAdapter(viewPagerItemManager);
         viewPager.setAdapter(orderViewPagerAdapter);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override

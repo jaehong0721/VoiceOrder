@@ -4,6 +4,8 @@ import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
+import android.view.View;
+import android.widget.ImageView;
 
 import com.rena21c.voiceorder.R;
 
@@ -19,6 +21,8 @@ public class ActionBarViewModel {
     }
 
     private ActionBar actionBar;
+    private ImageView ibMenu;
+    private ImageView ibBack;
 
     private ActionBarViewModel(Context context, ActionBar actionBar) {
         this.actionBar = actionBar;
@@ -31,5 +35,15 @@ public class ActionBarViewModel {
         actionBar.setCustomView(R.layout.action_bar);
         actionBar.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(context,android.R.color.transparent)));
         actionBar.setElevation(0);
+
+        View view = actionBar.getCustomView();
+        ibMenu = (ImageView)view.findViewById(R.id.ibMenu);
+        ibBack = (ImageView)view.findViewById(R.id.ibBack);
+    }
+
+    public void setBackButtonClickListener(View.OnClickListener backButtonClickListener) {
+        ibMenu.setVisibility(View.GONE);
+        ibBack.setVisibility(View.VISIBLE);
+        ibBack.setOnClickListener(backButtonClickListener);
     }
 }
