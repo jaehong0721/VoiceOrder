@@ -54,11 +54,13 @@ public class SplashActivity extends BaseActivity {
 
     private void signInProcess() {
         if (isSignedIn()) {
+            Log.e("Splash", "isSignIn");
             goToMain();
         } else {
             requestToken(new Callback<UserToken>() {
                 @Override
                 public void onResponse(Call<UserToken> call, Response<UserToken> response) {
+                    Log.e("Splash", "not signIn");
                     signIn(response.body().firebaseCustomAuthToken);
                 }
 
@@ -76,7 +78,10 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void requestToken(final Callback<UserToken> userTokenCallback) {
-        final String phoneNumber = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number();
+        String phoneNumber = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number();
+        if(phoneNumber.substring(0,3).equals("+82")) {
+            phoneNumber = phoneNumber.replace("+82", "0");
+        }
         Retrofit retrofit = RetrofitSingleton.getInstance();
         ApiService apiService = retrofit.create(ApiService.class);
         Call<UserToken> tokenRequest = apiService.getToken(phoneNumber);

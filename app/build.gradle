@@ -51,4 +51,8 @@ dependencies {
     compile 'com.squareup.retrofit2:converter-gson:2.2.0'
     testCompile 'junit:junit:4.12'
 
+    //aws s3
+    compile 'com.amazonaws:aws-android-sdk-core:2.3.9'
+    compile 'com.amazonaws:aws-android-sdk-s3:2.3.9'
+    compile 'com.amazonaws:aws-android-sdk-cognito:2.3.9'
 }
