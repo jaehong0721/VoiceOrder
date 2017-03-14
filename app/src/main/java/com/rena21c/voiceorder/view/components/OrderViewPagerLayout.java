@@ -17,7 +17,7 @@ public class OrderViewPagerLayout extends RelativeLayout {
     private static OrderViewPagerLayout INSTANCE;
 
     private OrderViewPagerAdapter orderViewPagerAdapter;
-    private ViewPager viewPager;
+    private ViewPager orderViewPager;
     private ViewPagerIndicator viewPagerIndicator;
     private View view;
 
@@ -32,14 +32,14 @@ public class OrderViewPagerLayout extends RelativeLayout {
         view = layoutInflater.inflate(R.layout.layout_component_order_view_pager, rootView, false);
 
         viewPagerIndicator = (ViewPagerIndicator)view.findViewById(R.id.viewPagerIndicator);
-        viewPager = (ViewPager)view.findViewById(R.id.viewPager);
+        orderViewPager = (ViewPager)view.findViewById(R.id.viewPager);
         orderViewPagerAdapter = new OrderViewPagerAdapter(context);
 
         viewPagerIndicator.createDot(orderViewPagerAdapter.getOrders().size());
         viewPagerIndicator.selectDot(0);
 
-        viewPager.setAdapter(orderViewPagerAdapter);
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        orderViewPager.setAdapter(orderViewPagerAdapter);
+        orderViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
             @Override
@@ -63,5 +63,11 @@ public class OrderViewPagerLayout extends RelativeLayout {
 
     public View getView() {
         return view;
+    }
+
+    public void addOrder(long time) {
+        orderViewPagerAdapter.add(time);
+        viewPagerIndicator.addDot();
+        orderViewPager.setCurrentItem(0);
     }
 }

@@ -54,13 +54,11 @@ public class SplashActivity extends BaseActivity {
 
     private void signInProcess() {
         if (isSignedIn()) {
-            Log.e("Splash", "isSignIn");
             goToMain();
         } else {
             requestToken(new Callback<UserToken>() {
                 @Override
                 public void onResponse(Call<UserToken> call, Response<UserToken> response) {
-                    Log.e("Splash", "not signIn");
                     signIn(response.body().firebaseCustomAuthToken);
                 }
 

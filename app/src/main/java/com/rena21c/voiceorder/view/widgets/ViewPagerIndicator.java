@@ -3,7 +3,7 @@ package com.rena21c.voiceorder.view.widgets;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.util.TypedValue;
-import android.widget.ImageView;
+import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.rena21c.voiceorder.R;
@@ -13,7 +13,7 @@ import java.util.ArrayList;
 public class ViewPagerIndicator extends RelativeLayout {
 
     private Context context;
-    private ArrayList<ImageView> dots;
+    private ArrayList<View> dots;
 
     private final int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics());
     private final int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics());
@@ -28,7 +28,7 @@ public class ViewPagerIndicator extends RelativeLayout {
 
         for (int i = dots.size(); i < count; i++) {
 
-            ImageView dot = new ImageView(context);
+            View dot = new View(context);
 
             RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(width, height);
             if (dots.size() == 0) {
@@ -46,24 +46,8 @@ public class ViewPagerIndicator extends RelativeLayout {
         }
     }
 
-    public void removeDot(int count) {
-        while (dots.size() == count) {
-            dots.remove(dots.size() - 1);
-            this.removeViewAt(dots.size() - 1);
-        }
-    }
-
-    public void changeDotCount(int changeCount) {
-        if (dots.size() > changeCount) {
-            removeDot(changeCount);
-
-        } else if (dots.size() < changeCount) {
-            createDot(changeCount);
-        }
-    }
-
     public void selectDot(int position) {
-        for(ImageView dot : dots) {
+        for(View dot : dots) {
             if(dots.get(position) == dot) {
                 dot.setBackgroundResource(R.drawable.selected_indicator_shape);
             }
@@ -71,6 +55,10 @@ public class ViewPagerIndicator extends RelativeLayout {
                 dot.setBackgroundResource(R.drawable.unselected_indicator_shape);
             }
         }
+    }
+
+    public void addDot() {
+        createDot(dots.size()+1);
     }
 
 }

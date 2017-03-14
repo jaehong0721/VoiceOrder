@@ -7,8 +7,12 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.telephony.TelephonyManager;
 
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.etc.PreferenceManager;
 import com.rena21c.voiceorder.network.FileTransferUtil;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
 import com.rena21c.voiceorder.view.components.OrderViewPagerLayout;
@@ -20,16 +24,20 @@ import com.rena21c.voiceorder.view.widgets.RecordAndStopButton;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 
-public class MainActivity extends BaseActivity implements RecordAndStopButton.activateRecorderListener{
+public class MainActivity extends BaseActivity implements RecordAndStopButton.activateRecorderListener {
 
     private ReplaceableLayout replaceableLayout;
     private RecordAndStopButton recordAndStopButton;
 
     private MediaRecorder recorder;
-    private boolean isRecord;
     private String fileName;
+    private long time;
+
+    private RecordingLayout recordingLayout;
+    private OrderViewPagerLayout orderViewPagerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,11 +46,10 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
         initView();
 
-        if(checkFirstRun()) {
+        if (checkFirstRun()) {
             recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_GUIDE_LAYOUT);
             replaceableLayout.replaceChildView(RecordGuideLayout.getInstance(this, replaceableLayout).getView());
-        }
-        else {
+        } else {
             recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_ORDER_LIST_LAYOUT);
             replaceableLayout.replaceChildView(OrderViewPagerLayout.getInstance(this, replaceableLayout).getView());
         }
@@ -51,11 +58,10 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
     private boolean checkFirstRun() {
         SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
         boolean isFirst = sharedPreferences.getBoolean("isFirst", true);
-        if(isFirst) {
+        if (isFirst) {
             sharedPreferences.edit().putBoolean("isFirst", false).commit();
             return true;
-        }
-        else {
+        } else {
             return false;
         }
     }
@@ -63,8 +69,11 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
     private void initView() {
         ActionBarViewModel.createWithActionBar(getApplicationContext(), getSupportActionBar());
 
-        replaceableLayout = (ReplaceableLayout)findViewById(R.id.replaceableLayout);
-        recordAndStopButton = (RecordAndStopButton)findViewById(R.id.btnRecordAndStop);
+        replaceableLayout = (ReplaceableLayout) findViewById(R.id.replaceableLayout);
+        recordingLayout = RecordingLayout.getInstance(this, replaceableLayout);
+        orderViewPagerLayout = OrderViewPagerLayout.getInstance(this, replaceableLayout);
+
+        recordAndStopButton = (RecordAndStopButton) findViewById(R.id.btnRecordAndStop);
         recordAndStopButton.setListener(this);
     }
 
@@ -73,22 +82,37 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        recorder.setAudioSamplingRate(44100);
+        recorder.setAudioEncodingBitRate(128000);
         recorder.setOutputFile(Environment.getExternalStorageDirectory().getPath() + "/" + fileName);
     }
 
-    private String setFileName() {
+    private String getFileName() {
         String phoneNumber = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number();
-        if(phoneNumber.substring(0,3).equals("+82")) {
+        if (phoneNumber.substring(0, 3).equals("+82")) {
             phoneNumber = phoneNumber.replace("+82", "0");
         }
-        long time = System.currentTimeMillis();
         SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
         String date = dayTime.format(new Date(time));
         fileName = phoneNumber + "_" + date + ".mp4";
         return fileName;
     }
-    private void startRecord() {
 
+    private void saveOrderTime(){
+        //주문시간을 저장(오퍼레이터가 주문을 접수하면 삭제해줘야함)
+        ArrayList<String> timeList = PreferenceManager.retriveTimeList(this);
+        if(timeList == null) {
+            timeList = new ArrayList<>();
+            timeList.add(0, time + "");
+            PreferenceManager.storeTimeList(this, timeList);
+        }
+        else {
+            timeList.add(0,time + "");
+            PreferenceManager.storeTimeList(this, timeList);
+        }
+    }
+
+    private void startRecord() {
         try {
             recorder.prepare();
             recorder.start();
@@ -100,45 +124,55 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
     }
 
     private void stopRecord() {
-        if(recorder != null) {
+        if (recorder != null) {
             recorder.stop();
-            recorder.reset();
             recorder.release();
             recorder = null;
         }
     }
 
     @Override
-    protected void onPause() {
-        if(isRecord) {
-
-        }
-        super.onPause();
-    }
-
-    @Override
     public void record() {
-        String fileName = setFileName();
+
+        time = System.currentTimeMillis();
+
+        String fileName = getFileName();
         initRecorder(fileName);
         startRecord();
-        isRecord = true;
-        replaceableLayout.replaceChildView(RecordingLayout.getInstance(this, replaceableLayout).getView());
+
+        replaceableLayout.replaceChildView(recordingLayout.getView());
     }
 
     @Override
     public void stop() {
+
         stopRecord();
-        upload();
-        isRecord = false;
-        replaceableLayout.replaceChildView(OrderViewPagerLayout.getInstance(this, replaceableLayout).getView());
+
+        upload(new TransferListener() {
+            @Override
+            public void onStateChanged(int id, TransferState state) {
+                if (state == TransferState.COMPLETED) {
+                    saveOrderTime();
+                    orderViewPagerLayout.addOrder(time);
+                    replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
+                }
+            }
+
+            @Override
+            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {}
+
+            @Override
+            public void onError(int id, Exception ex) {}
+        });
     }
 
-    private void upload() {
+    private void upload(TransferListener transferListener) {
         final String BUCKET_NAME = "tgmorders";
         File file = new File(Environment.getExternalStorageDirectory().getPath() + "/" + fileName);
-        if(file.isFile()) {
+        if (file.isFile()) {
             TransferUtility transferUtility = FileTransferUtil.getTransferUtility(this);
-            transferUtility.upload(BUCKET_NAME, file.getName(), file);
+            TransferObserver transferObserver = transferUtility.upload(BUCKET_NAME, file.getName(), file);
+            transferObserver.setTransferListener(transferListener);
         }
     }
 }
