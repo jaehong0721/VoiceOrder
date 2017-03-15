@@ -69,13 +69,14 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
     private void init() {
         ivRecord = (ImageView)findViewById(R.id.ivRecord);
-        ivRecord.setOnClickListener(this);
+        ivStop = (ImageView)findViewById(R.id.ivStop);
       
         ivBackground = (ImageView)findViewById(R.id.ivBackground);
+        ivBackground.setOnClickListener(this);
         ivAnimation = (ImageView)findViewById(R.id.ivAnimation);
         buttonLayout = (RelativeLayout) findViewById(R.id.buttonLayout);
-        ivStop = (ImageView)findViewById(R.id.ivStop);
-        ivStop.setOnClickListener(this);
+
+
     }
 
     public void setInitHeight(int height) {
