@@ -137,10 +137,25 @@ public class OrderViewPagerAdapter extends PagerAdapter {
     }
 
     public void add(long time) {
+        saveOrderTime(time);
         SimpleDateFormat dayTime = new SimpleDateFormat("MM.dd  HH:mm");
         String timeStamp = dayTime.format(new Date(time));
         orders.add(0, new Order(timeStamp, null));
         notifyDataSetChanged();
+    }
+
+    private void saveOrderTime(long time){
+        //주문시간을 저장(오퍼레이터가 주문을 접수하면 삭제해줘야함)
+        ArrayList<String> timeList = PreferenceManager.retriveTimeList(context);
+        if(timeList == null) {
+            timeList = new ArrayList<>();
+            timeList.add(0, time + "");
+            PreferenceManager.storeTimeList(context, timeList);
+        }
+        else {
+            timeList.add(0,time + "");
+            PreferenceManager.storeTimeList(context, timeList);
+        }
     }
 
     //This way, when you call notifyDataSetChanged(), the view pager will remove all views and reload them all. As so the reload effect is obtained.

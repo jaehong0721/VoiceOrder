@@ -12,7 +12,6 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.rena21c.voiceorder.R;
-import com.rena21c.voiceorder.etc.PreferenceManager;
 import com.rena21c.voiceorder.network.FileTransferUtil;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
 import com.rena21c.voiceorder.view.components.OrderViewPagerLayout;
@@ -24,7 +23,6 @@ import com.rena21c.voiceorder.view.widgets.RecordAndStopButton;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 
 public class MainActivity extends BaseActivity implements RecordAndStopButton.activateRecorderListener {
@@ -98,20 +96,6 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         return fileName;
     }
 
-    private void saveOrderTime(){
-        //주문시간을 저장(오퍼레이터가 주문을 접수하면 삭제해줘야함)
-        ArrayList<String> timeList = PreferenceManager.retriveTimeList(this);
-        if(timeList == null) {
-            timeList = new ArrayList<>();
-            timeList.add(0, time + "");
-            PreferenceManager.storeTimeList(this, timeList);
-        }
-        else {
-            timeList.add(0,time + "");
-            PreferenceManager.storeTimeList(this, timeList);
-        }
-    }
-
     private void startRecord() {
         try {
             recorder.prepare();
@@ -152,7 +136,6 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
             @Override
             public void onStateChanged(int id, TransferState state) {
                 if (state == TransferState.COMPLETED) {
-                    saveOrderTime();
                     orderViewPagerLayout.addOrder(time);
                     replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
                 }
