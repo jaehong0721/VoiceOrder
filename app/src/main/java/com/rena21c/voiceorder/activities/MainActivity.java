@@ -1,10 +1,11 @@
 package com.rena21c.voiceorder.activities;
 
 import android.content.Context;
-import android.content.SharedPreferences;
+import android.graphics.drawable.ColorDrawable;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
@@ -12,6 +13,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.etc.PreferenceManager;
 import com.rena21c.voiceorder.network.FileTransferUtil;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
 import com.rena21c.voiceorder.view.components.OrderViewPagerLayout;
@@ -43,25 +45,6 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         setContentView(R.layout.activity_main);
 
         initView();
-
-        if (checkFirstRun()) {
-            recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_GUIDE_LAYOUT);
-            replaceableLayout.replaceChildView(RecordGuideLayout.getInstance(this, replaceableLayout).getView());
-        } else {
-            recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_ORDER_LIST_LAYOUT);
-            replaceableLayout.replaceChildView(OrderViewPagerLayout.getInstance(this, replaceableLayout).getView());
-        }
-    }
-
-    private boolean checkFirstRun() {
-        SharedPreferences sharedPreferences = getPreferences(MODE_PRIVATE);
-        boolean isFirst = sharedPreferences.getBoolean("isFirst", true);
-        if (isFirst) {
-            sharedPreferences.edit().putBoolean("isFirst", false).commit();
-            return true;
-        } else {
-            return false;
-        }
     }
 
     private void initView() {
@@ -73,6 +56,15 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
         recordAndStopButton = (RecordAndStopButton) findViewById(R.id.btnRecordAndStop);
         recordAndStopButton.setListener(this);
+
+        if (PreferenceManager.getUserFirstVisit(this)) {
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.primaryYellow)));
+            recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_GUIDE_LAYOUT);
+            replaceableLayout.replaceChildView(RecordGuideLayout.getInstance(this, replaceableLayout).getView());
+        } else {
+            recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_ORDER_LIST_LAYOUT);
+            replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
+        }
     }
 
     private void initRecorder(String fileName) {
@@ -124,6 +116,10 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         initRecorder(fileName);
         startRecord();
 
+        if(PreferenceManager.getUserFirstVisit(this)) {
+            PreferenceManager.setUserFirstVisit(this);
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.transparent)));
+        }
         replaceableLayout.replaceChildView(recordingLayout.getView());
     }
 

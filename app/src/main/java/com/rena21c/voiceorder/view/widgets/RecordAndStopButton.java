@@ -20,7 +20,7 @@ import com.rena21c.voiceorder.R;
 
 public class RecordAndStopButton extends FrameLayout implements View.OnClickListener{
 
-    public final int HEIGHT_WITH_GUIDE_LAYOUT = 193;
+    public final int HEIGHT_WITH_GUIDE_LAYOUT = 222;
     public final int HEIGHT_WITH_ORDER_LIST_LAYOUT = 167;
     private final int HEIGHT_WITH_RECORDING_LAYOUT = 313;
 
