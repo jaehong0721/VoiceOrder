@@ -3,12 +3,15 @@ package com.rena21c.voiceorder.view.widgets;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationSet;
+import android.view.animation.BounceInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
+import android.view.animation.Transformation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -17,6 +20,9 @@ import com.rena21c.voiceorder.R;
 
 public class RecordAndStopButton extends FrameLayout implements View.OnClickListener{
 
+    public final int HEIGHT_WITH_GUIDE_LAYOUT = 193;
+    public final int HEIGHT_WITH_ORDER_LIST_LAYOUT = 167;
+    private final int HEIGHT_WITH_RECORDING_LAYOUT = 313;
 
     private final float BACKGROUND_SCALE_RECORD_X = 1.0F;
     private final float BACKGROUND_SCALE_RECORD_Y = 1.0F;
@@ -31,14 +37,14 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
     private final float PULSE_SCALE_STOP_X = 1.4F;
     private final float PULSE_SCALE_STOP_Y = 1.4F;
 
-    private final int PULSE_CYCLE = 1000;
+    private final int PULSE_CYCLE = 700;
 
     private boolean isRecord = false;
 
     private RelativeLayout buttonLayout;
     private ImageView ivAnimation;
     private ImageView ivBackground;
-    private ImageView ivPlay;
+    private ImageView ivRecord;
     private ImageView ivStop;
 
     private activateRecorderListener listener;
@@ -62,21 +68,29 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
 
     private void init() {
-        ivPlay = (ImageView)findViewById(R.id.ivPlay);
-        ivPlay.setOnClickListener(this);
+        ivRecord = (ImageView)findViewById(R.id.ivRecord);
+        ivStop = (ImageView)findViewById(R.id.ivStop);
       
         ivBackground = (ImageView)findViewById(R.id.ivBackground);
+        ivBackground.setOnClickListener(this);
         ivAnimation = (ImageView)findViewById(R.id.ivAnimation);
         buttonLayout = (RelativeLayout) findViewById(R.id.buttonLayout);
-        ivStop = (ImageView)findViewById(R.id.ivStop);
-        ivStop.setOnClickListener(this);
+
+
     }
 
-    public void startPulseAnimationRecordBtn() {
+    public void setInitHeight(int height) {
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)buttonLayout.getLayoutParams();
+        params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, getResources().getDisplayMetrics());
+        buttonLayout.setLayoutParams(params);
+    }
+
+    private void startPulseAnimationRecordBtn() {
         ivAnimation.clearAnimation();
 
         AnimationSet set = new AnimationSet(true);
         set.setDuration(PULSE_CYCLE);
+        set.setStartOffset(400);
         set.setInterpolator(new LinearInterpolator());
 
         AlphaAnimation alphaAnimation = new AlphaAnimation(FROM_ALPHA, TO_ALPHA);
@@ -94,11 +108,12 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
     }
 
-    public void startPulseAnimationStopBtn() {
+    private void startPulseAnimationStopBtn() {
         ivAnimation.clearAnimation();
 
         AnimationSet set = new AnimationSet(true);
         set.setDuration(PULSE_CYCLE);
+        set.setStartOffset(500);
         set.setInterpolator(new LinearInterpolator());
 
         AlphaAnimation alphaAnimation = new AlphaAnimation(0.5F, 0);
@@ -121,31 +136,71 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
         if(isRecord) {
             isRecord = false;
-            //listener.btn_stop();
             setRecordButton();
+            listener.stop();
 
         }
         else {
             isRecord = true;
-            //listener.record();
             setStopButton();
+            listener.record();
         }
     }
 
-    public void setRecordButton() {
-        ivBackground.animate().scaleX(BACKGROUND_SCALE_RECORD_X).scaleY(BACKGROUND_SCALE_RECORD_Y).start();
-        buttonLayout.animate().translationYBy(100).setDuration(100).start();
+    private void setRecordButton() {
+        Animation shortHeightAni = new showHeightChangeAnimation(buttonLayout, HEIGHT_WITH_ORDER_LIST_LAYOUT);
+        shortHeightAni.setDuration(200);
+        buttonLayout.startAnimation(shortHeightAni);
+
+        ivBackground.animate().setInterpolator(new BounceInterpolator()).scaleX(BACKGROUND_SCALE_RECORD_X).scaleY(BACKGROUND_SCALE_RECORD_Y).start();
+
         startPulseAnimationRecordBtn();
-        ivPlay.setVisibility(View.VISIBLE);
+
+        ivRecord.setVisibility(View.VISIBLE);
         ivStop.setVisibility(View.INVISIBLE);
     }
 
-    public void setStopButton() {
-        ivBackground.animate().scaleX(BACKGROUND_SCALE_STOP_X).scaleY(BACKGROUND_SCALE_STOP_Y).start();
-        buttonLayout.animate().translationYBy(-100).setDuration(100).start();
+    private void setStopButton() {
+        Animation longHeightAni = new showHeightChangeAnimation(buttonLayout, HEIGHT_WITH_RECORDING_LAYOUT);
+        longHeightAni.setDuration(200);
+        buttonLayout.startAnimation(longHeightAni);
+
+        ivBackground.animate().setInterpolator(new BounceInterpolator()).scaleX(BACKGROUND_SCALE_STOP_X).scaleY(BACKGROUND_SCALE_STOP_Y).start();
+
         startPulseAnimationStopBtn();
-        ivPlay.setVisibility(View.INVISIBLE);
+
+        ivRecord.setVisibility(View.INVISIBLE);
         ivStop.setVisibility(View.VISIBLE);
     }
 
+    public class showHeightChangeAnimation extends Animation {
+        int startHeight;
+        int targetHeight;
+        View view;
+
+        public showHeightChangeAnimation(View view, int targetHeight) {
+            this.view = view;
+            this.startHeight = view.getHeight();
+            this.targetHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, targetHeight, getResources().getDisplayMetrics());
+        }
+
+        @Override
+        protected void applyTransformation(float interpolatedTime, Transformation t) {
+
+            int newHeight = (int) (startHeight+(targetHeight - startHeight) * interpolatedTime);
+            view.getLayoutParams().height = newHeight;
+            view.requestLayout();
+        }
+
+        @Override
+        public void initialize(int width, int height, int parentWidth,
+                               int parentHeight) {
+            super.initialize(width, height, parentWidth, parentHeight);
+        }
+
+        @Override
+        public boolean willChangeBounds() {
+            return true;
+        }
+    }
 }

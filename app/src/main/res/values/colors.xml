@@ -4,4 +4,9 @@
     <color name="primaryBrown">#390405</color>
 
     <color name="textGuideInstruction">#643A3B</color>
+
+    <color name="selectedIndicator">#390405</color>
+    <color name="unselectedIndicator">#52390405</color>
+
+    <color name="dividerLine">#14000000</color>
 </resources>

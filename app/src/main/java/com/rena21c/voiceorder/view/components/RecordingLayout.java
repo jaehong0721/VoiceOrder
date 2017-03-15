@@ -8,25 +8,24 @@ import android.widget.RelativeLayout;
 
 import com.rena21c.voiceorder.R;
 
+public class RecordingLayout extends RelativeLayout {
 
-public class RecordGuideLayout extends RelativeLayout {
+    private static RecordingLayout INSTANCE;
+    private View view;
 
-    private static RecordGuideLayout INSTANCE;
-    private static View view;
-
-    public RecordGuideLayout(Context context, ViewGroup rootView) {
+    private RecordingLayout(Context context, ViewGroup rootView) {
         super(context);
-        init(context,rootView);
+        init(context, rootView);
     }
 
     private void init(Context context, ViewGroup rootView) {
         LayoutInflater layoutInflater = (LayoutInflater)context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        view = layoutInflater.inflate(R.layout.layout_component_record_guide, rootView, false);
+        view = layoutInflater.inflate(R.layout.layout_component_recording, rootView, false);
     }
 
-    public static RecordGuideLayout getInstance(Context context, ViewGroup rootView) {
+    public static RecordingLayout getInstance(Context context, ViewGroup rootView) {
         if(INSTANCE == null) {
-            INSTANCE = new RecordGuideLayout(context, rootView);
+            INSTANCE = new RecordingLayout(context, rootView);
             return INSTANCE;
         }
         else {
