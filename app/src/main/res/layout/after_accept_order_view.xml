@@ -24,6 +24,8 @@
             android:layout_height="80dp"
             android:layout_below="@+id/tvTimeStamp"
             android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:text="양파 3단, 고구마 한 포대,감자 두 포대, 된장 6박스 "
             android:textSize="30sp" />
 
@@ -33,12 +35,14 @@
             android:layout_height="21dp"
             android:layout_below="@+id/tvItemList"
             android:layout_marginTop="10dp"
+            android:ellipsize="end"
+            android:maxLines="1"
             android:text="송군식품, 미리네, 유현통상, 금자 야채가게"
             android:textSize="14sp" />
 
         <TextView
             android:id="@+id/tvDetail"
-            android:layout_width="89dp"
+            android:layout_width="wrap_content"
             android:layout_height="21dp"
             android:layout_below="@+id/tvVendorList"
             android:layout_marginTop="30dp"
