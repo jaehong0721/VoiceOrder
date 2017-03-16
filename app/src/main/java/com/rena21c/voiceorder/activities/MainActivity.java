@@ -74,7 +74,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         recorder.setAudioSamplingRate(44100);
         recorder.setAudioEncodingBitRate(128000);
-        recorder.setOutputFile(Environment.getExternalStorageDirectory().getPath() + "/" + fileName);
+        recorder.setOutputFile(getFilesDir().getPath() + "/" + fileName);
     }
 
     private String getFileName() {
@@ -147,7 +147,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
     private void upload(TransferListener transferListener) {
         final String BUCKET_NAME = "tgmorders";
-        File file = new File(Environment.getExternalStorageDirectory().getPath() + "/" + fileName);
+        File file = new File(getFilesDir().getPath() + "/" + fileName);
         if (file.isFile()) {
             TransferUtility transferUtility = FileTransferUtil.getTransferUtility(this);
             TransferObserver transferObserver = transferUtility.upload(BUCKET_NAME, file.getName(), file);
