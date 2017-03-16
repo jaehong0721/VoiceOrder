@@ -36,9 +36,7 @@ public class SplashActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-
         PackageManager pmanager = this.getPackageManager();
-        boolean mic = pmanager.hasSystemFeature(PackageManager.FEATURE_MICROPHONE);
 
         permissionManager = new PermissionManager(
                 this,
