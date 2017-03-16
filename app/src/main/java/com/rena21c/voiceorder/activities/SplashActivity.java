@@ -3,6 +3,7 @@ package com.rena21c.voiceorder.activities;
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.telephony.TelephonyManager;
@@ -34,6 +35,9 @@ public class SplashActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        PackageManager pmanager = this.getPackageManager();
+
         permissionManager = new PermissionManager(
                 this,
                 new String[]{Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECORD_AUDIO},
@@ -77,7 +81,7 @@ public class SplashActivity extends BaseActivity {
 
     private void requestToken(final Callback<UserToken> userTokenCallback) {
         String phoneNumber = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number();
-        if(phoneNumber.substring(0,3).equals("+82")) {
+        if (phoneNumber.substring(0, 3).equals("+82")) {
             phoneNumber = phoneNumber.replace("+82", "0");
         }
         Retrofit retrofit = RetrofitSingleton.getInstance();
