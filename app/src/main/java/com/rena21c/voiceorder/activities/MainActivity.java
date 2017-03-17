@@ -118,7 +118,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
         if(PreferenceManager.getUserFirstVisit(this)) {
             PreferenceManager.setUserFirstVisit(this);
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.transparent)));
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.white)));
         }
         replaceableLayout.replaceChildView(recordingLayout.getView());
     }

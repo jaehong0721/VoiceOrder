@@ -1,25 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-
-    <ImageView
-        android:id="@+id/ivWave1"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:scaleType="fitXY"
-        android:src="@drawable/wave"
-        android:background="@color/primaryYellow"/>
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="38dp"
         android:gravity="center"
         android:text="@string/record_instruction"
         android:textColor="@color/primaryBrown"
-        android:textSize="18sp"
-        android:layout_marginTop="38dp"/>
+        android:textSize="18sp"/>
+
+    <com.rena21c.voiceorder.view.widgets.WaveImageView
+        android:id="@+id/ivWave1"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/textView"
+        android:background="@color/primaryYellow"/>
 
 </RelativeLayout>
