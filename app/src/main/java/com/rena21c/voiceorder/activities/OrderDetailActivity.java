@@ -9,11 +9,11 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.rena21c.voiceorder.R;
-import com.rena21c.voiceorder.model.Item;
+import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
 import com.rena21c.voiceorder.view.adapters.OrderDetailRecyclerAdapter;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class OrderDetailActivity extends AppCompatActivity {
 
@@ -25,10 +25,10 @@ public class OrderDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_detail);
 
-        ArrayList<Item> items = (ArrayList<Item>) getIntent().getSerializableExtra("items");
-        String timestamp = getIntent().getStringExtra("time");
+        String timeStamp = getIntent().getStringExtra("timeStamp");
+        HashMap<String, VoiceRecord> itemHashMap = (HashMap<String, VoiceRecord>) getIntent().getSerializableExtra("itemHashMap");
 
-        ActionBarViewModel.createWithActionBar(this, getSupportActionBar())
+                ActionBarViewModel.createWithActionBar(this, getSupportActionBar())
                 .setBackButtonClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -37,10 +37,10 @@ public class OrderDetailActivity extends AppCompatActivity {
                 });
 
         tvTimeStamp = (TextView)findViewById(R.id.tvTimeStamp);
-        tvTimeStamp.setText(timestamp);
+        tvTimeStamp.setText(timeStamp);
 
         recyclerView = (RecyclerView)findViewById(R.id.recyclerView);
-        OrderDetailRecyclerAdapter orderDetailRecyclerAdapter = new OrderDetailRecyclerAdapter(items);
+        OrderDetailRecyclerAdapter orderDetailRecyclerAdapter = new OrderDetailRecyclerAdapter(itemHashMap);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(orderDetailRecyclerAdapter);
     }

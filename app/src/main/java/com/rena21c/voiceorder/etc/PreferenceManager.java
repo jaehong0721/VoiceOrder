@@ -2,8 +2,8 @@ package com.rena21c.voiceorder.etc;
 
 import android.content.Context;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -51,28 +51,23 @@ public class PreferenceManager {
                 .getString("phoneNumber", null);
     }
 
-    public static void storeTimeList(Context context, ArrayList<String> timeList) {
-
-        Set<String> set = new HashSet<String>();
-        set.addAll(timeList);
+    public static void setFileName(Context context, String fileName) {
+        HashSet<String> fileNameList = (HashSet)getFileNameList(context);
+        fileNameList.add(fileName);
+        getDefaultSharedPreferences(context)
+                .edit()
+                .remove("fileNameList")
+                .apply();
 
         getDefaultSharedPreferences(context)
                 .edit()
-                .putStringSet("timeList", set)
+                .putStringSet("fileNameList", fileNameList)
                 .apply();
+        Log.e("Preference", fileNameList.size() + "");
     }
 
-    public static ArrayList<String> retriveTimeList(Context context) {
-
-        Set<String> set =  getDefaultSharedPreferences(context).getStringSet("timeList", null);
-
-        if(set == null) {
-            return null;
-        }
-        else {
-            ArrayList<String> timeList = new ArrayList<>();
-            timeList.addAll(set);
-            return timeList;
-        }
+    public static Set<String> getFileNameList(Context context) {
+        return getDefaultSharedPreferences(context)
+                .getStringSet("fileNameList", new HashSet<String>());
     }
 }

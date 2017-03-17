@@ -65,8 +65,8 @@ public class OrderViewPagerLayout extends RelativeLayout {
         return view;
     }
 
-    public void addOrder(long time) {
-        orderViewPagerAdapter.add(time);
+    public void addOrder(String fileName) {
+        orderViewPagerAdapter.add(fileName);
         viewPagerIndicator.addDot();
         orderViewPager.setCurrentItem(0);
     }

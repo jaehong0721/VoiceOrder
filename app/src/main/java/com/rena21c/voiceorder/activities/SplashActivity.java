@@ -16,13 +16,25 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
+import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.PermissionManager;
 import com.rena21c.voiceorder.etc.PermissionManager.PermissionsPermittedListener;
 import com.rena21c.voiceorder.etc.PreferenceManager;
+import com.rena21c.voiceorder.model.Order;
+import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.network.ApiService;
 import com.rena21c.voiceorder.network.RetrofitSingleton;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -130,10 +142,64 @@ public class SplashActivity extends BaseActivity {
                 });
     }
 
+    interface DataLoadFinishedListener {
+        void onFinish();
+    }
+
     private void goToMain() {
-        startActivity(new Intent(SplashActivity.this, MainActivity.class));
-        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-        finish();
+        dataLoad(new DataLoadFinishedListener() {
+            @Override
+            public void onFinish() {
+                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                finish();
+            }
+        });
+    }
+
+    private void dataLoad(final DataLoadFinishedListener dataLoadFinishedListener) {
+
+        final List<String> fileNameList = new ArrayList(PreferenceManager.getFileNameList(getApplicationContext()));
+        Collections.sort(fileNameList, Collections.<String>reverseOrder());
+
+        if(fileNameList.size() == 0) {
+            return;
+        }
+        else {
+            String phoneNumber = PreferenceManager.getPhoneNumber(getApplicationContext());
+
+            FirebaseDatabase.getInstance()
+                    .getReference()
+                    .child("orders")
+                    .child("restaurants")
+                    .orderByKey().startAt(phoneNumber + "_00000000000000").endAt(phoneNumber + "_99999999999999")
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>(){};
+                            HashMap<String, HashMap<String, VoiceRecord>> objectMap = (HashMap)dataSnapshot.getValue(objectMapType);
+
+                            for(String fileName : fileNameList) {
+                               String timeStamp = ((App)getApplication()).makeTimeFromFileName(fileName);
+                                if(objectMap.keySet().contains(fileName)) {
+                                    //vendor name으로 바꿔서 저장
+                                    //map.put( "newKey", map.remove( "oldKey" ) );
+                                    App.orders.add(new Order(timeStamp, objectMap.get(fileName)));
+                                }
+                                else {
+                                    App.orders.add(new Order(timeStamp, null));
+                                }
+                            }
+
+                            dataLoadFinishedListener.onFinish();
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Toast.makeText(getApplicationContext(),databaseError.toString(),Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
     }
 
     public class UserToken {
