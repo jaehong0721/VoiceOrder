@@ -33,7 +33,7 @@ public class ActionBarViewModel {
     private void setup() {
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         actionBar.setCustomView(R.layout.action_bar);
-        actionBar.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(context,android.R.color.transparent)));
+        actionBar.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(context,android.R.color.white)));
         actionBar.setElevation(0);
 
         View view = actionBar.getCustomView();
