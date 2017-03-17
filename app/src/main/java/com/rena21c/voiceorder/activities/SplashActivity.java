@@ -163,7 +163,7 @@ public class SplashActivity extends BaseActivity {
         Collections.sort(fileNameList, Collections.<String>reverseOrder());
 
         if(fileNameList.size() == 0) {
-            return;
+            dataLoadFinishedListener.onFinish();
         }
         else {
             String phoneNumber = PreferenceManager.getPhoneNumber(getApplicationContext());
