@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
 import android.telephony.TelephonyManager;
+import android.util.Log;
+import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
@@ -116,7 +118,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         initRecorder(fileName);
         startRecord();
 
-        if(PreferenceManager.getUserFirstVisit(this)) {
+        if (PreferenceManager.getUserFirstVisit(this)) {
             PreferenceManager.setUserFirstVisit(this);
             getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.white)));
         }
@@ -134,6 +136,9 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
                 if (state == TransferState.COMPLETED) {
                     orderViewPagerLayout.addOrder(time);
                     replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
+                } else {
+                    Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                    Log.e("", state.toString());
                 }
             }
 
@@ -141,17 +146,18 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
             public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {}
 
             @Override
-            public void onError(int id, Exception ex) {}
+            public void onError(int id, Exception ex) {
+                Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                Log.e("", ex.toString());
+            }
         });
     }
 
     private void upload(TransferListener transferListener) {
         final String BUCKET_NAME = "tgmorders";
         File file = new File(getFilesDir().getPath() + "/" + fileName);
-        if (file.isFile()) {
-            TransferUtility transferUtility = FileTransferUtil.getTransferUtility(this);
-            TransferObserver transferObserver = transferUtility.upload(BUCKET_NAME, file.getName(), file);
-            transferObserver.setTransferListener(transferListener);
-        }
+        TransferUtility transferUtility = FileTransferUtil.getTransferUtility(this);
+        TransferObserver transferObserver = transferUtility.upload(BUCKET_NAME, file.getName(), file);
+        transferObserver.setTransferListener(transferListener);
     }
 }
