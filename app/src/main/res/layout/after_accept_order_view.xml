@@ -47,7 +47,9 @@
             android:layout_below="@+id/tvVendorList"
             android:layout_marginTop="30dp"
             android:text="자세히 보기"
-            android:textSize="19sp" />
+            android:textSize="19sp"
+            android:drawableRight="@drawable/detail"
+            android:drawablePadding="7dp"/>
 
     </RelativeLayout>
 
