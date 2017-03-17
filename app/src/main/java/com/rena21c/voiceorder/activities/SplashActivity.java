@@ -11,13 +11,16 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.FirebaseDatabase;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.PermissionManager;
 import com.rena21c.voiceorder.etc.PermissionManager.PermissionsPermittedListener;
+import com.rena21c.voiceorder.etc.PreferenceManager;
 import com.rena21c.voiceorder.network.ApiService;
 import com.rena21c.voiceorder.network.RetrofitSingleton;
 
@@ -46,6 +49,7 @@ public class SplashActivity extends BaseActivity {
                 new PermissionsPermittedListener() {
                     @Override public void onAllPermissionsPermitted() {
                         Log.d("", "sign in");
+                        PreferenceManager.setPhoneNumber(getApplicationContext());
                         signInProcess();
                     }
                 });
@@ -58,6 +62,7 @@ public class SplashActivity extends BaseActivity {
 
     private void signInProcess() {
         if (isSignedIn()) {
+            storeFcmToken();
             goToMain();
         } else {
             requestToken(new Callback<UserToken>() {
@@ -91,6 +96,22 @@ public class SplashActivity extends BaseActivity {
         tokenRequest.enqueue(userTokenCallback);
     }
 
+    private void storeFcmToken() {
+        FirebaseDatabase.getInstance()
+                .getReference()
+                .child("restaurants")
+                .child(PreferenceManager.getPhoneNumber(getApplicationContext()))
+                .child("info")
+                .child("fcmId")
+                .setValue(PreferenceManager.getFcmToken(getApplicationContext()))
+                .addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
     private void signIn(String customToken) {
         FirebaseAuth
                 .getInstance()
@@ -100,6 +121,7 @@ public class SplashActivity extends BaseActivity {
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             Log.e("SplashActivity", "새로 가입함");
+                            storeFcmToken();
                             goToMain();
                         } else {
                             Toast.makeText(getApplicationContext(), "로그인 실패", Toast.LENGTH_SHORT).show();

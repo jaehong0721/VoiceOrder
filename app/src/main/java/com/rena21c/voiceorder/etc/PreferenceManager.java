@@ -1,6 +1,7 @@
 package com.rena21c.voiceorder.etc;
 
 import android.content.Context;
+import android.telephony.TelephonyManager;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,6 +21,34 @@ public class PreferenceManager {
     public static boolean getUserFirstVisit(Context context) {
         return getDefaultSharedPreferences(context)
                 .getBoolean("isFirst", true);
+    }
+
+    public static void setFcmToken(Context context, String token) {
+        getDefaultSharedPreferences(context)
+                .edit()
+                .putString("fcmToken", token)
+                .apply();
+    }
+
+    public static String getFcmToken(Context context) {
+        return getDefaultSharedPreferences(context)
+                .getString("fcmToken", null);
+    }
+
+    public static void setPhoneNumber(Context context) {
+        String phoneNumber = ((TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number();
+        if (phoneNumber.substring(0, 3).equals("+82")) {
+            phoneNumber = phoneNumber.replace("+82", "0");
+        }
+        getDefaultSharedPreferences(context)
+                .edit()
+                .putString("phoneNumber", phoneNumber)
+                .apply();
+    }
+
+    public static String getPhoneNumber(Context context) {
+        return getDefaultSharedPreferences(context)
+                .getString("phoneNumber", null);
     }
 
     public static void storeTimeList(Context context, ArrayList<String> timeList) {
