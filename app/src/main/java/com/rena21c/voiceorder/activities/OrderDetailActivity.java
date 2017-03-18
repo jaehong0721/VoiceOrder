@@ -2,7 +2,6 @@ package com.rena21c.voiceorder.activities;
 
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -15,7 +14,7 @@ import com.rena21c.voiceorder.view.adapters.OrderDetailRecyclerAdapter;
 
 import java.util.HashMap;
 
-public class OrderDetailActivity extends AppCompatActivity {
+public class OrderDetailActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private TextView tvTimeStamp;

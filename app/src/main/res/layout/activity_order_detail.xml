@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginLeft="27dp"
+    android:layout_marginRight="27dp"
     android:layout_marginTop="44dp"
     tools:context="com.rena21c.voiceorder.activities.OrderDetailActivity">
 

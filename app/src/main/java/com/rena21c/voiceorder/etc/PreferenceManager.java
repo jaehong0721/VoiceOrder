@@ -35,7 +35,7 @@ public class PreferenceManager {
                 .getString("fcmToken", null);
     }
 
-    public static void setPhoneNumber(Context context) {
+    public static String setPhoneNumber(Context context) {
         String phoneNumber = ((TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number();
         if (phoneNumber.substring(0, 3).equals("+82")) {
             phoneNumber = phoneNumber.replace("+82", "0");
@@ -44,6 +44,7 @@ public class PreferenceManager {
                 .edit()
                 .putString("phoneNumber", phoneNumber)
                 .apply();
+        return phoneNumber;
     }
 
     public static String getPhoneNumber(Context context) {
