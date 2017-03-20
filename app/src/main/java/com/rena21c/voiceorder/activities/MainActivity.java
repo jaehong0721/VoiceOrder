@@ -1,19 +1,16 @@
 package com.rena21c.voiceorder.activities;
 
-import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaRecorder;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.v4.content.ContextCompat;
-import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
-
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.PreferenceManager;
 import com.rena21c.voiceorder.network.FileTransferUtil;
@@ -76,17 +73,13 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         recorder.setAudioSamplingRate(44100);
         recorder.setAudioEncodingBitRate(128000);
-        recorder.setOutputFile(getFilesDir().getPath() + "/" + fileName);
+        recorder.setOutputFile(getFilesDir().getPath() + "/" + fileName + ".mp4");
     }
 
-    private String getFileName() {
-        String phoneNumber = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number();
-        if (phoneNumber.substring(0, 3).equals("+82")) {
-            phoneNumber = phoneNumber.replace("+82", "0");
-        }
+    private String makeFileName() {
         SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
         String date = dayTime.format(new Date(time));
-        fileName = phoneNumber + "_" + date + ".mp4";
+        fileName = PreferenceManager.getPhoneNumber(getApplicationContext()) + "_" + date;
         return fileName;
     }
 
@@ -114,7 +107,8 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
         time = System.currentTimeMillis();
 
-        String fileName = getFileName();
+        fileName = makeFileName();
+
         initRecorder(fileName);
         startRecord();
 
@@ -134,16 +128,20 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
             @Override
             public void onStateChanged(int id, TransferState state) {
                 if (state == TransferState.COMPLETED) {
-                    orderViewPagerLayout.addOrder(time);
+                    PreferenceManager.setFileName(getApplicationContext(),fileName);
+                    orderViewPagerLayout.addOrder(((App)getApplication()).makeTimeFromFileName(fileName));
                     replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
                 } else {
-                    Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-                    Log.e("", state.toString());
+                    if(state != TransferState.IN_PROGRESS) {
+                        Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                        Log.e("", state.toString());
+                    }
                 }
             }
 
             @Override
-            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {}
+            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+            }
 
             @Override
             public void onError(int id, Exception ex) {
@@ -155,7 +153,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
     private void upload(TransferListener transferListener) {
         final String BUCKET_NAME = "tgmorders";
-        File file = new File(getFilesDir().getPath() + "/" + fileName);
+        File file = new File(getFilesDir().getPath() + "/" + fileName + ".mp4");
         TransferUtility transferUtility = FileTransferUtil.getTransferUtility(this);
         TransferObserver transferObserver = transferUtility.upload(BUCKET_NAME, file.getName(), file);
         transferObserver.setTransferListener(transferListener);

@@ -1,41 +1,45 @@
 package com.rena21c.voiceorder.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
-public class Order {
+public class Order  {
 
     public String timeStamp;
-    public ArrayList<Item> items;
+    public HashMap<String, VoiceRecord> itemHashMap;
 
-    public Order(String timeStamp, ArrayList<Item> items) {
+    public Order(String timeStamp) {
         this.timeStamp = timeStamp;
-        this.items = items;
     }
 
-    public String makeItemList() {
-        StringBuffer stringBuffer = new StringBuffer();
-        for(int i = 0; i<items.size(); i++) {
-            stringBuffer.append(items.get(i).itemName)
-                    .append(" ")
-                    .append(items.get(i).count)
-                    .append(items.get(i).unit);
-            if(i != items.size()-1) {
-                stringBuffer.append(", ");
-            }
-        }
-        return stringBuffer.toString();
+    public Order(String timeStamp, HashMap<String, VoiceRecord> itemHashMap) {
+        this.timeStamp = timeStamp;
+        this.itemHashMap = itemHashMap;
     }
 
     public String makeVendorList() {
-        StringBuffer stringBuffer = new StringBuffer();
+        StringBuffer sb = new StringBuffer();
 
-        for(int i = 0; i<items.size(); i++) {
-            stringBuffer.append(items.get(i).vendorName);
-            if(i != items.size()-1) {
-                stringBuffer.append(",");
-            }
+        for (HashMap.Entry<String, VoiceRecord> entry : itemHashMap.entrySet()) {
+            sb.append(entry.getKey()).append(",");
         }
-        return stringBuffer.toString();
+        sb.deleteCharAt(sb.length() - 1);
+        return sb.toString();
     }
 
+    public String makeItemList() {
+        StringBuffer sb = new StringBuffer();
+        ArrayList<OrderItem> items = new ArrayList<>();
+        for (VoiceRecord voiceRecord : itemHashMap.values()) {
+            items.addAll(voiceRecord.orderItems);
+        }
+        for (OrderItem item : items) {
+            sb.append(item.name)
+                    .append(" ")
+                    .append(item.count)
+                    .append(",");
+        }
+        sb.deleteCharAt(sb.length()-1);
+        return sb.toString();
+    }
 }

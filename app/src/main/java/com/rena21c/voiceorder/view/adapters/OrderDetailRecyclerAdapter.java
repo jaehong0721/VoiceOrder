@@ -7,10 +7,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.rena21c.voiceorder.R;
-import com.rena21c.voiceorder.model.Item;
+import com.rena21c.voiceorder.model.OrderItem;
+import com.rena21c.voiceorder.model.VoiceRecord;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 
 public class OrderDetailRecyclerAdapter extends RecyclerView.Adapter<OrderDetailRecyclerAdapter.OrderDetailViewHolder>{
 
@@ -25,16 +26,26 @@ public class OrderDetailRecyclerAdapter extends RecyclerView.Adapter<OrderDetail
             tvVendorName = (TextView)itemView.findViewById(R.id.tvVendorName);
         }
 
-        public void bind(Item item) {
-            tvItem.setText(item.itemName + " " + item.count + item.unit);
-            tvVendorName.setText(item.vendorName);
+        public void bind(String key, ArrayList<OrderItem> orderItems) {
+            StringBuffer sb = new StringBuffer();
+            for (OrderItem item : orderItems) {
+                sb.append(item.name)
+                        .append(" ")
+                        .append(item.count)
+                        .append(",");
+            }
+            sb.deleteCharAt(sb.length()-1);
+            tvItem.setText(sb.toString());
+            tvVendorName.setText(key);
         }
     }
 
-    List<Item> itemList = new ArrayList<>();
+    HashMap<String, VoiceRecord> itemHashMap;
+    ArrayList<String> keyList = new ArrayList<>();
 
-    public OrderDetailRecyclerAdapter(ArrayList<Item> itemList) {
-        this.itemList = itemList;
+    public OrderDetailRecyclerAdapter(HashMap<String, VoiceRecord> itemHashMap) {
+        this.itemHashMap = itemHashMap;
+        keyList.addAll(itemHashMap.keySet());
     }
 
     @Override
@@ -45,12 +56,13 @@ public class OrderDetailRecyclerAdapter extends RecyclerView.Adapter<OrderDetail
 
     @Override
     public void onBindViewHolder(OrderDetailViewHolder holder, int position) {
-        Item item = itemList.get(position);
-        holder.bind(item);
+        String key = keyList.get(position);
+        VoiceRecord voiceRecord = itemHashMap.get(key);
+        holder.bind(key, voiceRecord.orderItems);
     }
 
     @Override
     public int getItemCount() {
-        return itemList.size();
+        return itemHashMap.size();
     }
 }

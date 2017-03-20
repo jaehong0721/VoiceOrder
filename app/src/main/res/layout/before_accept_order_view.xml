@@ -21,20 +21,21 @@
         <TextView
             android:id="@+id/tvFinish1"
             android:layout_width="308dp"
-            android:layout_height="74dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvTimeStamp"
+            android:layout_marginTop="11dp"
+            android:lineSpacingExtra="5dp"
             android:text="고객님의 주문이\n성공적으로 저장되었습니다"
-            android:textSize="27sp"
-            android:layout_marginTop="10dp"
-            android:layout_below="@+id/tvTimeStamp"/>
+            android:textSize="27sp" />
 
         <TextView
             android:id="@+id/tvFinish2"
             android:layout_width="291dp"
-            android:layout_height="21dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvFinish1"
+            android:layout_marginTop="8dp"
             android:text="새 주문 감사합니다. 신속히 처리해 드리겠습니다"
-            android:textSize="14sp"
-            android:layout_marginTop="10dp"
-            android:layout_below="@id/tvFinish1"/>
+            android:textSize="14sp" />
     </RelativeLayout>
 
 </RelativeLayout>

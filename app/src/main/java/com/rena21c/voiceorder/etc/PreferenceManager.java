@@ -1,8 +1,9 @@
 package com.rena21c.voiceorder.etc;
 
 import android.content.Context;
+import android.telephony.TelephonyManager;
+import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,28 +23,52 @@ public class PreferenceManager {
                 .getBoolean("isFirst", true);
     }
 
-    public static void storeTimeList(Context context, ArrayList<String> timeList) {
-
-        Set<String> set = new HashSet<String>();
-        set.addAll(timeList);
-
+    public static void setFcmToken(Context context, String token) {
         getDefaultSharedPreferences(context)
                 .edit()
-                .putStringSet("timeList", set)
+                .putString("fcmToken", token)
                 .apply();
     }
 
-    public static ArrayList<String> retriveTimeList(Context context) {
+    public static String getFcmToken(Context context) {
+        return getDefaultSharedPreferences(context)
+                .getString("fcmToken", null);
+    }
 
-        Set<String> set =  getDefaultSharedPreferences(context).getStringSet("timeList", null);
+    public static String setPhoneNumber(Context context) {
+        String phoneNumber = ((TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number();
+        if (phoneNumber.substring(0, 3).equals("+82")) {
+            phoneNumber = phoneNumber.replace("+82", "0");
+        }
+        getDefaultSharedPreferences(context)
+                .edit()
+                .putString("phoneNumber", phoneNumber)
+                .apply();
+        return phoneNumber;
+    }
 
-        if(set == null) {
-            return null;
-        }
-        else {
-            ArrayList<String> timeList = new ArrayList<>();
-            timeList.addAll(set);
-            return timeList;
-        }
+    public static String getPhoneNumber(Context context) {
+        return getDefaultSharedPreferences(context)
+                .getString("phoneNumber", null);
+    }
+
+    public static void setFileName(Context context, String fileName) {
+        HashSet<String> fileNameList = (HashSet)getFileNameList(context);
+        fileNameList.add(fileName);
+        getDefaultSharedPreferences(context)
+                .edit()
+                .remove("fileNameList")
+                .apply();
+
+        getDefaultSharedPreferences(context)
+                .edit()
+                .putStringSet("fileNameList", fileNameList)
+                .apply();
+        Log.e("Preference", fileNameList.size() + "");
+    }
+
+    public static Set<String> getFileNameList(Context context) {
+        return getDefaultSharedPreferences(context)
+                .getStringSet("fileNameList", new HashSet<String>());
     }
 }
