@@ -2,7 +2,6 @@ package com.rena21c.voiceorder.view.widgets;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -26,7 +25,7 @@ public class ViewPagerIndicator extends RelativeLayout {
     }
 
     public void createDot(int count) {
-        Log.e("indicator", dots.size() + "");
+
         for (int i = dots.size(); i < count; i++) {
 
             View dot = new View(context);

@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
-import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.view.adapters.OrderViewPagerAdapter;
 import com.rena21c.voiceorder.view.widgets.ViewPagerIndicator;
@@ -36,7 +35,7 @@ public class OrderViewPagerLayout extends RelativeLayout {
         orderViewPager = (ViewPager)view.findViewById(R.id.viewPager);
         orderViewPagerAdapter = new OrderViewPagerAdapter(context);
 
-        viewPagerIndicator.createDot(App.orders.size());
+        viewPagerIndicator.createDot(orderViewPagerAdapter.getOrders().size());
         viewPagerIndicator.selectDot(0);
 
         orderViewPager.setAdapter(orderViewPagerAdapter);

@@ -129,7 +129,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
             public void onStateChanged(int id, TransferState state) {
                 if (state == TransferState.COMPLETED) {
                     PreferenceManager.setFileName(getApplicationContext(),fileName);
-                    orderViewPagerLayout.addOrder(((App)getApplication()).makeTimeFromFileName(fileName));
+                    orderViewPagerLayout.addOrder(App.makeTimeFromFileName(fileName));
                     replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
                 } else {
                     if(state != TransferState.IN_PROGRESS) {

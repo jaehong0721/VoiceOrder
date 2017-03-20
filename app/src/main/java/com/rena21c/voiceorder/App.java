@@ -15,16 +15,23 @@ public class App extends Application {
         return (App) context;
     }
 
-    public static ArrayList<Order> orders = new ArrayList<>();
+    public ArrayList<Order> orders;
 
     @Override
     public void onCreate() {
         super.onCreate();
+        init();
+    }
+
+    private void init() {
+
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
                 .setDefaultFontPath("fonts/NanumSquareRegular.ttf")
                 .setFontAttrId(R.attr.fontPath)
                 .build()
         );
+
+        orders = new ArrayList<>();
     }
 
     public static String makeTimeFromFileName(String fileName) {
