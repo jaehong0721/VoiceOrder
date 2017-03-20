@@ -97,7 +97,7 @@ public class SplashActivity extends BaseActivity {
             }
         });
     }
-    
+
     private void requestToken(final Callback<UserToken> userTokenCallback) {
         Retrofit retrofit = RetrofitSingleton.getInstance();
         ApiService apiService = retrofit.create(ApiService.class);

@@ -4,7 +4,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
-
+import android.util.Log;
+import android.widget.Toast;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
@@ -113,7 +114,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
         if (PreferenceManager.getUserFirstVisit(this)) {
             PreferenceManager.setUserFirstVisit(this);
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.transparent)));
+            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.white)));
         }
         replaceableLayout.replaceChildView(recordingLayout.getView());
     }
@@ -130,6 +131,11 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
                     PreferenceManager.setFileName(getApplicationContext(),fileName);
                     orderViewPagerLayout.addOrder(((App)getApplication()).makeTimeFromFileName(fileName));
                     replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
+                } else {
+                    if(state != TransferState.IN_PROGRESS) {
+                        Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                        Log.e("", state.toString());
+                    }
                 }
             }
 
@@ -139,6 +145,8 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
             @Override
             public void onError(int id, Exception ex) {
+                Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                Log.e("", ex.toString());
             }
         });
     }
@@ -149,6 +157,5 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         TransferUtility transferUtility = FileTransferUtil.getTransferUtility(this);
         TransferObserver transferObserver = transferUtility.upload(BUCKET_NAME, file.getName(), file);
         transferObserver.setTransferListener(transferListener);
-
     }
 }
