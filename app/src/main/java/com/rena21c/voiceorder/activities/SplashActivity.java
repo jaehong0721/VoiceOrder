@@ -51,13 +51,9 @@ public class SplashActivity extends BaseActivity {
         void onFinish();
     }
 
-    FirebaseUser firebaseUser;
-    DatabaseReference rootRef;
-    DatabaseReference vendorsRef;
-    DatabaseReference orderedRestaurantsRef;
-    String phoneNumber;
+    private DatabaseReference rootRef;
+    private String phoneNumber;
     private PermissionManager permissionManager;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,8 +61,6 @@ public class SplashActivity extends BaseActivity {
         setContentView(R.layout.activity_splash);
 
         rootRef = FirebaseDatabase.getInstance().getReference();
-        vendorsRef = rootRef.child("vendors");
-        orderedRestaurantsRef = rootRef.child("orders").child("restaurants");
 
         PackageManager pmanager = this.getPackageManager();
 
@@ -92,27 +86,22 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void signInProcess() {
-        if (isSignedIn()) {
-            storeFcmToken();
-            goToMain();
-        } else {
-            requestToken(new Callback<UserToken>() {
-                @Override
-                public void onResponse(Call<UserToken> call, Response<UserToken> response) {
-                    signIn(response.body().firebaseCustomAuthToken);
-                }
+        requestToken(new Callback<UserToken>() {
+            @Override
+            public void onResponse(Call<UserToken> call, Response<UserToken> response) {
+                signIn(response.body().firebaseCustomAuthToken);
+            }
 
-                @Override
-                public void onFailure(Call<UserToken> call, Throwable t) {
-                    t.printStackTrace();
-                }
-            });
-        }
+            @Override
+            public void onFailure(Call<UserToken> call, Throwable t) {
+                t.printStackTrace();
+            }
+        });
     }
 
     private boolean isSignedIn() {
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        return firebaseUser != null;
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        return firebaseUser == null;
     }
 
     private void requestToken(final Callback<UserToken> userTokenCallback) {
@@ -131,7 +120,6 @@ public class SplashActivity extends BaseActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            Log.e("SplashActivity", "새로 가입함");
                             storeFcmToken();
                             goToMain();
                         } else {
@@ -139,17 +127,6 @@ public class SplashActivity extends BaseActivity {
                         }
                     }
                 });
-    }
-
-    private void goToMain() {
-        dataLoad(new DataLoadFinishedListener() {
-            @Override
-            public void onFinish() {
-                startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                finish();
-            }
-        });
     }
 
     private void storeFcmToken() {
@@ -166,52 +143,77 @@ public class SplashActivity extends BaseActivity {
                 });
     }
 
+    private void goToMain() {
+        dataLoad(new DataLoadFinishedListener() {
+            @Override
+            public void onFinish() {
+                startActivity(new Intent(SplashActivity.this, MainActivity.class));
+                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+                finish();
+            }
+        });
+    }
+
     private void dataLoad(final DataLoadFinishedListener dataLoadFinishedListener) {
 
-        final List<String> fileNameList = new ArrayList(PreferenceManager.getFileNameList(getApplicationContext()));
-        Collections.sort(fileNameList, Collections.<String>reverseOrder());
-
-        if (fileNameList.size() == 0) {
+        if(!App.orders.isEmpty()) {
             dataLoadFinishedListener.onFinish();
-        } else {
+            return;
+        }
 
-            orderedRestaurantsRef
-                    .orderByKey()
-                    .startAt(phoneNumber + "_00000000000000")
-                    .endAt(phoneNumber + "_99999999999999")
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {};
-                            HashMap<String, HashMap<String, VoiceRecord>> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
+        rootRef.child("orders")
+                .child("restaurants")
+                .orderByKey()
+                .startAt(phoneNumber + "_00000000000000")
+                .endAt(phoneNumber + "_99999999999999")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {};
+                        HashMap<String, HashMap<String, VoiceRecord>> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
 
-                            for (String fileName : fileNameList) {
-                                Log.e("splash", fileName);
-                                String timeStamp = ((App) getApplication()).makeTimeFromFileName(fileName);
-                                if (objectMap.containsKey(fileName)) {
-                                    HashMap<String, VoiceRecord> itemHashMap = getVendorName(objectMap.get(fileName));
-                                    App.orders.add(new Order(timeStamp, itemHashMap));
-                                } else {
-                                    App.orders.add(new Order(timeStamp, null));
+                        List<String> fileNameList = new ArrayList(PreferenceManager.getFileNameList(getApplicationContext()));
+                        Collections.sort(fileNameList, Collections.<String>reverseOrder());
+
+                        if(objectMap == null) {
+                            dataLoadFinishedListener.onFinish();
+                            return;
+                        }
+
+                        else {
+                            if(fileNameList.size() != 0) {
+                                for (String fileName : fileNameList) {
+                                    Log.e("splash", fileName);
+                                    String timeStamp = ((App) getApplication()).makeTimeFromFileName(fileName);
+                                    if (!objectMap.containsKey(fileName)) {
+                                        App.orders.add(new Order(timeStamp, null));
+                                    }
                                 }
                             }
-                            dataLoadFinishedListener.onFinish();
+
+                            for(String fileName : objectMap.keySet()) {
+                                String timeStamp = ((App) getApplication()).makeTimeFromFileName(fileName);
+                                HashMap<String, VoiceRecord> itemHashMap = getVendorName(objectMap.get(fileName));
+                                App.orders.add(new Order(timeStamp, itemHashMap));
+                            }
                         }
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                        dataLoadFinishedListener.onFinish();
+                    }
 
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
 
-        }
     }
 
     private HashMap getVendorName(final HashMap<String, VoiceRecord> itemHashMap) {
 
         for (final String vendorPhoneNumber : itemHashMap.keySet()) {
-            vendorsRef.child(vendorPhoneNumber)
+            rootRef.child("vendors")
+                    .child(vendorPhoneNumber)
                     .child("info")
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
