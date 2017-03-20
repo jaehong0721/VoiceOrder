@@ -13,7 +13,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -98,12 +97,7 @@ public class SplashActivity extends BaseActivity {
             }
         });
     }
-
-    private boolean isSignedIn() {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        return firebaseUser == null;
-    }
-
+    
     private void requestToken(final Callback<UserToken> userTokenCallback) {
         Retrofit retrofit = RetrofitSingleton.getInstance();
         ApiService apiService = retrofit.create(ApiService.class);
@@ -156,7 +150,7 @@ public class SplashActivity extends BaseActivity {
 
     private void dataLoad(final DataLoadFinishedListener dataLoadFinishedListener) {
 
-        if(!App.orders.isEmpty()) {
+        if (!App.orders.isEmpty()) {
             dataLoadFinishedListener.onFinish();
             return;
         }
@@ -169,35 +163,44 @@ public class SplashActivity extends BaseActivity {
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {};
+                        GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {
+                        };
                         HashMap<String, HashMap<String, VoiceRecord>> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
 
                         List<String> fileNameList = new ArrayList(PreferenceManager.getFileNameList(getApplicationContext()));
                         Collections.sort(fileNameList, Collections.<String>reverseOrder());
 
-                        if(objectMap == null) {
+                        if (objectMap == null && fileNameList.size() == 0) {
+                            //DB와 APP 모두 데이터가 없으면 데이터 바인딩 없이 빠져나감
                             dataLoadFinishedListener.onFinish();
                             return;
-                        }
-
-                        else {
-                            if(fileNameList.size() != 0) {
-                                for (String fileName : fileNameList) {
-                                    Log.e("splash", fileName);
-                                    String timeStamp = ((App) getApplication()).makeTimeFromFileName(fileName);
-                                    if (!objectMap.containsKey(fileName)) {
-                                        App.orders.add(new Order(timeStamp, null));
-                                    }
-                                }
+                        } else if (objectMap == null && fileNameList.size() != 0) {
+                            //DB에는 데이터가 없고 APP에만 데이터가 있으면 APP데이터만 바인딩해줌
+                            for (String fileName : fileNameList) {
+                                Log.e("splash", fileName);
+                                String timeStamp = ((App) getApplication()).makeTimeFromFileName(fileName);
+                                App.orders.add(new Order(timeStamp, null));
                             }
-
-                            for(String fileName : objectMap.keySet()) {
+                        } else if (objectMap != null && fileNameList.size() == 0) {
+                            //DB에는 데이터가 있고 APP에는 없으면 DB데이터만 바인딩해줌
+                            for (String fileName : objectMap.keySet()) {
                                 String timeStamp = ((App) getApplication()).makeTimeFromFileName(fileName);
                                 HashMap<String, VoiceRecord> itemHashMap = getVendorName(objectMap.get(fileName));
                                 App.orders.add(new Order(timeStamp, itemHashMap));
                             }
+                        } else if (objectMap != null && fileNameList.size() != 0) {
+                            //DB와 APP모두 데이터가 있으면 비교해서 데이터를 바인딩해줌
+                            for (String fileName : fileNameList) {
+                                Log.e("splash", fileName);
+                                String timeStamp = ((App) getApplication()).makeTimeFromFileName(fileName);
+                                if (objectMap.containsKey(fileName)) {
+                                    HashMap<String, VoiceRecord> itemHashMap = getVendorName(objectMap.get(fileName));
+                                    App.orders.add(new Order(timeStamp, itemHashMap));
+                                } else {
+                                    App.orders.add(new Order(timeStamp, null));
+                                }
+                            }
                         }
-
                         dataLoadFinishedListener.onFinish();
                     }
 

@@ -93,10 +93,6 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         return view;
     }
 
-    public ArrayList<Order> getOrders() {
-        return orders;
-    }
-
     public void add(String timeStamp) {
         orders.add(0, new Order(timeStamp));
         notifyDataSetChanged();
