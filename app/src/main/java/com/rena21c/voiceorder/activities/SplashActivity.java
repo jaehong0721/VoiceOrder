@@ -99,7 +99,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void requestToken(final Callback<UserToken> userTokenCallback) {
-        Retrofit retrofit = RetrofitSingleton.getInstance();
+        Retrofit retrofit = RetrofitSingleton.getInstance(getApplicationContext());
         ApiService apiService = retrofit.create(ApiService.class);
         Call<UserToken> tokenRequest = apiService.getToken(phoneNumber);
 
