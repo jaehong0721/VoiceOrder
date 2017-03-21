@@ -22,17 +22,11 @@ public class ConnectivityIntercepter implements Interceptor {
      * 인터넷 연결 상태를 확인연결 되어 있지 않은 경우 예외를 던짐
      */
     @Override public Response intercept(Chain chain) throws IOException {
-        if (!isConnectedToInternet()) {
+        if (!NetworkUtil.isInternetConnected(context)) {
             throw new NoConnectivityException();
         }
         Request.Builder builder = chain.request().newBuilder();
         return chain.proceed(builder.build());
-    }
-
-    private boolean isConnectedToInternet() {
-        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo netInfo = cm.getActiveNetworkInfo();
-        return (netInfo != null && netInfo.isConnected());
     }
 
 }
