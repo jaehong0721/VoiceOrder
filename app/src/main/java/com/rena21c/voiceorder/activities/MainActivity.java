@@ -4,6 +4,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -16,11 +17,13 @@ import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.PreferenceManager;
 import com.rena21c.voiceorder.network.FileTransferUtil;
+import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
 import com.rena21c.voiceorder.view.components.OrderViewPagerLayout;
 import com.rena21c.voiceorder.view.components.RecordGuideLayout;
 import com.rena21c.voiceorder.view.components.RecordingLayout;
 import com.rena21c.voiceorder.view.components.ReplaceableLayout;
+import com.rena21c.voiceorder.view.dialogs.Dialogs;
 import com.rena21c.voiceorder.view.widgets.RecordAndStopButton;
 
 import java.io.File;
@@ -106,7 +109,11 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
     @Override
     public void record() {
-
+        if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
+            AlertDialog blockingDialog = Dialogs.createNoInternetConnectivityAlertDialog(this);
+            blockingDialog.show();
+            return;
+        }
         time = System.currentTimeMillis();
 
         fileName = makeFileName();
