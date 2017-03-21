@@ -6,10 +6,12 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.google.firebase.crash.FirebaseCrash;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.PreferenceManager;
@@ -128,13 +130,13 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
             @Override
             public void onStateChanged(int id, TransferState state) {
                 if (state == TransferState.COMPLETED) {
-                    PreferenceManager.setFileName(getApplicationContext(),fileName);
+                    PreferenceManager.setFileName(getApplicationContext(), fileName);
                     orderViewPagerLayout.addOrder(App.makeTimeFromFileName(fileName));
                     replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
                 } else {
-                    if(state != TransferState.IN_PROGRESS) {
+                    if (state != TransferState.IN_PROGRESS) {
                         Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-                        Log.e("", state.toString());
+                        FirebaseCrash.logcat(Log.WARN, "NETWORK", "Aws s3 transfer state: " + state);
                     }
                 }
             }
@@ -146,7 +148,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
             @Override
             public void onError(int id, Exception ex) {
                 Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-                Log.e("", ex.toString());
+                FirebaseCrash.report(ex);
             }
         });
     }
