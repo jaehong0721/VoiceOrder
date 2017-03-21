@@ -76,12 +76,31 @@ public class SplashActivity extends BaseActivity {
                         signInProcess();
                     }
                 });
+
+        if(PreferenceManager.getUserFirstVisit(this)){
+            addLauncherIconToHomeScreen();
+        }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
         permissionManager.requestPermission();
+    }
+
+    private void addLauncherIconToHomeScreen() {
+        Intent shortcutIntent = new Intent(getApplicationContext(), MainActivity.class);
+
+        shortcutIntent.setAction(Intent.ACTION_MAIN);
+
+        Intent addIntent = new Intent();
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, getResources().getString(R.string.app_name));
+        addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(getApplicationContext(), R.mipmap.ic_launcher));
+
+        addIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
+        addIntent.putExtra("duplicate", false);
+        getApplicationContext().sendBroadcast(addIntent);
     }
 
     private void signInProcess() {
