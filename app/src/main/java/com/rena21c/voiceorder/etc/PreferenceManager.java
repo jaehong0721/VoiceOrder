@@ -2,7 +2,6 @@ package com.rena21c.voiceorder.etc;
 
 import android.content.Context;
 import android.telephony.TelephonyManager;
-import android.util.Log;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -64,7 +63,6 @@ public class PreferenceManager {
                 .edit()
                 .putStringSet("fileNameList", fileNameList)
                 .apply();
-        Log.e("Preference", fileNameList.size() + "");
     }
 
     public static Set<String> getFileNameList(Context context) {

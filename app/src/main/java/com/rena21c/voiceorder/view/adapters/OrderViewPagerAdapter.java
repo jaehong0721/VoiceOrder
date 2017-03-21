@@ -24,8 +24,8 @@ public class OrderViewPagerAdapter extends PagerAdapter {
     public OrderViewPagerAdapter(Context context) {
         super();
         this.context = context;
+        this.orders = App.getApplication(context.getApplicationContext()).orders;
         layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        orders = App.orders;
     }
 
     @Override
@@ -51,6 +51,12 @@ public class OrderViewPagerAdapter extends PagerAdapter {
     @Override
     public boolean isViewFromObject(View view, Object object) {
         return view.equals(object);
+    }
+
+    //This way, when you call notifyDataSetChanged(), the view pager will remove all views and reload them all. As so the reload effect is obtained.
+    @Override
+    public int getItemPosition(Object object) {
+        return POSITION_NONE;
     }
 
     //=============================================
@@ -98,9 +104,7 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         notifyDataSetChanged();
     }
 
-    //This way, when you call notifyDataSetChanged(), the view pager will remove all views and reload them all. As so the reload effect is obtained.
-    @Override
-    public int getItemPosition(Object object) {
-        return POSITION_NONE;
+    public ArrayList<Order> getOrders() {
+        return orders;
     }
 }
