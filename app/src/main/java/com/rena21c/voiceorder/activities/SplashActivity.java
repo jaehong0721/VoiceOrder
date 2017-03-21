@@ -1,10 +1,14 @@
 package com.rena21c.voiceorder.activities;
 
 import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Network;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -29,6 +33,7 @@ import com.rena21c.voiceorder.model.Order;
 import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.network.ApiService;
+import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.network.NoConnectivityException;
 import com.rena21c.voiceorder.network.RetrofitSingleton;
 
@@ -87,6 +92,20 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void signInProcess() {
+        if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
+            AlertDialog blockingDialog = new AlertDialog
+                    .Builder(SplashActivity.this)
+                    .setCancelable(false)
+                    .setMessage("인터넷이 연결 되어 있지 않습니다. 연결을 확인 후, 다시 실행해 주세요.")
+                    .setPositiveButton("종료", new DialogInterface.OnClickListener() {
+                        @Override public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+                    })
+                    .create();
+            blockingDialog.show();
+            return;
+        }
         requestToken(new Callback<UserToken>() {
             @Override
             public void onResponse(Call<UserToken> call, Response<UserToken> response) {
