@@ -2,6 +2,9 @@ package com.rena21c.voiceorder.etc;
 
 import android.content.Context;
 import android.telephony.TelephonyManager;
+import android.util.Log;
+
+import com.google.firebase.crash.FirebaseCrash;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -35,7 +38,11 @@ public class PreferenceManager {
     }
 
     public static String setPhoneNumber(Context context) {
-        String phoneNumber = ((TelephonyManager)context.getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number();
+        String phoneNumber = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number();
+        if (phoneNumber == null) {
+            phoneNumber = "01000000000";
+            FirebaseCrash.logcat(Log.WARN, "PhoneNumber", "전화번호가 없는 기기에서 앱을 실행함");
+        }
         if (phoneNumber.substring(0, 3).equals("+82")) {
             phoneNumber = phoneNumber.replace("+82", "0");
         }
@@ -52,7 +59,7 @@ public class PreferenceManager {
     }
 
     public static void setFileName(Context context, String fileName) {
-        HashSet<String> fileNameList = (HashSet)getFileNameList(context);
+        HashSet<String> fileNameList = (HashSet) getFileNameList(context);
         fileNameList.add(fileName);
         getDefaultSharedPreferences(context)
                 .edit()
