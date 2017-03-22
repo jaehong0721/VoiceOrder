@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -13,6 +14,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -28,7 +30,10 @@ import com.rena21c.voiceorder.model.Order;
 import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.network.ApiService;
+import com.rena21c.voiceorder.network.NetworkUtil;
+import com.rena21c.voiceorder.network.NoConnectivityException;
 import com.rena21c.voiceorder.network.RetrofitSingleton;
+import com.rena21c.voiceorder.view.dialogs.Dialogs;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -104,6 +109,11 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void signInProcess() {
+        if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
+            AlertDialog blockingDialog = Dialogs.createNoInternetConnectivityAlertDialog(this);
+            blockingDialog.show();
+            return;
+        }
         requestToken(new Callback<UserToken>() {
             @Override
             public void onResponse(Call<UserToken> call, Response<UserToken> response) {
@@ -112,13 +122,17 @@ public class SplashActivity extends BaseActivity {
 
             @Override
             public void onFailure(Call<UserToken> call, Throwable t) {
-                t.printStackTrace();
+                if (t instanceof NoConnectivityException) {
+                    Toast.makeText(SplashActivity.this, "인터넷이 연결 되어 있지 않습니다. 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
+                } else {
+                    FirebaseCrash.report(t);
+                }
             }
         });
     }
 
     private void requestToken(final Callback<UserToken> userTokenCallback) {
-        Retrofit retrofit = RetrofitSingleton.getInstance();
+        Retrofit retrofit = RetrofitSingleton.getInstance(getApplicationContext());
         ApiService apiService = retrofit.create(ApiService.class);
         Call<UserToken> tokenRequest = apiService.getToken(phoneNumber);
 
