@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -136,7 +135,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void addLauncherIconToHomeScreen() {
-        Intent shortcutIntent = new Intent(getApplicationContext(), MainActivity.class);
+        Intent shortcutIntent = new Intent(getApplicationContext(), SplashActivity.class);
 
         shortcutIntent.setAction(Intent.ACTION_MAIN);
 
