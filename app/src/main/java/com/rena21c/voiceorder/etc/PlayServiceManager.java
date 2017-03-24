@@ -35,8 +35,9 @@ public class PlayServiceManager {
             } else {
                 Dialogs.createNoSupportDeviceDialog(activity).show();
             }
+        }else{
+            listener.onNext();
         }
-        listener.onNext();
     }
 
 }

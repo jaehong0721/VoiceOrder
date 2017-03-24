@@ -1,5 +1,6 @@
 package com.rena21c.voiceorder.activities;
 
+import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaRecorder;
 import android.os.Bundle;
@@ -110,22 +111,21 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
     @Override
     public void record() {
         if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
-            AlertDialog blockingDialog = Dialogs.createNoInternetConnectivityAlertDialog(this);
-            blockingDialog.show();
-            return;
+            Dialogs.showNoInternetConnectivityAlertDialog(this, null);
+        } else {
+            time = System.currentTimeMillis();
+
+            fileName = makeFileName();
+
+            initRecorder(fileName);
+            startRecord();
+
+            if (PreferenceManager.getUserFirstVisit(this)) {
+                PreferenceManager.setUserFirstVisit(this);
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.white)));
+            }
+            replaceableLayout.replaceChildView(recordingLayout.getView());
         }
-        time = System.currentTimeMillis();
-
-        fileName = makeFileName();
-
-        initRecorder(fileName);
-        startRecord();
-
-        if (PreferenceManager.getUserFirstVisit(this)) {
-            PreferenceManager.setUserFirstVisit(this);
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.white)));
-        }
-        replaceableLayout.replaceChildView(recordingLayout.getView());
     }
 
     @Override

@@ -7,18 +7,17 @@ import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 
 public class Dialogs {
-    public static AlertDialog createNoInternetConnectivityAlertDialog(final Activity activity) {
-        AlertDialog blockingDialog = new android.support.v7.app.AlertDialog
+    public static void showNoInternetConnectivityAlertDialog(final Activity activity, DialogInterface.OnClickListener listener) {
+        if (listener == null) listener = new DialogInterface.OnClickListener() {
+            @Override public void onClick(DialogInterface dialog, int which) { }
+        };
+        new android.support.v7.app.AlertDialog
                 .Builder(activity)
                 .setCancelable(false)
                 .setMessage("인터넷이 연결 되어 있지 않습니다. 연결을 확인 후, 다시 실행해 주세요.")
-                .setPositiveButton("종료", new DialogInterface.OnClickListener() {
-                    @Override public void onClick(DialogInterface dialog, int which) {
-                        activity.finish();
-                    }
-                })
-                .create();
-        return blockingDialog;
+                .setPositiveButton("종료", listener)
+                .create()
+                .show();
     }
 
     public static AlertDialog createVersionUpdateAlertDialog(final Activity activity) {
@@ -55,6 +54,17 @@ public class Dialogs {
                         activity.finish();
                     }
                 })
+                .create();
+
+        return blockingDialog;
+    }
+
+    public static AlertDialog createPlayServiceUpdateWarningDialog(final Activity activity, final DialogInterface.OnClickListener listener) {
+        AlertDialog blockingDialog = new android.support.v7.app.AlertDialog
+                .Builder(activity)
+                .setCancelable(false)
+                .setMessage("로그인이 실패하였습니다. 상태를 확인 후 다시 실행 해 주세요.")
+                .setPositiveButton("종료", listener)
                 .create();
 
         return blockingDialog;

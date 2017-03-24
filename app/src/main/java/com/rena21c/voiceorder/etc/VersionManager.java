@@ -4,14 +4,12 @@ package com.rena21c.voiceorder.etc;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig;
-import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 
 public class VersionManager {
@@ -26,12 +24,6 @@ public class VersionManager {
     public static void checkAppVersion(final Activity activity, final MeetRequiredVersionListener listener) {
         try {
             final long deviceVersion = activity.getPackageManager().getPackageInfo(activity.getPackageName(), 0).versionCode;
-
-            if (!NetworkUtil.isInternetConnected(activity.getApplicationContext())) {
-                AlertDialog blockingDialog = Dialogs.createNoInternetConnectivityAlertDialog(activity);
-                blockingDialog.show();
-                return;
-            }
 
             final FirebaseRemoteConfig firebaseRemoteConfig = FirebaseRemoteConfig.getInstance();
 

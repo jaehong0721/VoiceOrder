@@ -1,11 +1,14 @@
 package com.rena21c.voiceorder.activities;
 
 import android.Manifest;
+import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -48,6 +51,7 @@ import retrofit2.Retrofit;
 
 public class SplashActivity extends BaseActivity {
 
+
     public class UserToken {
         public String firebaseCustomAuthToken;
     }
@@ -56,6 +60,7 @@ public class SplashActivity extends BaseActivity {
         void onFinish();
     }
 
+    private TextView tvStatus;
     private String phoneNumber;
     private PermissionManager permissionManager;
 
@@ -63,6 +68,8 @@ public class SplashActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        tvStatus = (TextView) findViewById(R.id.tvStatus);
 
         permissionManager = new PermissionManager(
                 this,
@@ -77,29 +84,50 @@ public class SplashActivity extends BaseActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.e("lifeCycle", "onActivityResult");
         super.onActivityResult(requestCode, resultCode, data);
-        Log.e("splashActivity", "onActivityResult");
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        Log.e("lifeCycle", "requestPermission");
         permissionManager.requestPermission(new PermissionsPermittedListener() {
             @Override public void onAllPermissionsPermitted() {
                 checkPlayService();
             }
         });
+
+    }
+
+    private void appendText(String message) {
+        tvStatus.append(message + "\n");
     }
 
     private void checkPlayService() {
+        appendText("플레이 서비스 버전을 확인 중입니다.");
         PlayServiceManager.checkPlayServices(SplashActivity.this, new CheckPlayServiceListener() {
             @Override public void onNext() {
-                checkAppVersion();
+                checkInternetConnection();
             }
         });
     }
 
+    private void checkInternetConnection() {
+        appendText("인터넷 연결을 확인중입니다.");
+        if (NetworkUtil.isInternetConnected(getApplicationContext())) {
+            checkAppVersion();
+        } else {
+            Dialogs.showNoInternetConnectivityAlertDialog(this, new DialogInterface.OnClickListener() {
+                @Override public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            });
+        }
+    }
+
     private void checkAppVersion() {
+        appendText("앱의 버전을 확인중입니다.");
         VersionManager.checkAppVersion(SplashActivity.this, new VersionManager.MeetRequiredVersionListener() {
             @Override public void onMeetRequiredVersion() {
                 signInProcess();
@@ -123,6 +151,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void signInProcess() {
+        appendText("회원 가입중입니다.");
         phoneNumber = PreferenceManager.setPhoneNumber(getApplicationContext());
         requestToken(new Callback<UserToken>() {
             @Override
@@ -142,6 +171,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void requestToken(final Callback<UserToken> userTokenCallback) {
+        appendText("서버에 토큰을 요청합니다.");
         Retrofit retrofit = RetrofitSingleton.getInstance(getApplicationContext());
         ApiService apiService = retrofit.create(ApiService.class);
         Call<UserToken> tokenRequest = apiService.getToken(phoneNumber);
@@ -150,6 +180,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void signIn(String customToken) {
+        appendText("앱을 시작합니다.");
         FirebaseAuth
                 .getInstance()
                 .signInWithCustomToken(customToken)
@@ -160,7 +191,12 @@ public class SplashActivity extends BaseActivity {
                             storeFcmToken();
                             goToMain();
                         } else {
-                            Toast.makeText(getApplicationContext(), "로그인 실패", Toast.LENGTH_SHORT).show();
+                            Dialogs.createPlayServiceUpdateWarningDialog(SplashActivity.this, new Dialog.OnClickListener() {
+                                @Override public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                    // TODO: 앱 재시작
+                                }
+                            }).show();
                         }
                     }
                 });
@@ -181,9 +217,11 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void goToMain() {
+        Log.e("lifeCycle", "dataLoad");
         dataLoad(new DataLoadFinishedListener() {
             @Override
             public void onFinish() {
+                Log.e("lifeCycle", "dataLoad finished");
                 startActivity(new Intent(SplashActivity.this, MainActivity.class));
                 overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                 finish();
