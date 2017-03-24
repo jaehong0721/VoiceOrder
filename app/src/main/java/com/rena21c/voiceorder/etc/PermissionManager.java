@@ -23,14 +23,12 @@ public class PermissionManager {
 
     private final Activity activity;
     private String[] permissions;
-    private final PermissionsPermittedListener listener;
 
     boolean isRequestBefore = false;
 
-    public PermissionManager(final Activity activity, final String[] permissions, String permissionRationale, String settingRationale, PermissionsPermittedListener listener) {
+    public PermissionManager(final Activity activity, final String[] permissions, String permissionRationale, String settingRationale) {
         this.activity = activity;
         this.permissions = permissions;
-        this.listener = listener;
         notiDialog = new AlertDialog
                 .Builder(activity)
                 .setCancelable(false)
@@ -60,15 +58,15 @@ public class PermissionManager {
                 .create();
     }
 
-    public void requestPermission() {
+    public void requestPermission(PermissionsPermittedListener listener) {
         if (android.os.Build.VERSION.SDK_INT >= 23) {
-            checkPermission();
+            checkPermission(listener);
         } else {
             listener.onAllPermissionsPermitted();
         }
     }
 
-    private void checkPermission() {
+    private void checkPermission(PermissionsPermittedListener listener) {
         if (!isAllPermitted()) {
             if (!isRequestBefore || existShouldShowRequestPermissionRationale()) {
                 isRequestBefore = true;

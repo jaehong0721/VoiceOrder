@@ -16,7 +16,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
@@ -24,6 +23,8 @@ import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.PermissionManager;
 import com.rena21c.voiceorder.etc.PermissionManager.PermissionsPermittedListener;
+import com.rena21c.voiceorder.etc.PlayServiceManager;
+import com.rena21c.voiceorder.etc.PlayServiceManager.CheckPlayServiceListener;
 import com.rena21c.voiceorder.etc.PreferenceManager;
 import com.rena21c.voiceorder.etc.VersionManager;
 import com.rena21c.voiceorder.model.Order;
@@ -55,7 +56,6 @@ public class SplashActivity extends BaseActivity {
         void onFinish();
     }
 
-    private DatabaseReference rootRef;
     private String phoneNumber;
     private PermissionManager permissionManager;
 
@@ -64,30 +64,11 @@ public class SplashActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        rootRef = FirebaseDatabase.getInstance().getReference();
-
         permissionManager = new PermissionManager(
                 this,
                 new String[]{Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECORD_AUDIO},
                 "회원가입을 위한 전화번호, 주문을 위한 녹음 권한을 요청합니다.",
-                "앱에서 팔요한 권한을 요청을 할 수 없습니다.\n\n" + "서비스를 계속 사용하기 위해서 \"설정\" 버튼을 누르신 후, 권한 탭에서 직접 권한을 허락해 주세요.",
-                new PermissionsPermittedListener() {
-                    @Override
-                    public void onAllPermissionsPermitted() {
-                        VersionManager versionManager = new VersionManager(SplashActivity.this);
-                        if (versionManager.checkPlayServices()) {
-                            versionManager.checkAppVersion(
-                                    new VersionManager.MeetRequiredVersionListener() {
-                                        @Override
-                                        public void onMeetRequiredVersion() {
-                                            Log.d("", "sign in");
-                                            phoneNumber = PreferenceManager.setPhoneNumber(getApplicationContext());
-                                            signInProcess();
-                                        }
-                                    });
-                        }
-                    }
-                });
+                "앱에서 팔요한 권한을 요청을 할 수 없습니다.\n\n" + "서비스를 계속 사용하기 위해서 \"설정\" 버튼을 누르신 후, 권한 탭에서 직접 권한을 허락해 주세요.");
 
         if (PreferenceManager.getUserFirstVisit(this)) {
             addLauncherIconToHomeScreen();
@@ -103,7 +84,27 @@ public class SplashActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        permissionManager.requestPermission();
+        permissionManager.requestPermission(new PermissionsPermittedListener() {
+            @Override public void onAllPermissionsPermitted() {
+                checkPlayService();
+            }
+        });
+    }
+
+    private void checkPlayService() {
+        PlayServiceManager.checkPlayServices(SplashActivity.this, new CheckPlayServiceListener() {
+            @Override public void onNext() {
+                checkAppVersion();
+            }
+        });
+    }
+
+    private void checkAppVersion() {
+        VersionManager.checkAppVersion(SplashActivity.this, new VersionManager.MeetRequiredVersionListener() {
+            @Override public void onMeetRequiredVersion() {
+                signInProcess();
+            }
+        });
     }
 
     private void addLauncherIconToHomeScreen() {
@@ -122,11 +123,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void signInProcess() {
-        if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
-            AlertDialog blockingDialog = Dialogs.createNoInternetConnectivityAlertDialog(this);
-            blockingDialog.show();
-            return;
-        }
+        phoneNumber = PreferenceManager.setPhoneNumber(getApplicationContext());
         requestToken(new Callback<UserToken>() {
             @Override
             public void onResponse(Call<UserToken> call, Response<UserToken> response) {
@@ -170,7 +167,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void storeFcmToken() {
-        rootRef.child("restaurants")
+        FirebaseDatabase.getInstance().getReference().child("restaurants")
                 .child(phoneNumber)
                 .child("info")
                 .child("fcmId")
@@ -198,7 +195,7 @@ public class SplashActivity extends BaseActivity {
         App.getApplication(getApplicationContext()).orders = new ArrayList<>();
         final ArrayList<Order> orders = App.getApplication(getApplicationContext()).orders;
 
-        rootRef.child("orders")
+        FirebaseDatabase.getInstance().getReference().child("orders")
                 .child("restaurants")
                 .orderByKey()
                 .startAt(phoneNumber + "_00000000000000")
@@ -256,7 +253,7 @@ public class SplashActivity extends BaseActivity {
 
     private HashMap getVendorName(final HashMap<String, VoiceRecord> itemHashMap) {
         for (final String vendorPhoneNumber : itemHashMap.keySet()) {
-            rootRef.child("vendors")
+            FirebaseDatabase.getInstance().getReference().child("vendors")
                     .child(vendorPhoneNumber)
                     .child("info")
                     .addListenerForSingleValueEvent(new ValueEventListener() {
