@@ -51,20 +51,13 @@ public class SplashActivity extends BaseActivity {
         public String firebaseCustomAuthToken;
     }
 
-    interface DataLoadFinishedListener {
+    private interface DataLoadFinishedListener {
         void onFinish();
     }
 
     private DatabaseReference rootRef;
     private String phoneNumber;
     private PermissionManager permissionManager;
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        Log.e("splashActivity", "onActivityResult");
-    }
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,7 +75,7 @@ public class SplashActivity extends BaseActivity {
                     @Override
                     public void onAllPermissionsPermitted() {
                         VersionManager versionManager = new VersionManager(SplashActivity.this);
-                        if(versionManager.checkPlayServices()) {
+                        if (versionManager.checkPlayServices()) {
                             versionManager.checkAppVersion(
                                     new VersionManager.MeetRequiredVersionListener() {
                                         @Override
@@ -99,6 +92,12 @@ public class SplashActivity extends BaseActivity {
         if (PreferenceManager.getUserFirstVisit(this)) {
             addLauncherIconToHomeScreen();
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.e("splashActivity", "onActivityResult");
     }
 
     @Override
@@ -196,7 +195,6 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void dataLoad(final DataLoadFinishedListener dataLoadFinishedListener) {
-
         App.getApplication(getApplicationContext()).orders = new ArrayList<>();
         final ArrayList<Order> orders = App.getApplication(getApplicationContext()).orders;
 
@@ -257,7 +255,6 @@ public class SplashActivity extends BaseActivity {
     }
 
     private HashMap getVendorName(final HashMap<String, VoiceRecord> itemHashMap) {
-
         for (final String vendorPhoneNumber : itemHashMap.keySet()) {
             rootRef.child("vendors")
                     .child(vendorPhoneNumber)
