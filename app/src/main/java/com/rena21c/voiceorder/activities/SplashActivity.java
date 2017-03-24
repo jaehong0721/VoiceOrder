@@ -2,7 +2,6 @@ package com.rena21c.voiceorder.activities;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
@@ -26,6 +25,7 @@ import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.PermissionManager;
 import com.rena21c.voiceorder.etc.PermissionManager.PermissionsPermittedListener;
 import com.rena21c.voiceorder.etc.PreferenceManager;
+import com.rena21c.voiceorder.etc.VersionManager;
 import com.rena21c.voiceorder.model.Order;
 import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.model.VoiceRecord;
@@ -60,13 +60,19 @@ public class SplashActivity extends BaseActivity {
     private PermissionManager permissionManager;
 
     @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        Log.e("splashActivity", "onActivityResult");
+
+    }
+
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
         rootRef = FirebaseDatabase.getInstance().getReference();
-
-        PackageManager pmanager = this.getPackageManager();
 
         permissionManager = new PermissionManager(
                 this,
@@ -76,13 +82,21 @@ public class SplashActivity extends BaseActivity {
                 new PermissionsPermittedListener() {
                     @Override
                     public void onAllPermissionsPermitted() {
-                        Log.d("", "sign in");
-                        phoneNumber = PreferenceManager.setPhoneNumber(getApplicationContext());
-                        signInProcess();
+                        VersionManager versionManager = new VersionManager(SplashActivity.this);
+                        versionManager.checkAppVersion(
+                                new VersionManager.MeetRequiredVersionListener() {
+                                    @Override
+                                    public void onMeetRequiredVersion() {
+                                        Log.d("", "sign in");
+                                        phoneNumber = PreferenceManager.setPhoneNumber(getApplicationContext());
+                                        signInProcess();
+                                    }
+                                });
+
                     }
                 });
 
-        if(PreferenceManager.getUserFirstVisit(this)){
+        if (PreferenceManager.getUserFirstVisit(this)) {
             addLauncherIconToHomeScreen();
         }
     }
