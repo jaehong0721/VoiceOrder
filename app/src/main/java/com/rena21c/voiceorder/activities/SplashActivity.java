@@ -63,7 +63,6 @@ public class SplashActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         Log.e("splashActivity", "onActivityResult");
-
     }
 
 
@@ -83,16 +82,17 @@ public class SplashActivity extends BaseActivity {
                     @Override
                     public void onAllPermissionsPermitted() {
                         VersionManager versionManager = new VersionManager(SplashActivity.this);
-                        versionManager.checkAppVersion(
-                                new VersionManager.MeetRequiredVersionListener() {
-                                    @Override
-                                    public void onMeetRequiredVersion() {
-                                        Log.d("", "sign in");
-                                        phoneNumber = PreferenceManager.setPhoneNumber(getApplicationContext());
-                                        signInProcess();
-                                    }
-                                });
-
+                        if(versionManager.checkPlayServices()) {
+                            versionManager.checkAppVersion(
+                                    new VersionManager.MeetRequiredVersionListener() {
+                                        @Override
+                                        public void onMeetRequiredVersion() {
+                                            Log.d("", "sign in");
+                                            phoneNumber = PreferenceManager.setPhoneNumber(getApplicationContext());
+                                            signInProcess();
+                                        }
+                                    });
+                        }
                     }
                 });
 

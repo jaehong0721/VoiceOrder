@@ -1,11 +1,14 @@
 package com.rena21c.voiceorder.etc;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.crash.FirebaseCrash;
@@ -33,6 +36,22 @@ public class VersionManager {
         } catch (PackageManager.NameNotFoundException e) {
             FirebaseCrash.report(e);
         }
+    }
+
+    public boolean checkPlayServices() {
+        GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+        int resultCode = apiAvailability.isGooglePlayServicesAvailable(activity);
+        if (resultCode != ConnectionResult.SUCCESS) {
+            if (apiAvailability.isUserResolvableError(resultCode)) {
+                Dialog dialog = apiAvailability.getErrorDialog(activity, resultCode, PLAY_SERVICES_RESOLUTION_REQUEST);
+                dialog.setCancelable(false);
+                dialog.show();
+            } else {
+                Dialogs.createNoSupportDeviceDialog(activity).show();
+            }
+            return false;
+        }
+        return true;
     }
 
     public void checkAppVersion(final MeetRequiredVersionListener listener) {
