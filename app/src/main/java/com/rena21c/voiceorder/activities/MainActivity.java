@@ -1,8 +1,11 @@
 package com.rena21c.voiceorder.activities;
 
+import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.StatFs;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -108,21 +111,31 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
     @Override
     public void record() {
+        Log.d("MainActivity", getAvailableInternalMemorySize() + "");
+        if(getAvailableInternalMemorySize() < 5*1024*1024) {
+            Dialogs.showNoAvailableInternalMemoryDialog(this, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            });
+        }
+
         if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
             Dialogs.showNoInternetConnectivityAlertDialog(this, null);
         } else {
-            time = System.currentTimeMillis();
-
-            fileName = makeFileName();
-
-            initRecorder(fileName);
-            startRecord();
-
             if (PreferenceManager.getUserFirstVisit(this)) {
                 PreferenceManager.setUserFirstVisit(this);
                 getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.white)));
             }
+
+            time = System.currentTimeMillis();
+            fileName = makeFileName();
+            initRecorder(fileName);
+            startRecord();
+
             replaceableLayout.replaceChildView(recordingLayout.getView());
+            recordAndStopButton.setStopButton();
         }
     }
 
@@ -138,6 +151,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
                     PreferenceManager.setFileName(getApplicationContext(), fileName);
                     orderViewPagerLayout.addOrder(App.makeTimeFromFileName(fileName));
                     replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
+                    recordAndStopButton.setRecordButton();
                 } else {
                     if (state != TransferState.IN_PROGRESS) {
                         Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
@@ -147,8 +161,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
             }
 
             @Override
-            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-            }
+            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {}
 
             @Override
             public void onError(int id, Exception ex) {
@@ -164,5 +177,21 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         TransferUtility transferUtility = FileTransferUtil.getTransferUtility(this);
         TransferObserver transferObserver = transferUtility.upload(BUCKET_NAME, file.getName(), file);
         transferObserver.setTransferListener(transferListener);
+    }
+
+    private long getAvailableInternalMemorySize() {
+        File path = Environment.getDataDirectory();
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize;
+        long availableBlocks;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            availableBlocks = stat.getAvailableBlocksLong();
+            blockSize = stat.getBlockSizeLong();
+        }
+        else {
+            availableBlocks = stat.getAvailableBlocks();
+            blockSize = stat.getBlockSize();
+        }
+        return availableBlocks * blockSize;
     }
 }

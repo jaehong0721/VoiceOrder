@@ -135,19 +135,15 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
     public void onClick(View v) {
 
         if(isRecord) {
-            isRecord = false;
-            setRecordButton();
             listener.stop();
-
         }
         else {
-            isRecord = true;
-            setStopButton();
             listener.record();
         }
     }
 
-    private void setRecordButton() {
+    public void setRecordButton() {
+        isRecord = false;
         Animation shortHeightAni = new showHeightChangeAnimation(buttonLayout, HEIGHT_WITH_ORDER_LIST_LAYOUT);
         shortHeightAni.setDuration(200);
         buttonLayout.startAnimation(shortHeightAni);
@@ -160,7 +156,8 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         ivStop.setVisibility(View.INVISIBLE);
     }
 
-    private void setStopButton() {
+    public void setStopButton() {
+        isRecord = true;
         Animation longHeightAni = new showHeightChangeAnimation(buttonLayout, HEIGHT_WITH_RECORDING_LAYOUT);
         longHeightAni.setDuration(200);
         buttonLayout.startAnimation(longHeightAni);
@@ -193,8 +190,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         }
 
         @Override
-        public void initialize(int width, int height, int parentWidth,
-                               int parentHeight) {
+        public void initialize(int width, int height, int parentWidth, int parentHeight) {
             super.initialize(width, height, parentWidth, parentHeight);
         }
 
