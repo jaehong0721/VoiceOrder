@@ -1,7 +1,9 @@
 package com.rena21c.voiceorder.activities;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -11,8 +13,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
@@ -25,9 +25,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.PermissionManager;
-import com.rena21c.voiceorder.etc.PermissionManager.PermissionsPermittedListener;
 import com.rena21c.voiceorder.etc.PlayServiceManager;
-import com.rena21c.voiceorder.etc.PlayServiceManager.CheckPlayServiceListener;
 import com.rena21c.voiceorder.etc.PreferenceManager;
 import com.rena21c.voiceorder.etc.VersionManager;
 import com.rena21c.voiceorder.model.Order;
@@ -49,15 +47,12 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-public class SplashActivity extends BaseActivity {
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
+public class SplashActivity extends BaseActivity {
 
     public class UserToken {
         public String firebaseCustomAuthToken;
-    }
-
-    private interface DataLoadFinishedListener {
-        void onFinish();
     }
 
     private TextView tvStatus;
@@ -92,47 +87,13 @@ public class SplashActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         Log.e("lifeCycle", "requestPermission");
-        permissionManager.requestPermission(new PermissionsPermittedListener() {
-            @Override public void onAllPermissionsPermitted() {
+        permissionManager.requestPermission(new PermissionManager.PermissionsPermittedListener() {
+            @Override
+            public void onAllPermissionsPermitted() {
                 checkPlayService();
             }
         });
 
-    }
-
-    private void appendText(String message) {
-        tvStatus.append(message + "\n");
-    }
-
-    private void checkPlayService() {
-        appendText("플레이 서비스 버전을 확인 중입니다.");
-        PlayServiceManager.checkPlayServices(SplashActivity.this, new CheckPlayServiceListener() {
-            @Override public void onNext() {
-                checkInternetConnection();
-            }
-        });
-    }
-
-    private void checkInternetConnection() {
-        appendText("인터넷 연결을 확인중입니다.");
-        if (NetworkUtil.isInternetConnected(getApplicationContext())) {
-            checkAppVersion();
-        } else {
-            Dialogs.showNoInternetConnectivityAlertDialog(this, new DialogInterface.OnClickListener() {
-                @Override public void onClick(DialogInterface dialog, int which) {
-                    finish();
-                }
-            });
-        }
-    }
-
-    private void checkAppVersion() {
-        appendText("앱의 버전을 확인중입니다.");
-        VersionManager.checkAppVersion(SplashActivity.this, new VersionManager.MeetRequiredVersionListener() {
-            @Override public void onMeetRequiredVersion() {
-                signInProcess();
-            }
-        });
     }
 
     private void addLauncherIconToHomeScreen() {
@@ -150,17 +111,53 @@ public class SplashActivity extends BaseActivity {
         getApplicationContext().sendBroadcast(addIntent);
     }
 
+    private void appendText(String message) {
+        tvStatus.append(message + "\n");
+    }
+
+    private void checkPlayService() {
+        appendText("플레이 서비스 버전을 확인 중입니다.");
+        PlayServiceManager.checkPlayServices(SplashActivity.this, new PlayServiceManager.CheckPlayServiceListener() {
+            @Override
+            public void onNext() {
+                checkInternetConnection();
+            }
+        });
+    }
+
+    private void checkInternetConnection() {
+        appendText("인터넷 연결을 확인중입니다.");
+        if (NetworkUtil.isInternetConnected(getApplicationContext())) {
+            checkAppVersion();
+        } else {
+            Dialogs.showNoInternetConnectivityAlertDialog(this, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    finish();
+                }
+            });
+        }
+    }
+
+    private void checkAppVersion() {
+        appendText("앱의 버전을 확인중입니다.");
+        VersionManager.checkAppVersion(SplashActivity.this, new VersionManager.MeetRequiredVersionListener() {
+            @Override
+            public void onMeetRequiredVersion() {
+                signInProcess();
+            }
+        });
+    }
+
     private void signInProcess() {
         appendText("회원 가입중입니다.");
         phoneNumber = PreferenceManager.setPhoneNumber(getApplicationContext());
         requestToken(new Callback<UserToken>() {
-            @Override
-            public void onResponse(Call<UserToken> call, Response<UserToken> response) {
+            @Override public void onResponse(Call<UserToken> call, Response<UserToken> response) {
                 signIn(response.body().firebaseCustomAuthToken);
             }
 
-            @Override
-            public void onFailure(Call<UserToken> call, Throwable t) {
+            @Override public void onFailure(Call<UserToken> call, Throwable t) {
                 if (t instanceof NoConnectivityException) {
                     Toast.makeText(SplashActivity.this, "인터넷이 연결 되어 있지 않습니다. 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
                 } else {
@@ -175,7 +172,6 @@ public class SplashActivity extends BaseActivity {
         Retrofit retrofit = RetrofitSingleton.getInstance(getApplicationContext());
         ApiService apiService = retrofit.create(ApiService.class);
         Call<UserToken> tokenRequest = apiService.getToken(phoneNumber);
-
         tokenRequest.enqueue(userTokenCallback);
     }
 
@@ -185,15 +181,14 @@ public class SplashActivity extends BaseActivity {
                 .getInstance()
                 .signInWithCustomToken(customToken)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
+                    @Override public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
                             storeFcmToken();
                         } else {
                             Dialogs.createPlayServiceUpdateWarningDialog(SplashActivity.this, new Dialog.OnClickListener() {
-                                @Override public void onClick(DialogInterface dialog, int which) {
-                                    finish();
-                                    // TODO: 앱 재시작
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    reStartApp(SplashActivity.this);
                                 }
                             }).show();
                         }
@@ -207,91 +202,75 @@ public class SplashActivity extends BaseActivity {
                 .child("info")
                 .child("fcmId")
                 .setValue(PreferenceManager.getFcmToken(getApplicationContext()))
-                .addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        Toast.makeText(getApplicationContext(), e.getMessage(), Toast.LENGTH_SHORT).show();
-                    }
-                })
-                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                    @Override
-                    public void onSuccess(Void aVoid) {
-                        goToMain();
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            dataLoad();
+                        } else {
+                            Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
                     }
                 });
     }
 
-    private void goToMain() {
+    private void dataLoad() {
         Log.e("lifeCycle", "dataLoad");
-        dataLoad(new DataLoadFinishedListener() {
-            @Override
-            public void onFinish() {
-                Log.e("lifeCycle", "dataLoad finished");
-                startActivity(new Intent(SplashActivity.this, MainActivity.class));
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                finish();
-            }
-        });
-    }
+        //로컬 주문 데이터 로드
+        final List<String> fileNameList = new ArrayList(PreferenceManager.getFileNameList(getApplicationContext()));
+        Collections.sort(fileNameList, Collections.<String>reverseOrder());
 
-    private void dataLoad(final DataLoadFinishedListener dataLoadFinishedListener) {
-        App.getApplication(getApplicationContext()).orders = new ArrayList<>();
-        final ArrayList<Order> orders = App.getApplication(getApplicationContext()).orders;
-
+        //db 주문 데이터 로드
         FirebaseDatabase.getInstance().getReference().child("orders")
                 .child("restaurants")
                 .orderByKey()
                 .startAt(phoneNumber + "_00000000000000")
                 .endAt(phoneNumber + "_99999999999999")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {};
-                        HashMap<String, HashMap<String, VoiceRecord>> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
-
-                        List<String> fileNameList = new ArrayList(PreferenceManager.getFileNameList(getApplicationContext()));
-                        Collections.sort(fileNameList, Collections.<String>reverseOrder());
-
-                        if (objectMap == null && fileNameList.isEmpty()) {
-                            //DB와 APP 모두 데이터가 없으면 데이터 바인딩 없이 빠져나감
-                            dataLoadFinishedListener.onFinish();
-                            return;
-                        } else if (objectMap == null && !fileNameList.isEmpty()) {
-                            //DB에는 데이터가 없고 APP에만 데이터가 있으면 APP데이터만 바인딩해줌
-                            for (String fileName : fileNameList) {
-                                Log.e("fileName", fileName);
-                                String timeStamp = (App.makeTimeFromFileName(fileName));
-                                orders.add(new Order(timeStamp, null));
-                            }
-                        } else if (objectMap != null && fileNameList.isEmpty()) {
-                            //DB에는 데이터가 있고 APP에는 없으면 DB데이터만 바인딩해줌
-                            for (String fileName : objectMap.keySet()) {
-                                String timeStamp = (App.makeTimeFromFileName(fileName));
-                                HashMap<String, VoiceRecord> itemHashMap = getVendorName(objectMap.get(fileName));
-                                orders.add(new Order(timeStamp, itemHashMap));
-                            }
-                        } else if (objectMap != null && !fileNameList.isEmpty()) {
-                            //DB와 APP모두 데이터가 있으면 비교해서 데이터를 바인딩해줌
-                            for (String fileName : fileNameList) {
-                                Log.e("fileName", fileName);
-                                String timeStamp = (App.makeTimeFromFileName(fileName));
-                                if (objectMap.containsKey(fileName)) {
-                                    HashMap<String, VoiceRecord> itemHashMap = getVendorName(objectMap.get(fileName));
-                                    orders.add(new Order(timeStamp, itemHashMap));
-                                } else {
-                                    orders.add(new Order(timeStamp, null));
-                                }
-                            }
-                        }
-                        dataLoadFinishedListener.onFinish();
+                    @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                        dataBinding(dataSnapshot, fileNameList);
+                        goToMain();
                     }
 
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
+                    @Override public void onCancelled(DatabaseError databaseError) {
                         Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
+    }
 
+    private void dataBinding(DataSnapshot dataSnapshot, List<String> fileNameList) {
+        //App의 orders 초기화
+        App.getApplication(getApplicationContext()).orders = new ArrayList<>();
+        final ArrayList<Order> orders = App.getApplication(getApplicationContext()).orders;
+
+        //데이터 바인딩
+        GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {};
+        HashMap<String, HashMap<String, VoiceRecord>> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
+        if (objectMap == null && !fileNameList.isEmpty()) {
+            //DB에는 데이터가 없고 APP에만 데이터가 있으면 APP데이터만 바인딩해줌
+            for (String fileName : fileNameList) {
+                Log.e("fileName", fileName);
+                String timeStamp = (App.makeTimeFromFileName(fileName));
+                orders.add(new Order(timeStamp, null));
+            }
+        } else if (objectMap != null && fileNameList.isEmpty()) {
+            //DB에는 데이터가 있고 APP에는 없으면 DB데이터만 바인딩해줌
+            for (String fileName : objectMap.keySet()) {
+                String timeStamp = (App.makeTimeFromFileName(fileName));
+                HashMap<String, VoiceRecord> itemHashMap = getVendorName(objectMap.get(fileName));
+                orders.add(new Order(timeStamp, itemHashMap));
+            }
+        } else if (objectMap != null && !fileNameList.isEmpty()) {
+            //DB와 APP모두 데이터가 있으면 비교해서 데이터를 바인딩해줌
+            for (String fileName : fileNameList) {
+                String timeStamp = (App.makeTimeFromFileName(fileName));
+                if (objectMap.containsKey(fileName)) {
+                    HashMap<String, VoiceRecord> itemHashMap = getVendorName(objectMap.get(fileName));
+                    orders.add(new Order(timeStamp, itemHashMap));
+                } else {
+                    orders.add(new Order(timeStamp, null));
+                }
+            }
+        }
     }
 
     private HashMap getVendorName(final HashMap<String, VoiceRecord> itemHashMap) {
@@ -300,18 +279,31 @@ public class SplashActivity extends BaseActivity {
                     .child(vendorPhoneNumber)
                     .child("info")
                     .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
+                        @Override public void onDataChange(DataSnapshot dataSnapshot) {
                             VendorInfo vendorInfo = dataSnapshot.getValue(VendorInfo.class);
                             itemHashMap.put(vendorInfo.vendorName, itemHashMap.remove(vendorPhoneNumber));
                         }
 
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
+                        @Override public void onCancelled(DatabaseError databaseError) {
                             Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
                         }
                     });
         }
         return itemHashMap;
+    }
+
+    private void goToMain() {
+        startActivity(new Intent(SplashActivity.this, MainActivity.class));
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        finish();
+    }
+
+    public void reStartApp(Context context) {
+        Intent intent = new Intent(context, SplashActivity.class);
+        intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+        if (context instanceof Activity) {
+            ((Activity) context).finish();
+        }
     }
 }
