@@ -1,11 +1,14 @@
 package com.rena21c.voiceorder.activities;
 
+import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
@@ -42,13 +45,21 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
     private RecordingLayout recordingLayout;
     private OrderViewPagerLayout orderViewPagerLayout;
+    private PowerManager.WakeLock wakeLock;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Recording");
         initView();
+    }
+
+    @Override protected void onStop() {
+        super.onStop();
+        wakeLock.release();
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     private void initView() {
@@ -109,6 +120,9 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
     @Override
     public void record() {
+        wakeLock.acquire(); // 유저가 강제로 화면을 끈 상태에서도 백그라운드에서  계속 작동하도록
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
             AlertDialog blockingDialog = Dialogs.createNoInternetConnectivityAlertDialog(this);
             blockingDialog.show();
@@ -130,6 +144,8 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
     @Override
     public void stop() {
+        wakeLock.release();
+        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         stopRecord();
 
