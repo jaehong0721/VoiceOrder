@@ -50,7 +50,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
     private OrderViewPagerLayout orderViewPagerLayout;
     private PowerManager.WakeLock wakeLock;
 
-    private long REQUIRED_SPACE = 5 * 1024 * 1024;
+    private long REQUIRED_SPACE = 5L * 1024L * 1024L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -138,6 +138,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
             Log.d("MainActivity", getAvailableInternalMemorySize() + "");
 
+            Log.d("", "free space" + getAvailableInternalMemorySize());
             if (getAvailableInternalMemorySize() < REQUIRED_SPACE) {
                 Dialogs.showNoAvailableInternalMemoryDialog(this, null);
             } else {
