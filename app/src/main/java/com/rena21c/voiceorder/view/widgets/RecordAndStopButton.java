@@ -50,8 +50,8 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
     private activateRecorderListener listener;
 
     public interface activateRecorderListener {
-        void record();
-        void stop();
+        void onStartRecording();
+        void onStopRecording();
     }
 
     public void setListener(activateRecorderListener listener) {
@@ -135,10 +135,10 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
     public void onClick(View v) {
 
         if(isRecording) {
-            listener.stop();
+            listener.onStopRecording();
         }
         else {
-            listener.record();
+            listener.onStartRecording();
         }
     }
 

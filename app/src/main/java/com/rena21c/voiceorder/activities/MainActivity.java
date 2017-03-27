@@ -128,50 +128,50 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
     }
 
     @Override
-    public void record() {
+    public void onStartRecording() {
         if (!recordAndStopButton.isRecording()) {
             if (!wakeLock.isHeld()) {
                 wakeLock.acquire(); // 유저가 강제로 화면을 끈 상태에서도 백그라운드에서  계속 작동하도록
-                Log.e("MainActivity", "wakeLock.acquire in record()");
+                Log.e("MainActivity", "wakeLock.acquire in onStartRecording()");
             }
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
             Log.d("MainActivity", getAvailableInternalMemorySize() + "");
+
             if (getAvailableInternalMemorySize() < REQUIRED_SPACE) {
-                Dialogs.showNoAvailableInternalMemoryDialog(this, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        finish();
-                    }
-                });
-            }
-
-            if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
-                Dialogs.showNoInternetConnectivityAlertDialog(this, null);
+                Dialogs.showNoAvailableInternalMemoryDialog(this, null);
             } else {
-                if (PreferenceManager.getUserFirstVisit(this)) {
-                    PreferenceManager.setUserFirstVisit(this);
-                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.white)));
-                }
-
-                time = System.currentTimeMillis();
-                fileName = makeFileName();
-                initRecorder(fileName);
-                startRecord();
-
-                replaceableLayout.replaceChildView(recordingLayout.getView());
-                recordAndStopButton.setStopButton();
+                startRecording();
             }
         }
     }
 
+    private void startRecording() {
+        if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
+            Dialogs.showNoInternetConnectivityAlertDialog(this, null);
+        } else {
+            if (PreferenceManager.getUserFirstVisit(this)) {
+                PreferenceManager.setUserFirstVisit(this);
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.white)));
+            }
+
+            time = System.currentTimeMillis();
+            fileName = makeFileName();
+            initRecorder(fileName);
+            startRecord();
+
+            replaceableLayout.replaceChildView(recordingLayout.getView());
+            recordAndStopButton.setStopButton();
+        }
+    }
+
     @Override
-    public void stop() {
+    public void onStopRecording() {
 
         if (recordAndStopButton.isRecording()) {
             if (wakeLock.isHeld()) {
                 wakeLock.release();
-                Log.e("MainActivity", "wakeLock.release in stop()");
+                Log.e("MainActivity", "wakeLock.release in onStopRecording()");
             }
             getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
