@@ -1,10 +1,14 @@
 package com.rena21c.voiceorder.activities;
 
+
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.PowerManager;
+import android.os.StatFs;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.WindowManager;
@@ -46,6 +50,8 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
     private OrderViewPagerLayout orderViewPagerLayout;
     private PowerManager.WakeLock wakeLock;
 
+    private long REQUIRED_SPACE = 5 * 1024 * 1024;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,7 +63,11 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
     @Override protected void onStop() {
         super.onStop();
-        wakeLock.release();
+
+        if (wakeLock.isHeld()) {
+            wakeLock.release();
+            Log.e("MainActivity", "wakeLock.release in onStop()");
+        }
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
@@ -119,59 +129,81 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
     @Override
     public void record() {
-        wakeLock.acquire(); // 유저가 강제로 화면을 끈 상태에서도 백그라운드에서  계속 작동하도록
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-        if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
-            Dialogs.showNoInternetConnectivityAlertDialog(this, null);
-        } else {
-            time = System.currentTimeMillis();
-
-            fileName = makeFileName();
-
-            initRecorder(fileName);
-            startRecord();
-
-            if (PreferenceManager.getUserFirstVisit(this)) {
-                PreferenceManager.setUserFirstVisit(this);
-                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.white)));
+        if (!recordAndStopButton.isRecording()) {
+            if (!wakeLock.isHeld()) {
+                wakeLock.acquire(); // 유저가 강제로 화면을 끈 상태에서도 백그라운드에서  계속 작동하도록
+                Log.e("MainActivity", "wakeLock.acquire in record()");
             }
-            replaceableLayout.replaceChildView(recordingLayout.getView());
+            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
+            Log.d("MainActivity", getAvailableInternalMemorySize() + "");
+            if (getAvailableInternalMemorySize() < REQUIRED_SPACE) {
+                Dialogs.showNoAvailableInternalMemoryDialog(this, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                });
+            }
+
+            if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
+                Dialogs.showNoInternetConnectivityAlertDialog(this, null);
+            } else {
+                if (PreferenceManager.getUserFirstVisit(this)) {
+                    PreferenceManager.setUserFirstVisit(this);
+                    getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.white)));
+                }
+
+                time = System.currentTimeMillis();
+                fileName = makeFileName();
+                initRecorder(fileName);
+                startRecord();
+
+                replaceableLayout.replaceChildView(recordingLayout.getView());
+                recordAndStopButton.setStopButton();
+            }
         }
     }
 
     @Override
     public void stop() {
-        wakeLock.release();
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        stopRecord();
+        if (recordAndStopButton.isRecording()) {
+            if (wakeLock.isHeld()) {
+                wakeLock.release();
+                Log.e("MainActivity", "wakeLock.release in stop()");
+            }
+            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        upload(new TransferListener() {
-            @Override
-            public void onStateChanged(int id, TransferState state) {
-                if (state == TransferState.COMPLETED) {
-                    PreferenceManager.setFileName(getApplicationContext(), fileName);
-                    orderViewPagerLayout.addOrder(App.makeTimeFromFileName(fileName));
-                    replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
-                } else {
-                    if (state != TransferState.IN_PROGRESS) {
-                        Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-                        FirebaseCrash.logcat(Log.WARN, "NETWORK", "Aws s3 transfer state: " + state);
+            stopRecord();
+
+            upload(new TransferListener() {
+                @Override
+                public void onStateChanged(int id, TransferState state) {
+                    if (state == TransferState.COMPLETED) {
+                        PreferenceManager.setFileName(getApplicationContext(), fileName);
+                        orderViewPagerLayout.addOrder(App.makeTimeFromFileName(fileName));
+                        replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
+                        recordAndStopButton.setRecordButton();
+                    } else {
+                        if (state != TransferState.IN_PROGRESS) {
+                            Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                            FirebaseCrash.logcat(Log.WARN, "NETWORK", "Aws s3 transfer state: " + state);
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-            }
+                @Override
+                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                }
 
-            @Override
-            public void onError(int id, Exception ex) {
-                Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-                FirebaseCrash.report(ex);
-            }
-        });
+                @Override
+                public void onError(int id, Exception ex) {
+                    Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
+                    FirebaseCrash.report(ex);
+                }
+            });
+        }
     }
 
     private void upload(TransferListener transferListener) {
@@ -180,5 +212,20 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         TransferUtility transferUtility = FileTransferUtil.getTransferUtility(this);
         TransferObserver transferObserver = transferUtility.upload(BUCKET_NAME, file.getName(), file);
         transferObserver.setTransferListener(transferListener);
+    }
+
+    private long getAvailableInternalMemorySize() {
+        File path = Environment.getDataDirectory();
+        StatFs stat = new StatFs(path.getPath());
+        long blockSize;
+        long availableBlocks;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            availableBlocks = stat.getAvailableBlocksLong();
+            blockSize = stat.getBlockSizeLong();
+        } else {
+            availableBlocks = stat.getAvailableBlocks();
+            blockSize = stat.getBlockSize();
+        }
+        return availableBlocks * blockSize;
     }
 }

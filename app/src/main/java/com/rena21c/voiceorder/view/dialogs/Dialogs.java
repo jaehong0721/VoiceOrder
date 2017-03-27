@@ -69,4 +69,14 @@ public class Dialogs {
 
         return blockingDialog;
     }
+
+    public static void showNoAvailableInternalMemoryDialog(Activity activity, DialogInterface.OnClickListener listener) {
+        new android.support.v7.app.AlertDialog
+                .Builder(activity)
+                .setCancelable(false)
+                .setMessage("녹음파일을 저장할 여유공간이 부족합니다. 여유공간 확보 후 다시 시도해주세요.")
+                .setPositiveButton("종료", listener)
+                .create()
+                .show();
+    }
 }
