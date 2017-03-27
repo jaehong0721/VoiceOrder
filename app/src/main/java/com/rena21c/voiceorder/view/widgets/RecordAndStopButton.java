@@ -39,7 +39,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
     private final int PULSE_CYCLE = 700;
 
-    private boolean isRecord = false;
+    private boolean isRecording = false;
 
     private RelativeLayout buttonLayout;
     private ImageView ivAnimation;
@@ -134,20 +134,16 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
     @Override
     public void onClick(View v) {
 
-        if(isRecord) {
-            isRecord = false;
-            setRecordButton();
+        if(isRecording) {
             listener.stop();
-
         }
         else {
-            isRecord = true;
-            setStopButton();
             listener.record();
         }
     }
 
-    private void setRecordButton() {
+    public void setRecordButton() {
+        isRecording = false;
         Animation shortHeightAni = new showHeightChangeAnimation(buttonLayout, HEIGHT_WITH_ORDER_LIST_LAYOUT);
         shortHeightAni.setDuration(200);
         buttonLayout.startAnimation(shortHeightAni);
@@ -160,7 +156,8 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         ivStop.setVisibility(View.INVISIBLE);
     }
 
-    private void setStopButton() {
+    public void setStopButton() {
+        isRecording = true;
         Animation longHeightAni = new showHeightChangeAnimation(buttonLayout, HEIGHT_WITH_RECORDING_LAYOUT);
         longHeightAni.setDuration(200);
         buttonLayout.startAnimation(longHeightAni);
@@ -193,8 +190,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         }
 
         @Override
-        public void initialize(int width, int height, int parentWidth,
-                               int parentHeight) {
+        public void initialize(int width, int height, int parentWidth, int parentHeight) {
             super.initialize(width, height, parentWidth, parentHeight);
         }
 
@@ -203,4 +199,9 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
             return true;
         }
     }
+
+    public boolean isRecording() {
+        return isRecording;
+    }
+
 }
