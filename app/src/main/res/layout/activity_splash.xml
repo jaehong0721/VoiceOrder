@@ -10,6 +10,11 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.rena21c.voiceorder.activities.SplashActivity">
 
+    <TextView
+        android:id="@+id/tvStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+
     <ProgressBar
         android:layout_centerInParent="true"
         android:layout_width="wrap_content"

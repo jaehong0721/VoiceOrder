@@ -6,7 +6,6 @@ import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.PowerManager;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
@@ -124,22 +123,21 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
-            AlertDialog blockingDialog = Dialogs.createNoInternetConnectivityAlertDialog(this);
-            blockingDialog.show();
-            return;
+            Dialogs.showNoInternetConnectivityAlertDialog(this, null);
+        } else {
+            time = System.currentTimeMillis();
+
+            fileName = makeFileName();
+
+            initRecorder(fileName);
+            startRecord();
+
+            if (PreferenceManager.getUserFirstVisit(this)) {
+                PreferenceManager.setUserFirstVisit(this);
+                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.white)));
+            }
+            replaceableLayout.replaceChildView(recordingLayout.getView());
         }
-        time = System.currentTimeMillis();
-
-        fileName = makeFileName();
-
-        initRecorder(fileName);
-        startRecord();
-
-        if (PreferenceManager.getUserFirstVisit(this)) {
-            PreferenceManager.setUserFirstVisit(this);
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.white)));
-        }
-        replaceableLayout.replaceChildView(recordingLayout.getView());
     }
 
     @Override
