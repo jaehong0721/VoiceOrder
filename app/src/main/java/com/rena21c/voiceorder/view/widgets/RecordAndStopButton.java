@@ -39,7 +39,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
     private final int PULSE_CYCLE = 700;
 
-    private boolean isRecord = false;
+    private boolean isRecording = false;
 
     private RelativeLayout buttonLayout;
     private ImageView ivAnimation;
@@ -134,7 +134,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
     @Override
     public void onClick(View v) {
 
-        if(isRecord) {
+        if(isRecording) {
             listener.stop();
         }
         else {
@@ -143,7 +143,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
     }
 
     public void setRecordButton() {
-        isRecord = false;
+        isRecording = false;
         Animation shortHeightAni = new showHeightChangeAnimation(buttonLayout, HEIGHT_WITH_ORDER_LIST_LAYOUT);
         shortHeightAni.setDuration(200);
         buttonLayout.startAnimation(shortHeightAni);
@@ -157,7 +157,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
     }
 
     public void setStopButton() {
-        isRecord = true;
+        isRecording = true;
         Animation longHeightAni = new showHeightChangeAnimation(buttonLayout, HEIGHT_WITH_RECORDING_LAYOUT);
         longHeightAni.setDuration(200);
         buttonLayout.startAnimation(longHeightAni);
@@ -199,4 +199,9 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
             return true;
         }
     }
+
+    public boolean isRecording() {
+        return isRecording;
+    }
+
 }
