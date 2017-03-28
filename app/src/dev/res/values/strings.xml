@@ -1,3 +1,5 @@
 <resources>
-    <string name="app_name">VoiceOrder dev</string>
+    <string name="app_name">거상 베타</string>
+    <string name="server_address">http://52.78.67.115:9000</string>
+    <string name="s3_cognito_pool_id">ap-northeast-2:f89041e3-87de-4d3c-bfe2-e6de8405e78a</string>
 </resources>

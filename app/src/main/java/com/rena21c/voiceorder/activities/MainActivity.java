@@ -2,7 +2,6 @@ package com.rena21c.voiceorder.activities;
 
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaRecorder;
 import android.os.Bundle;
@@ -95,9 +94,9 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         recorder = new MediaRecorder();
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        recorder.setAudioSamplingRate(44100);
-        recorder.setAudioEncodingBitRate(128000);
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB);
+        recorder.setAudioSamplingRate(16000);
+        recorder.setAudioEncodingBitRate(23850);
         recorder.setOutputFile(getFilesDir().getPath() + "/" + fileName + ".mp4");
     }
 
