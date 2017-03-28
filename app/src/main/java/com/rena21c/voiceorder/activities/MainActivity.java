@@ -96,7 +96,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB);
         recorder.setAudioSamplingRate(16000);
-        recorder.setAudioEncodingBitRate(23850);
+        recorder.setAudioEncodingBitRate(128000);
         recorder.setOutputFile(getFilesDir().getPath() + "/" + fileName + ".mp4");
     }
 
@@ -207,7 +207,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
     }
 
     private void upload(TransferListener transferListener) {
-        final String BUCKET_NAME = "tgmorders";
+        final String BUCKET_NAME = getResources().getString(R.string.s3_bucket_name);
         File file = new File(getFilesDir().getPath() + "/" + fileName + ".mp4");
         TransferUtility transferUtility = FileTransferUtil.getTransferUtility(this);
         TransferObserver transferObserver = transferUtility.upload(BUCKET_NAME, file.getName(), file);
