@@ -2,7 +2,6 @@ package com.rena21c.voiceorder.activities;
 
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.drawable.ColorDrawable;
 import android.media.MediaRecorder;
 import android.os.Bundle;
@@ -208,7 +207,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
     }
 
     private void upload(TransferListener transferListener) {
-        final String BUCKET_NAME = "tgmorders";
+        final String BUCKET_NAME = getResources().getString(R.string.s3_bucket_name);
         File file = new File(getFilesDir().getPath() + "/" + fileName + ".mp4");
         TransferUtility transferUtility = FileTransferUtil.getTransferUtility(this);
         TransferObserver transferObserver = transferUtility.upload(BUCKET_NAME, file.getName(), file);

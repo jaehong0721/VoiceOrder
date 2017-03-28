@@ -8,9 +8,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3Client;
 
 public class FileTransferUtil {
-
-    public static final String COGNITO_POOL_ID = "ap-northeast-2:f89041e3-87de-4d3c-bfe2-e6de8405e78a";
-
+    private static final String S3_COGNITO_POOL_ID = "ap-northeast-2:f89041e3-87de-4d3c-bfe2-e6de8405e78a";
     private static AmazonS3Client sS3Client;
     private static CognitoCachingCredentialsProvider sCredProvider;
     private static TransferUtility sTransferUtility;
@@ -19,7 +17,7 @@ public class FileTransferUtil {
         if (sCredProvider == null) {
             sCredProvider = new CognitoCachingCredentialsProvider(
                     context.getApplicationContext(),
-                    COGNITO_POOL_ID,
+                    S3_COGNITO_POOL_ID,
                     Regions.AP_NORTHEAST_2);
         }
         return sCredProvider;

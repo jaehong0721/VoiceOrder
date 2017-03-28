@@ -3,8 +3,9 @@ package com.rena21c.voiceorder.network;
 
 import android.content.Context;
 
+import com.rena21c.voiceorder.R;
+
 import okhttp3.OkHttpClient;
-import okhttp3.internal.tls.OkHostnameVerifier;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -18,7 +19,7 @@ public class RetrofitSingleton {
 
     public static Retrofit getInstance(Context context) {
 
-        String url = "http://52.78.67.115:9000";
+        String url = context.getString(R.string.server_address);
         if (INSTANCE == null) {
             OkHttpClient client = new OkHttpClient.Builder()
                     .addInterceptor(new ConnectivityIntercepter(context))

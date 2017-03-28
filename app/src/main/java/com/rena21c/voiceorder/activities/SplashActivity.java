@@ -176,6 +176,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void signIn(String customToken) {
+        Log.e("Splash", customToken + "입니다");
         appendText("앱을 시작합니다.");
         FirebaseAuth
                 .getInstance()
