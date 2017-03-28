@@ -94,8 +94,8 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         recorder = new MediaRecorder();
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
         recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_WB);
-        recorder.setAudioSamplingRate(16000);
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
+        recorder.setAudioSamplingRate(44100);
         recorder.setAudioEncodingBitRate(128000);
         recorder.setOutputFile(getFilesDir().getPath() + "/" + fileName + ".mp4");
     }
