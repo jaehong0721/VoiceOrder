@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+import com.google.firebase.database.DataSnapshot;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.view.adapters.OrderViewPagerAdapter;
 import com.rena21c.voiceorder.view.widgets.ViewPagerIndicator;
@@ -69,5 +70,9 @@ public class OrderViewPagerLayout extends RelativeLayout {
         orderViewPagerAdapter.add(fileName);
         viewPagerIndicator.addDot();
         orderViewPager.setCurrentItem(0);
+    }
+
+    public void replaceToAcceptedOrder(DataSnapshot dataSnapshot) {
+        orderViewPagerAdapter.replace(dataSnapshot);
     }
 }

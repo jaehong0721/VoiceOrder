@@ -7,13 +7,22 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.google.firebase.database.ValueEventListener;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.activities.OrderDetailActivity;
 import com.rena21c.voiceorder.model.Order;
+import com.rena21c.voiceorder.model.VendorInfo;
+import com.rena21c.voiceorder.model.VoiceRecord;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class OrderViewPagerAdapter extends PagerAdapter {
 
@@ -104,6 +113,40 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         notifyDataSetChanged();
     }
 
+    public void replace(DataSnapshot dataSnapshot) {
+        String timeStamp = (App.makeTimeFromFileName(dataSnapshot.getKey()));
+
+        GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, VoiceRecord>>() {};
+        HashMap<String, VoiceRecord> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
+
+        for(Order order : orders) {
+            if(order.timeStamp.equals(timeStamp) && order.itemHashMap == null) {
+                getVendorName(objectMap);
+                order.itemHashMap = objectMap;
+                break;
+            }
+        }
+        notifyDataSetChanged();
+    }
+
+    private HashMap getVendorName(final HashMap<String, VoiceRecord> itemHashMap) {
+        for (final String vendorPhoneNumber : itemHashMap.keySet()) {
+            FirebaseDatabase.getInstance().getReference().child("vendors")
+                    .child(vendorPhoneNumber)
+                    .child("info")
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                            VendorInfo vendorInfo = dataSnapshot.getValue(VendorInfo.class);
+                            itemHashMap.put(vendorInfo.vendorName, itemHashMap.remove(vendorPhoneNumber));
+                        }
+
+                        @Override public void onCancelled(DatabaseError databaseError) {
+                            Toast.makeText(context, databaseError.toString(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+        return itemHashMap;
+    }
     public ArrayList<Order> getOrders() {
         return orders;
     }

@@ -249,13 +249,14 @@ public class SplashActivity extends BaseActivity {
         if (objectMap == null && !fileNameList.isEmpty()) {
             //DB에는 데이터가 없고 APP에만 데이터가 있으면 APP데이터만 바인딩해줌
             for (String fileName : fileNameList) {
-                Log.e("fileName", fileName);
+                Log.e("case1", fileName);
                 String timeStamp = (App.makeTimeFromFileName(fileName));
                 orders.add(new Order(timeStamp, null));
             }
         } else if (objectMap != null && fileNameList.isEmpty()) {
             //DB에는 데이터가 있고 APP에는 없으면 DB데이터만 바인딩해줌
             for (String fileName : objectMap.keySet()) {
+                Log.e("case2", fileName);
                 String timeStamp = (App.makeTimeFromFileName(fileName));
                 HashMap<String, VoiceRecord> itemHashMap = getVendorName(objectMap.get(fileName));
                 orders.add(new Order(timeStamp, itemHashMap));
@@ -263,6 +264,7 @@ public class SplashActivity extends BaseActivity {
         } else if (objectMap != null && !fileNameList.isEmpty()) {
             //DB와 APP모두 데이터가 있으면 비교해서 데이터를 바인딩해줌
             for (String fileName : fileNameList) {
+                Log.e("case3", fileName);
                 String timeStamp = (App.makeTimeFromFileName(fileName));
                 if (objectMap.containsKey(fileName)) {
                     HashMap<String, VoiceRecord> itemHashMap = getVendorName(objectMap.get(fileName));

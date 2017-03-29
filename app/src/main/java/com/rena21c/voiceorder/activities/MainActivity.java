@@ -18,6 +18,10 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.google.firebase.crash.FirebaseCrash;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.PreferenceManager;
@@ -51,10 +55,24 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
     private long REQUIRED_SPACE = 5L * 1024L * 1024L;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.e("MainActivity", "OnCreate");
         setContentView(R.layout.activity_main);
+
+        setChildEventListener(new ChildEventListener() {
+            @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.e("catchDataChanged", dataSnapshot.getKey());
+                orderViewPagerLayout.replaceToAcceptedOrder(dataSnapshot);
+            }
+            @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
+            @Override public void onChildRemoved(DataSnapshot dataSnapshot) {}
+            @Override public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+            @Override public void onCancelled(DatabaseError databaseError) {}
+        });
+
         PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Recording");
         initView();
@@ -62,7 +80,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
     @Override protected void onStop() {
         super.onStop();
-
+   
         if (wakeLock.isHeld()) {
             wakeLock.release();
             Log.e("MainActivity", "wakeLock.release in onStop()");
@@ -194,8 +212,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
                 }
 
                 @Override
-                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                }
+                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {}
 
                 @Override
                 public void onError(int id, Exception ex) {
@@ -227,5 +244,15 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
             blockSize = stat.getBlockSize();
         }
         return availableBlocks * blockSize;
+    }
+
+    private void setChildEventListener(ChildEventListener childEventListener) {
+        String phoneNumber = PreferenceManager.setPhoneNumber(getApplicationContext());
+        FirebaseDatabase.getInstance().getReference().child("orders")
+                .child("restaurants")
+                .orderByKey()
+                .startAt(phoneNumber + "_00000000000000")
+                .endAt(phoneNumber + "_99999999999999")
+                .addChildEventListener(childEventListener);
     }
 }
