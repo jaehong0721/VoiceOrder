@@ -6,9 +6,6 @@ import android.util.Log;
 
 import com.google.firebase.crash.FirebaseCrash;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import static android.preference.PreferenceManager.getDefaultSharedPreferences;
 
 public class PreferenceManager {
@@ -56,24 +53,5 @@ public class PreferenceManager {
     public static String getPhoneNumber(Context context) {
         return getDefaultSharedPreferences(context)
                 .getString("phoneNumber", null);
-    }
-
-    public static void setFileName(Context context, String fileName) {
-        HashSet<String> fileNameList = (HashSet) getFileNameList(context);
-        fileNameList.add(fileName);
-        getDefaultSharedPreferences(context)
-                .edit()
-                .remove("fileNameList")
-                .apply();
-
-        getDefaultSharedPreferences(context)
-                .edit()
-                .putStringSet("fileNameList", fileNameList)
-                .apply();
-    }
-
-    public static Set<String> getFileNameList(Context context) {
-        return getDefaultSharedPreferences(context)
-                .getStringSet("fileNameList", new HashSet<String>());
     }
 }

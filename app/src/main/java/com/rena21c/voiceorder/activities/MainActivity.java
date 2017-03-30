@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.os.StatFs;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.WindowManager;
@@ -17,6 +18,8 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -47,14 +50,13 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
     private MediaRecorder recorder;
     private String fileName;
-    private long time;
+    private String phoneNumber;
 
     private RecordingLayout recordingLayout;
     private OrderViewPagerLayout orderViewPagerLayout;
     private PowerManager.WakeLock wakeLock;
 
-    private long REQUIRED_SPACE = 5L * 1024L * 1024L;
-
+    private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,13 +64,19 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         Log.e("MainActivity", "OnCreate");
         setContentView(R.layout.activity_main);
 
+        phoneNumber = PreferenceManager.setPhoneNumber(getApplicationContext());
+
         setChildEventListener(new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.e("onChildAdded", dataSnapshot.getKey());
                 orderViewPagerLayout.replaceToAcceptedOrder(dataSnapshot);
             }
-            @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
-            @Override public void onChildRemoved(DataSnapshot dataSnapshot) {}
+            @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Log.e("onChildChanged", dataSnapshot.getKey());
+            }
+            @Override public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.e("onChildRemoved", dataSnapshot.getKey());
+            }
             @Override public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
             @Override public void onCancelled(DatabaseError databaseError) {}
         });
@@ -117,7 +125,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         recorder.setOutputFile(getFilesDir().getPath() + "/" + fileName + ".mp4");
     }
 
-    private String makeFileName() {
+    private String makeFileName(long time) {
         SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
         String date = dayTime.format(new Date(time));
         fileName = PreferenceManager.getPhoneNumber(getApplicationContext()) + "_" + date;
@@ -171,14 +179,11 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
                 PreferenceManager.setUserFirstVisit(this);
                 getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.white)));
             }
-
-            time = System.currentTimeMillis();
-            fileName = makeFileName();
+            long time = System.currentTimeMillis();
+            fileName = makeFileName(time);
             initRecorder(fileName);
             startRecord();
-
-            replaceableLayout.replaceChildView(recordingLayout.getView());
-            recordAndStopButton.setStopButton();
+            replaceViewToRecording();
         }
     }
 
@@ -198,10 +203,8 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
                 @Override
                 public void onStateChanged(int id, TransferState state) {
                     if (state == TransferState.COMPLETED) {
-                        PreferenceManager.setFileName(getApplicationContext(), fileName);
-                        orderViewPagerLayout.addOrder(App.makeTimeFromFileName(fileName));
-                        replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
-                        recordAndStopButton.setRecordButton();
+//                        PreferenceManager.setFileName(getApplicationContext(), fileName);
+                        storeFileName();
                     } else {
                         if (state != TransferState.IN_PROGRESS) {
                             Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
@@ -220,6 +223,24 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
                 }
             });
         }
+    }
+
+    private void storeFileName() {
+        FirebaseDatabase.getInstance().getReference().child("restaurants")
+                .child(phoneNumber)
+                .child("recordedOrders")
+                .push()
+                .child("fileName")
+                .setValue(fileName)
+                .addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            replaceViewToUnRecording();
+                        } else {
+                            Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     private void upload(TransferListener transferListener) {
@@ -245,13 +266,25 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         return availableBlocks * blockSize;
     }
 
+    private void replaceViewToRecording() {
+        replaceableLayout.replaceChildView(recordingLayout.getView());
+        recordAndStopButton.setStopButton();
+    }
+
+    private void replaceViewToUnRecording() {
+        orderViewPagerLayout.addOrder(App.makeTimeFromFileName(fileName));
+        replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
+        recordAndStopButton.setRecordButton();
+    }
+
     private void setChildEventListener(ChildEventListener childEventListener) {
-        String phoneNumber = PreferenceManager.setPhoneNumber(getApplicationContext());
+        Log.e("MainActivity", "setChildEventListener 1");
         FirebaseDatabase.getInstance().getReference().child("orders")
                 .child("restaurants")
                 .orderByKey()
                 .startAt(phoneNumber + "_00000000000000")
                 .endAt(phoneNumber + "_99999999999999")
                 .addChildEventListener(childEventListener);
+        Log.e("MainActivity", "setChildEventListener 2");
     }
 }
