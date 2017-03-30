@@ -70,7 +70,7 @@ public class SplashActivity extends BaseActivity {
                 this,
                 new String[]{Manifest.permission.READ_PHONE_STATE, Manifest.permission.RECORD_AUDIO},
                 "회원가입을 위한 전화번호, 주문을 위한 녹음 권한을 요청합니다.",
-                "앱에서 팔요한 권한을 요청을 할 수 없습니다.\n\n" + "서비스를 계속 사용하기 위해서 \"설정\" 버튼을 누르신 후, 권한 탭에서 직접 권한을 허락해 주세요.");
+                "앱에서 필요한 권한을 요청을 할 수 없습니다.\n\n" + "서비스를 계속 사용하기 위해서 \"설정\" 버튼을 누르신 후, 권한 탭에서 직접 권한을 허락해 주세요.");
 
         if (PreferenceManager.getUserFirstVisit(this)) {
             addLauncherIconToHomeScreen();
@@ -249,13 +249,14 @@ public class SplashActivity extends BaseActivity {
         if (objectMap == null && !fileNameList.isEmpty()) {
             //DB에는 데이터가 없고 APP에만 데이터가 있으면 APP데이터만 바인딩해줌
             for (String fileName : fileNameList) {
-                Log.e("fileName", fileName);
+                Log.e("case1", fileName);
                 String timeStamp = (App.makeTimeFromFileName(fileName));
                 orders.add(new Order(timeStamp, null));
             }
         } else if (objectMap != null && fileNameList.isEmpty()) {
             //DB에는 데이터가 있고 APP에는 없으면 DB데이터만 바인딩해줌
             for (String fileName : objectMap.keySet()) {
+                Log.e("case2", fileName);
                 String timeStamp = (App.makeTimeFromFileName(fileName));
                 HashMap<String, VoiceRecord> itemHashMap = getVendorName(objectMap.get(fileName));
                 orders.add(new Order(timeStamp, itemHashMap));
@@ -263,6 +264,7 @@ public class SplashActivity extends BaseActivity {
         } else if (objectMap != null && !fileNameList.isEmpty()) {
             //DB와 APP모두 데이터가 있으면 비교해서 데이터를 바인딩해줌
             for (String fileName : fileNameList) {
+                Log.e("case3", fileName);
                 String timeStamp = (App.makeTimeFromFileName(fileName));
                 if (objectMap.containsKey(fileName)) {
                     HashMap<String, VoiceRecord> itemHashMap = getVendorName(objectMap.get(fileName));

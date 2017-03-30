@@ -27,7 +27,7 @@ public class OrderDetailActivity extends BaseActivity {
         String timeStamp = getIntent().getStringExtra("timeStamp");
         HashMap<String, VoiceRecord> itemHashMap = (HashMap<String, VoiceRecord>) getIntent().getSerializableExtra("itemHashMap");
 
-                ActionBarViewModel.createWithActionBar(this, getSupportActionBar())
+        ActionBarViewModel.createWithActionBar(this, getSupportActionBar())
                 .setBackButtonClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -35,10 +35,10 @@ public class OrderDetailActivity extends BaseActivity {
                     }
                 });
 
-        tvTimeStamp = (TextView)findViewById(R.id.tvTimeStamp);
+        tvTimeStamp = (TextView) findViewById(R.id.tvTimeStamp);
         tvTimeStamp.setText(timeStamp);
 
-        recyclerView = (RecyclerView)findViewById(R.id.recyclerView);
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         OrderDetailRecyclerAdapter orderDetailRecyclerAdapter = new OrderDetailRecyclerAdapter(itemHashMap);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(orderDetailRecyclerAdapter);
