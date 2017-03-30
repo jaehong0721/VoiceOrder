@@ -22,6 +22,10 @@ public class OrderViewPagerLayout extends RelativeLayout {
     private ViewPagerIndicator viewPagerIndicator;
     private View view;
 
+    public interface ReplaceToAcceptedOrderFinishedListener {
+        void onFinish(int position);
+    }
+
     private OrderViewPagerLayout(Context context, ViewGroup rootView) {
         super(context);
         init(context, rootView);
@@ -73,6 +77,12 @@ public class OrderViewPagerLayout extends RelativeLayout {
     }
 
     public void replaceToAcceptedOrder(DataSnapshot dataSnapshot) {
-        orderViewPagerAdapter.replace(dataSnapshot);
+        orderViewPagerAdapter.replace(dataSnapshot, new ReplaceToAcceptedOrderFinishedListener() {
+            @Override
+            public void onFinish(int position) {
+                orderViewPager.setCurrentItem(position, false);
+            }
+        });
     }
+
 }

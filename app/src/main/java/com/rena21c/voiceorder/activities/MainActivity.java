@@ -64,7 +64,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
         setChildEventListener(new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.e("catchDataChanged", dataSnapshot.getKey());
+                Log.e("onChildAdded", dataSnapshot.getKey());
                 orderViewPagerLayout.replaceToAcceptedOrder(dataSnapshot);
             }
             @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {}
@@ -80,7 +80,6 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
 
     @Override protected void onStop() {
         super.onStop();
-   
         if (wakeLock.isHeld()) {
             wakeLock.release();
             Log.e("MainActivity", "wakeLock.release in onStop()");

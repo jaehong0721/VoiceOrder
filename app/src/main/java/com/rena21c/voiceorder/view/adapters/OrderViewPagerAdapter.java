@@ -20,6 +20,7 @@ import com.rena21c.voiceorder.activities.OrderDetailActivity;
 import com.rena21c.voiceorder.model.Order;
 import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.model.VoiceRecord;
+import com.rena21c.voiceorder.view.components.OrderViewPagerLayout;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -113,20 +114,23 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         notifyDataSetChanged();
     }
 
-    public void replace(DataSnapshot dataSnapshot) {
-        String timeStamp = (App.makeTimeFromFileName(dataSnapshot.getKey()));
-
+    public void replace(DataSnapshot dataSnapshot, OrderViewPagerLayout.ReplaceToAcceptedOrderFinishedListener listener) {
         GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, VoiceRecord>>() {};
         HashMap<String, VoiceRecord> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
 
-        for(Order order : orders) {
-            if(order.timeStamp.equals(timeStamp) && order.itemHashMap == null) {
+        String timeStamp = (App.makeTimeFromFileName(dataSnapshot.getKey()));
+        int position = 0;
+
+        for(int i=0; i<orders.size(); i++) {
+            if(orders.get(i).timeStamp.equals(timeStamp) && orders.get(i).itemHashMap == null) {
                 getVendorName(objectMap);
-                order.itemHashMap = objectMap;
+                orders.get(i).itemHashMap = objectMap;
+                position = i;
                 break;
             }
         }
         notifyDataSetChanged();
+        listener.onFinish(position);
     }
 
     private HashMap getVendorName(final HashMap<String, VoiceRecord> itemHashMap) {
