@@ -93,6 +93,8 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
             Log.e("MainActivity", "wakeLock.release in onStop()");
         }
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        stopRecord();
+        replaceViewToUnRecording();
     }
 
     private void initView() {
@@ -203,7 +205,6 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
                 @Override
                 public void onStateChanged(int id, TransferState state) {
                     if (state == TransferState.COMPLETED) {
-//                        PreferenceManager.setFileName(getApplicationContext(), fileName);
                         storeFileName();
                     } else {
                         if (state != TransferState.IN_PROGRESS) {
@@ -235,6 +236,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
+                            orderViewPagerLayout.addOrder(App.makeTimeFromFileName(fileName));
                             replaceViewToUnRecording();
                         } else {
                             Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
@@ -272,7 +274,6 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
     }
 
     private void replaceViewToUnRecording() {
-        orderViewPagerLayout.addOrder(App.makeTimeFromFileName(fileName));
         replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
         recordAndStopButton.setRecordButton();
     }
