@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -58,6 +59,10 @@ public class SplashActivity extends BaseActivity {
     private TextView tvStatus;
     private String phoneNumber;
     private PermissionManager permissionManager;
+
+    private List<String> fileNameList;
+    private HashMap<String, HashMap<String, String>> recordedFileMap;
+    private HashMap<String, HashMap<String, VoiceRecord>> acceptedOrderMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -206,7 +211,12 @@ public class SplashActivity extends BaseActivity {
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            dataLoad();
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dataLoad();
+                                }
+                            }).start();
                         } else {
                             Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                         }
@@ -216,11 +226,25 @@ public class SplashActivity extends BaseActivity {
 
     private void dataLoad() {
         Log.e("lifeCycle", "dataLoad");
-        //로컬 주문 데이터 로드
-        final List<String> fileNameList = new ArrayList(PreferenceManager.getFileNameList(getApplicationContext()));
-        Collections.sort(fileNameList, Collections.<String>reverseOrder());
+        final CountDownLatch latch = new CountDownLatch(2);
 
-        //db 주문 데이터 로드
+        //오퍼레이터 접수 전 데이터 로드
+        FirebaseDatabase.getInstance().getReference().child("restaurants")
+                .child(phoneNumber)
+                .child("recordedOrders")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                        GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String,String>>>(){};
+                        recordedFileMap = (HashMap)dataSnapshot.getValue(objectMapType);
+                        fileNameList = getSortedListFromMap(recordedFileMap);
+                        latch.countDown();
+                    }
+                    @Override public void onCancelled(DatabaseError databaseError) {
+                        Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+        //오퍼레이터 접수 후 데이터 로드
         FirebaseDatabase.getInstance().getReference().child("orders")
                 .child("restaurants")
                 .orderByKey()
@@ -228,46 +252,54 @@ public class SplashActivity extends BaseActivity {
                 .endAt(phoneNumber + "_99999999999999")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                        dataBinding(dataSnapshot, fileNameList);
-                        goToMain();
+                        GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {};
+                        acceptedOrderMap = (HashMap) dataSnapshot.getValue(objectMapType);
+                        latch.countDown();
                     }
-
                     @Override public void onCancelled(DatabaseError databaseError) {
                         Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
+        try {
+            latch.await();
+            dataBinding();
+            goToMain();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
-    private void dataBinding(DataSnapshot dataSnapshot, List<String> fileNameList) {
+    private List getSortedListFromMap(HashMap<String, HashMap<String, String>> recordedFileMap) {
+        List<String> fileNameList = new ArrayList();
+        if(recordedFileMap != null) {
+            for (HashMap<String, String> fileNameMap : recordedFileMap.values()) {
+                fileNameList.add(fileNameMap.get("fileName"));
+            }
+            Collections.sort(fileNameList, Collections.<String>reverseOrder());
+        }
+        return fileNameList;
+    }
+
+    private void dataBinding() {
         //App의 orders 초기화
         App.getApplication(getApplicationContext()).orders = new ArrayList<>();
         final ArrayList<Order> orders = App.getApplication(getApplicationContext()).orders;
 
         //데이터 바인딩
-        GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {};
-        HashMap<String, HashMap<String, VoiceRecord>> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
-        if (objectMap == null && !fileNameList.isEmpty()) {
-            //DB에는 데이터가 없고 APP에만 데이터가 있으면 APP데이터만 바인딩해줌
+        if (acceptedOrderMap == null && !fileNameList.isEmpty()) {
+            //접수 된 주문은 없고 접수 전 주문만 있을 때
             for (String fileName : fileNameList) {
                 Log.e("case1", fileName);
                 String timeStamp = (App.makeTimeFromFileName(fileName));
                 orders.add(new Order(timeStamp, null));
             }
-        } else if (objectMap != null && fileNameList.isEmpty()) {
-            //DB에는 데이터가 있고 APP에는 없으면 DB데이터만 바인딩해줌
-            for (String fileName : objectMap.keySet()) {
-                Log.e("case2", fileName);
-                String timeStamp = (App.makeTimeFromFileName(fileName));
-                HashMap<String, VoiceRecord> itemHashMap = getVendorName(objectMap.get(fileName));
-                orders.add(new Order(timeStamp, itemHashMap));
-            }
-        } else if (objectMap != null && !fileNameList.isEmpty()) {
-            //DB와 APP모두 데이터가 있으면 비교해서 데이터를 바인딩해줌
+        } else if (acceptedOrderMap != null && !fileNameList.isEmpty()) {
+            //접수 후 주문과 접수 전 주문이 모두 있을 때
             for (String fileName : fileNameList) {
                 Log.e("case3", fileName);
                 String timeStamp = (App.makeTimeFromFileName(fileName));
-                if (objectMap.containsKey(fileName)) {
-                    HashMap<String, VoiceRecord> itemHashMap = getVendorName(objectMap.get(fileName));
+                if (acceptedOrderMap.containsKey(fileName)) {
+                    HashMap<String, VoiceRecord> itemHashMap = getVendorName(acceptedOrderMap.get(fileName));
                     orders.add(new Order(timeStamp, itemHashMap));
                 } else {
                     orders.add(new Order(timeStamp, null));
