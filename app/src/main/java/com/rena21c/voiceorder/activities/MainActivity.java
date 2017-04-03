@@ -1,18 +1,12 @@
 package com.rena21c.voiceorder.activities;
 
 
-import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.PowerManager;
 import android.os.StatFs;
 import android.support.annotation.NonNull;
-import android.support.v4.content.ContextCompat;
 import android.util.Log;
-import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
@@ -25,38 +19,25 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
-import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.PreferenceManager;
 import com.rena21c.voiceorder.network.FileTransferUtil;
 import com.rena21c.voiceorder.network.NetworkUtil;
-import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
-import com.rena21c.voiceorder.view.components.OrderViewPagerLayout;
-import com.rena21c.voiceorder.view.components.RecordGuideLayout;
-import com.rena21c.voiceorder.view.components.RecordingLayout;
-import com.rena21c.voiceorder.view.components.ReplaceableLayout;
-import com.rena21c.voiceorder.view.dialogs.Dialogs;
-import com.rena21c.voiceorder.view.widgets.RecordAndStopButton;
 
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class MainActivity extends BaseActivity implements RecordAndStopButton.activateRecorderListener {
+public class MainActivity extends BaseActivity {
 
-    private ReplaceableLayout replaceableLayout;
-    private RecordAndStopButton recordAndStopButton;
-
+    private MainView mainView;
     private MediaRecorder recorder;
     private String fileName;
     private String phoneNumber;
 
-    private RecordingLayout recordingLayout;
-    private OrderViewPagerLayout orderViewPagerLayout;
-    private PowerManager.WakeLock wakeLock;
-
     private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
+    private boolean isUploading;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,12 +45,12 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         Log.e("MainActivity", "OnCreate");
         setContentView(R.layout.activity_main);
 
+        mainView = new MainView(MainActivity.this);
         phoneNumber = PreferenceManager.setPhoneNumber(getApplicationContext());
 
-        setChildEventListener(new ChildEventListener() {
+        setAcceptedOrderEventListener(new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.e("onChildAdded", dataSnapshot.getKey());
-                orderViewPagerLayout.replaceToAcceptedOrder(dataSnapshot);
+                mainView.acceptedOrder(dataSnapshot);
             }
             @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 Log.e("onChildChanged", dataSnapshot.getKey());
@@ -80,41 +61,48 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
             @Override public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
             @Override public void onCancelled(DatabaseError databaseError) {}
         });
-
-        PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "Recording");
-        initView();
     }
 
-    @Override protected void onStop() {
+    @Override
+    protected void onStop() {
         super.onStop();
-        if (wakeLock.isHeld()) {
-            wakeLock.release();
-            Log.e("MainActivity", "wakeLock.release in onStop()");
-        }
-        getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         stopRecord();
-        replaceViewToUnRecording();
+        mainView.clearKeepScreenOn();
+        mainView.replaceViewToUnRecording();
     }
 
-    private void initView() {
-        ActionBarViewModel.createWithActionBar(getApplicationContext(), getSupportActionBar());
-
-        replaceableLayout = (ReplaceableLayout) findViewById(R.id.replaceableLayout);
-        recordingLayout = RecordingLayout.getInstance(this, replaceableLayout);
-        orderViewPagerLayout = OrderViewPagerLayout.getInstance(this, replaceableLayout);
-
-        recordAndStopButton = (RecordAndStopButton) findViewById(R.id.btnRecordAndStop);
-        recordAndStopButton.setListener(this);
-
-        if (PreferenceManager.getUserFirstVisit(this)) {
-            getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.primaryYellow)));
-            recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_GUIDE_LAYOUT);
-            replaceableLayout.replaceChildView(RecordGuideLayout.getInstance(this, replaceableLayout).getView());
+    public void startedRecording() {
+        if (getAvailableInternalMemorySize() < REQUIRED_SPACE) {
+            mainView.showDialog(MainView.NO_INTERNAL_MEMORY);
         } else {
-            recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_ORDER_LIST_LAYOUT);
-            replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
+            mainView.setKeepScreenOn();
+            startRecording();
         }
+    }
+
+    private void startRecording() {
+        if (isUploading) {
+            mainView.showToastIsUploading();
+        } else {
+            if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
+                mainView.showDialog(MainView.NO_INTERNET_CONNECT);
+            } else {
+                if (PreferenceManager.getUserFirstVisit(this)) {
+                    PreferenceManager.setUserFirstVisit(this);
+                    mainView.changeActionBarColorToWhite();
+                }
+                fileName = makeFileName(System.currentTimeMillis());
+                initRecorder(fileName);
+                startRecord();
+            }
+        }
+    }
+
+    private String makeFileName(long time) {
+        SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
+        String date = dayTime.format(new Date(time));
+        fileName = PreferenceManager.getPhoneNumber(getApplicationContext()) + "_" + date;
+        return fileName;
     }
 
     private void initRecorder(String fileName) {
@@ -127,22 +115,49 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         recorder.setOutputFile(getFilesDir().getPath() + "/" + fileName + ".mp4");
     }
 
-    private String makeFileName(long time) {
-        SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
-        String date = dayTime.format(new Date(time));
-        fileName = PreferenceManager.getPhoneNumber(getApplicationContext()) + "_" + date;
-        return fileName;
-    }
-
     private void startRecord() {
         try {
             recorder.prepare();
             recorder.start();
+            mainView.replaceViewToRecording();
         } catch (IllegalStateException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void stoppedRecording() {
+        stopRecord();
+        mainView.clearKeepScreenOn();
+        mainView.replaceViewToUnRecording();
+
+        isUploading = true;
+        upload(new TransferListener() {
+            @Override public void onStateChanged(int id, TransferState state) {
+                if (state == TransferState.COMPLETED) {
+                    Log.e("s3 upload", "s3 state :" + state);
+                    storeFileName();
+                } else if(state == TransferState.WAITING_FOR_NETWORK) {
+                    Log.e("s3 upload", "s3 state :" + state);
+                    mainView.showToastWatingForNetwork();
+                } else if(state == TransferState.FAILED) {
+                    Log.e("s3 upload", "s3 state :" + state);
+                    mainView.showToastUploadError();
+                    isUploading = false;
+                    FirebaseCrash.logcat(Log.WARN, "NETWORK", "Aws s3 transfer state: " + state);
+                } else {
+                    Log.e("s3 upload", "s3 state :" + state);
+                }
+            }
+            @Override public void onError(int id, Exception ex) {
+                mainView.showToastUploadError();
+                isUploading = false;
+                FirebaseCrash.report(ex);
+            }
+            @Override public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {}
+        });
+
     }
 
     private void stopRecord() {
@@ -153,77 +168,12 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         }
     }
 
-    @Override
-    public void onStartRecording() {
-        if (!recordAndStopButton.isRecording()) {
-            if (!wakeLock.isHeld()) {
-                wakeLock.acquire(); // 유저가 강제로 화면을 끈 상태에서도 백그라운드에서  계속 작동하도록
-                Log.e("MainActivity", "wakeLock.acquire in onStartRecording()");
-            }
-            getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-            Log.d("MainActivity", getAvailableInternalMemorySize() + "");
-
-            Log.d("", "free space" + getAvailableInternalMemorySize());
-            if (getAvailableInternalMemorySize() < REQUIRED_SPACE) {
-                Dialogs.showNoAvailableInternalMemoryDialog(this, null);
-            } else {
-                startRecording();
-            }
-        }
-    }
-
-    private void startRecording() {
-        if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
-            Dialogs.showNoInternetConnectivityAlertDialog(this, null);
-        } else {
-            if (PreferenceManager.getUserFirstVisit(this)) {
-                PreferenceManager.setUserFirstVisit(this);
-                getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, android.R.color.white)));
-            }
-            long time = System.currentTimeMillis();
-            fileName = makeFileName(time);
-            initRecorder(fileName);
-            startRecord();
-            replaceViewToRecording();
-        }
-    }
-
-    @Override
-    public void onStopRecording() {
-
-        if (recordAndStopButton.isRecording()) {
-            if (wakeLock.isHeld()) {
-                wakeLock.release();
-                Log.e("MainActivity", "wakeLock.release in onStopRecording()");
-            }
-            getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-            stopRecord();
-
-            upload(new TransferListener() {
-                @Override
-                public void onStateChanged(int id, TransferState state) {
-                    if (state == TransferState.COMPLETED) {
-                        storeFileName();
-                    } else {
-                        if (state != TransferState.IN_PROGRESS) {
-                            Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-                            FirebaseCrash.logcat(Log.WARN, "NETWORK", "Aws s3 transfer state: " + state);
-                        }
-                    }
-                }
-
-                @Override
-                public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {}
-
-                @Override
-                public void onError(int id, Exception ex) {
-                    Toast.makeText(MainActivity.this, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-                    FirebaseCrash.report(ex);
-                }
-            });
-        }
+    private void upload(TransferListener transferListener) {
+        final String BUCKET_NAME = getResources().getString(R.string.s3_bucket_name);
+        File file = new File(getFilesDir().getPath() + "/" + fileName + ".mp4");
+        TransferUtility transferUtility = FileTransferUtil.getTransferUtility(this);
+        TransferObserver transferObserver = transferUtility.upload(BUCKET_NAME, file.getName(), file);
+        transferObserver.setTransferListener(transferListener);
     }
 
     private void storeFileName() {
@@ -236,21 +186,15 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            orderViewPagerLayout.addOrder(App.makeTimeFromFileName(fileName));
-                            replaceViewToUnRecording();
+                            mainView.addOrderToViewPager(fileName);
                         } else {
-                            Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            mainView.showToastUploadError();
+                            //s3에 올라간 파일 삭제?
+                            FirebaseCrash.report(task.getException());
                         }
+                        isUploading = false;
                     }
                 });
-    }
-
-    private void upload(TransferListener transferListener) {
-        final String BUCKET_NAME = getResources().getString(R.string.s3_bucket_name);
-        File file = new File(getFilesDir().getPath() + "/" + fileName + ".mp4");
-        TransferUtility transferUtility = FileTransferUtil.getTransferUtility(this);
-        TransferObserver transferObserver = transferUtility.upload(BUCKET_NAME, file.getName(), file);
-        transferObserver.setTransferListener(transferListener);
     }
 
     private long getAvailableInternalMemorySize() {
@@ -268,24 +212,12 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         return availableBlocks * blockSize;
     }
 
-    private void replaceViewToRecording() {
-        replaceableLayout.replaceChildView(recordingLayout.getView());
-        recordAndStopButton.setStopButton();
-    }
-
-    private void replaceViewToUnRecording() {
-        replaceableLayout.replaceChildView(orderViewPagerLayout.getView());
-        recordAndStopButton.setRecordButton();
-    }
-
-    private void setChildEventListener(ChildEventListener childEventListener) {
-        Log.e("MainActivity", "setChildEventListener 1");
+    private void setAcceptedOrderEventListener(ChildEventListener childEventListener) {
         FirebaseDatabase.getInstance().getReference().child("orders")
                 .child("restaurants")
                 .orderByKey()
                 .startAt(phoneNumber + "_00000000000000")
                 .endAt(phoneNumber + "_99999999999999")
                 .addChildEventListener(childEventListener);
-        Log.e("MainActivity", "setChildEventListener 2");
     }
 }
