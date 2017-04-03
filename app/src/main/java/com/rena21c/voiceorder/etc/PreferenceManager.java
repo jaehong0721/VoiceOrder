@@ -22,6 +22,18 @@ public class PreferenceManager {
                 .getBoolean("isFirst", true);
     }
 
+    public static boolean getLauncherIconCreated(Context context) {
+        return getDefaultSharedPreferences(context)
+                .getBoolean("isLauncerIconCreated", true);
+    }
+
+    public static void setLauncherIconCreated(Context context) {
+        getDefaultSharedPreferences(context)
+                .edit()
+                .putBoolean("isLauncerIconCreated", false)
+                .apply();
+    }
+
     public static void setFcmToken(Context context, String token) {
         getDefaultSharedPreferences(context)
                 .edit()
