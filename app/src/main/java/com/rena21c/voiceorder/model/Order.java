@@ -1,5 +1,7 @@
 package com.rena21c.voiceorder.model;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -30,6 +32,7 @@ public class Order  {
     public String makeItemList() {
         StringBuffer sb = new StringBuffer();
         ArrayList<OrderItem> items = new ArrayList<>();
+        Log.d("", "itemHashMap.values()" + itemHashMap.toString());
         for (VoiceRecord voiceRecord : itemHashMap.values()) {
             items.addAll(voiceRecord.orderItems);
         }
