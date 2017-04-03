@@ -50,7 +50,7 @@ public class MainActivity extends BaseActivity {
 
         setAcceptedOrderEventListener(new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                mainView.acceptedOrder(dataSnapshot);
+                mainView.replaceAcceptedOrder(dataSnapshot);
             }
             @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 Log.e("onChildChanged", dataSnapshot.getKey());
@@ -130,6 +130,7 @@ public class MainActivity extends BaseActivity {
     public void stoppedRecording() {
         stopRecord();
         mainView.clearKeepScreenOn();
+        mainView.addOrderToViewPager(fileName);
         mainView.replaceViewToUnRecording();
 
         isUploading = true;
@@ -140,10 +141,10 @@ public class MainActivity extends BaseActivity {
                     storeFileName();
                 } else if(state == TransferState.WAITING_FOR_NETWORK) {
                     Log.e("s3 upload", "s3 state :" + state);
-                    mainView.showToastWatingForNetwork();
+                    mainView.showToastWaitingForNetwork();
                 } else if(state == TransferState.FAILED) {
                     Log.e("s3 upload", "s3 state :" + state);
-                    mainView.showToastUploadError();
+                    mainView.replaceFailedOrder(fileName);
                     isUploading = false;
                     FirebaseCrash.logcat(Log.WARN, "NETWORK", "Aws s3 transfer state: " + state);
                 } else {
@@ -151,13 +152,12 @@ public class MainActivity extends BaseActivity {
                 }
             }
             @Override public void onError(int id, Exception ex) {
-                mainView.showToastUploadError();
+                mainView.replaceFailedOrder(fileName);
                 isUploading = false;
                 FirebaseCrash.report(ex);
             }
             @Override public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {}
         });
-
     }
 
     private void stopRecord() {
@@ -185,10 +185,8 @@ public class MainActivity extends BaseActivity {
                 .setValue(fileName)
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            mainView.addOrderToViewPager(fileName);
-                        } else {
-                            mainView.showToastUploadError();
+                        if (!task.isSuccessful()) {
+                            mainView.replaceFailedOrder(fileName);
                             //s3에 올라간 파일 삭제?
                             FirebaseCrash.report(task.getException());
                         }

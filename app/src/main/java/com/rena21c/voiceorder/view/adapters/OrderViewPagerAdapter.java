@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class OrderViewPagerAdapter extends PagerAdapter {
-
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<Order> orders;
@@ -71,14 +70,15 @@ public class OrderViewPagerAdapter extends PagerAdapter {
 
     //=============================================
     public View getView(int position) {
-        if (orders.get(position).itemHashMap == null)
+        if (orders.get(position).orderState == Order.IN_PROGRESS) {
             return getBeforeAcceptOrderView(position);
-        else
+        } else if(orders.get(position).orderState == Order.ACCEPTED) {
             return getAfterAcceptOrderView(position);
+        } else
+            return getFailedOrderView(position);
     }
 
     private View getBeforeAcceptOrderView(int position) {
-
         View view = layoutInflater.inflate(R.layout.before_accept_order_view, null, false);
         TextView tvTimeStamp = (TextView) view.findViewById(R.id.tvTimeStamp);
         tvTimeStamp.setText(orders.get(position).timeStamp);
@@ -86,7 +86,6 @@ public class OrderViewPagerAdapter extends PagerAdapter {
     }
 
     private View getAfterAcceptOrderView(final int position) {
-
         View view = layoutInflater.inflate(R.layout.after_accept_order_view, null, false);
         TextView tvTimeStamp = (TextView) view.findViewById(R.id.tvTimeStamp);
         TextView tvItemList = (TextView) view.findViewById(R.id.tvItemList);
@@ -109,12 +108,19 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         return view;
     }
 
+    private View getFailedOrderView(int position) {
+        View view = layoutInflater.inflate(R.layout.failed_order_view, null, false);
+        TextView tvTimeStamp = (TextView) view.findViewById(R.id.tvTimeStamp);
+        tvTimeStamp.setText(orders.get(position).timeStamp);
+        return view;
+    }
+
     public void add(String timeStamp) {
-        orders.add(0, new Order(timeStamp));
+        orders.add(0, new Order(Order.IN_PROGRESS, timeStamp, null));
         notifyDataSetChanged();
     }
 
-    public void replace(DataSnapshot dataSnapshot, OrderViewPagerLayout.ReplaceToAcceptedOrderFinishedListener listener) {
+    public void replaceToAcceptedOrder(DataSnapshot dataSnapshot, OrderViewPagerLayout.ReplaceOrderFinishedListener listener) {
         GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, VoiceRecord>>() {};
         HashMap<String, VoiceRecord> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
 
@@ -122,9 +128,25 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         int position = 0;
 
         for(int i=0; i<orders.size(); i++) {
-            if(orders.get(i).timeStamp.equals(timeStamp) && orders.get(i).itemHashMap == null) {
+            if(orders.get(i).timeStamp.equals(timeStamp) && orders.get(i).orderState == Order.IN_PROGRESS) {
                 getVendorName(objectMap);
                 orders.get(i).itemHashMap = objectMap;
+                orders.get(i).orderState = Order.ACCEPTED;
+                position = i;
+                break;
+            }
+        }
+        notifyDataSetChanged();
+        listener.onFinish(position);
+    }
+
+    public void replaceToFailedOrder(String fileName, OrderViewPagerLayout.ReplaceOrderFinishedListener listener) {
+        String timeStamp = (App.makeTimeFromFileName(fileName));
+        int position = 0;
+
+        for(int i=0; i<orders.size(); i++) {
+            if(orders.get(i).timeStamp.equals(timeStamp) && orders.get(i).orderState == Order.IN_PROGRESS) {
+                orders.get(i).orderState = Order.FAILED;
                 position = i;
                 break;
             }
@@ -150,8 +172,5 @@ public class OrderViewPagerAdapter extends PagerAdapter {
                     });
         }
         return itemHashMap;
-    }
-    public ArrayList<Order> getOrders() {
-        return orders;
     }
 }

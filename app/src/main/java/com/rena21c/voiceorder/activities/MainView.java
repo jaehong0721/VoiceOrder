@@ -88,8 +88,12 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         orderViewPagerLayout.addOrder(App.makeTimeFromFileName(fileName));
     }
 
-    public void acceptedOrder(DataSnapshot dataSnapshot) {
+    public void replaceAcceptedOrder(DataSnapshot dataSnapshot) {
         orderViewPagerLayout.replaceToAcceptedOrder(dataSnapshot);
+    }
+
+    public void replaceFailedOrder(String fileName) {
+        orderViewPagerLayout.replaceToFailedOrder(fileName);
     }
 
     public void showToastIsUploading() {
@@ -100,7 +104,7 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         Toast.makeText(activity, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
     }
 
-    public void showToastWatingForNetwork() {
+    public void showToastWaitingForNetwork() {
         Toast.makeText(activity, "네트워크 접속이 끊겼습니다. 네트워크 접속을 활성화해주세요", Toast.LENGTH_SHORT).show();
     }
 

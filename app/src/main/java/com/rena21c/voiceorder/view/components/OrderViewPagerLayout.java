@@ -22,7 +22,7 @@ public class OrderViewPagerLayout extends RelativeLayout {
     private ViewPagerIndicator viewPagerIndicator;
     private View view;
 
-    public interface ReplaceToAcceptedOrderFinishedListener {
+    public interface ReplaceOrderFinishedListener {
         void onFinish(int position);
     }
 
@@ -40,7 +40,7 @@ public class OrderViewPagerLayout extends RelativeLayout {
         orderViewPager = (ViewPager)view.findViewById(R.id.viewPager);
         orderViewPagerAdapter = new OrderViewPagerAdapter(context);
 
-        viewPagerIndicator.createDot(orderViewPagerAdapter.getOrders().size());
+        viewPagerIndicator.createDot(orderViewPagerAdapter.getCount());
         viewPagerIndicator.selectDot(0);
 
         orderViewPager.setAdapter(orderViewPagerAdapter);
@@ -77,10 +77,19 @@ public class OrderViewPagerLayout extends RelativeLayout {
     }
 
     public void replaceToAcceptedOrder(DataSnapshot dataSnapshot) {
-        orderViewPagerAdapter.replace(dataSnapshot, new ReplaceToAcceptedOrderFinishedListener() {
+        orderViewPagerAdapter.replaceToAcceptedOrder(dataSnapshot, new ReplaceOrderFinishedListener() {
             @Override
             public void onFinish(int position) {
                 orderViewPager.setCurrentItem(position, false);
+            }
+        });
+    }
+
+    public void replaceToFailedOrder(String fileName) {
+        orderViewPagerAdapter.replaceToFailedOrder(fileName, new ReplaceOrderFinishedListener() {
+            @Override
+            public void onFinish(int position) {
+                orderViewPager.setCurrentItem(position);
             }
         });
     }

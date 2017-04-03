@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="27dp"
+        android:layout_marginTop="75dp">
+
+        <TextView
+            android:id="@+id/tvTimeStamp"
+            android:layout_width="wrap_content"
+            android:layout_height="19dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:background="@drawable/rounded_edge_button_shape"
+            android:gravity="center"
+            android:text="21:28  03.23"
+            android:textColor="#ffffff" />
+
+        <TextView
+            android:id="@+id/tvFinish1"
+            android:layout_width="308dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvTimeStamp"
+            android:layout_marginTop="11dp"
+            android:lineSpacingExtra="5dp"
+            android:text="죄송합니다\n주문 전송이 실패하였습니다"
+            android:textSize="27sp" />
+
+        <TextView
+            android:id="@+id/tvFinish2"
+            android:layout_width="291dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/tvFinish1"
+            android:layout_marginTop="8dp"
+            android:text="다시 시도해주시기 바랍니다"
+            android:textSize="14sp" />
+    </RelativeLayout>
+
+</RelativeLayout>

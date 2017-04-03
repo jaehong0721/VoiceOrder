@@ -279,7 +279,7 @@ public class SplashActivity extends BaseActivity {
             for (String fileName : fileNameList) {
                 Log.e("case1", fileName);
                 String timeStamp = (App.makeTimeFromFileName(fileName));
-                orders.add(new Order(timeStamp, null));
+                orders.add(new Order(Order.IN_PROGRESS, timeStamp, null));
             }
         } else if (acceptedOrderMap != null && !fileNameList.isEmpty()) {
             //접수 후 주문과 접수 전 주문이 모두 있을 때
@@ -288,9 +288,9 @@ public class SplashActivity extends BaseActivity {
                 String timeStamp = (App.makeTimeFromFileName(fileName));
                 if (acceptedOrderMap.containsKey(fileName)) {
                     HashMap<String, VoiceRecord> itemHashMap = getVendorName(acceptedOrderMap.get(fileName));
-                    orders.add(new Order(timeStamp, itemHashMap));
+                    orders.add(new Order(Order.ACCEPTED, timeStamp, itemHashMap));
                 } else {
-                    orders.add(new Order(timeStamp, null));
+                    orders.add(new Order(Order.IN_PROGRESS, timeStamp, null));
                 }
             }
         }
