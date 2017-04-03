@@ -301,9 +301,11 @@ public class SplashActivity extends BaseActivity {
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override public void onDataChange(DataSnapshot dataSnapshot) {
                             VendorInfo vendorInfo = dataSnapshot.getValue(VendorInfo.class);
-                            itemHashMap.put(vendorInfo.vendorName, itemHashMap.remove(vendorPhoneNumber));
+                            VoiceRecord toRemove = itemHashMap.remove(vendorPhoneNumber);
+                            if(toRemove != null){
+                                itemHashMap.put(vendorInfo.vendorName, toRemove);
+                            }
                         }
-
                         @Override public void onCancelled(DatabaseError databaseError) {
                             Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
                         }

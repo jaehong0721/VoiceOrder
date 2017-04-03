@@ -15,4 +15,11 @@ public class OrderItem implements Serializable{
         this.count = count;
     }
 
+    @Override
+    public String toString() {
+        return "OrderItem{" +
+                "name='" + name + '\'' +
+                ", count='" + count + '\'' +
+                '}';
+    }
 }

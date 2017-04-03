@@ -9,4 +9,10 @@ public class VoiceRecord implements Serializable{
 
     public VoiceRecord() {}
 
+    @Override
+    public String toString() {
+        return "VoiceRecord{" +
+                "orderItems=" + orderItems +
+                '}';
+    }
 }
