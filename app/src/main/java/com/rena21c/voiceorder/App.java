@@ -3,6 +3,7 @@ package com.rena21c.voiceorder;
 import android.app.Application;
 import android.content.Context;
 
+import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.model.Order;
 
 import java.util.ArrayList;
@@ -16,6 +17,7 @@ public class App extends Application {
     }
 
     public ArrayList<Order> orders;
+    private AppPreferenceManager appPreferenceManager;
 
     @Override
     public void onCreate() {
@@ -32,6 +34,8 @@ public class App extends Application {
         );
 
         orders = new ArrayList<>();
+
+        appPreferenceManager = new AppPreferenceManager(this);
     }
 
     public static String makeTimeFromFileName(String fileName) {
@@ -53,5 +57,9 @@ public class App extends Application {
             sb.append(timeStamp.charAt(i));
         }
         return sb.toString();
+    }
+
+    public AppPreferenceManager getPreferenceManager() {
+        return appPreferenceManager;
     }
 }

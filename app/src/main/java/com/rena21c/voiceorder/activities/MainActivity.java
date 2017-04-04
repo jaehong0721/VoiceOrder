@@ -19,8 +19,9 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
-import com.rena21c.voiceorder.etc.PreferenceManager;
+import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.network.FileTransferUtil;
 import com.rena21c.voiceorder.network.NetworkUtil;
 
@@ -37,6 +38,7 @@ public class MainActivity extends BaseActivity {
 
     private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
     private boolean isUploading;
+    private AppPreferenceManager appPreferenceManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +46,9 @@ public class MainActivity extends BaseActivity {
         Log.e("MainActivity", "OnCreate");
         setContentView(R.layout.activity_main);
 
-        mainView = new MainView(MainActivity.this);
+        appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
+        mainView = new MainView(MainActivity.this, appPreferenceManager);
+
 
         setAcceptedOrderEventListener(new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -85,8 +89,8 @@ public class MainActivity extends BaseActivity {
             if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
                 mainView.showDialog(MainView.NO_INTERNET_CONNECT);
             } else {
-                if (PreferenceManager.getUserFirstVisit(this)) {
-                    PreferenceManager.setUserFirstVisit(this);
+                if (appPreferenceManager.getUserFirstVisit()) {
+                    appPreferenceManager.setUserFirstVisit();
                     mainView.changeActionBarColorToWhite();
                 }
                 fileName = makeFileName(System.currentTimeMillis());
@@ -99,7 +103,7 @@ public class MainActivity extends BaseActivity {
     private String makeFileName(long time) {
         SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
         String date = dayTime.format(new Date(time));
-        fileName = PreferenceManager.getPhoneNumber(getApplicationContext()) + "_" + date;
+        fileName = appPreferenceManager.getPhoneNumber() + "_" + date;
         return fileName;
     }
 
@@ -176,7 +180,7 @@ public class MainActivity extends BaseActivity {
 
     private void storeFileName() {
         FirebaseDatabase.getInstance().getReference().child("restaurants")
-                .child(PreferenceManager.getPhoneNumber(this))
+                .child(appPreferenceManager.getPhoneNumber())
                 .child("recordedOrders")
                 .push()
                 .child("fileName")
@@ -212,8 +216,8 @@ public class MainActivity extends BaseActivity {
         FirebaseDatabase.getInstance().getReference().child("orders")
                 .child("restaurants")
                 .orderByKey()
-                .startAt(PreferenceManager.getPhoneNumber(this) + "_00000000000000")
-                .endAt(PreferenceManager.getPhoneNumber(this) + "_99999999999999")
+                .startAt(appPreferenceManager.getPhoneNumber() + "_00000000000000")
+                .endAt(appPreferenceManager.getPhoneNumber() + "_99999999999999")
                 .addChildEventListener(childEventListener);
     }
 }

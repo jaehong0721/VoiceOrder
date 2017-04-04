@@ -22,7 +22,7 @@ import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.PermissionManager;
 import com.rena21c.voiceorder.etc.PlayServiceManager;
-import com.rena21c.voiceorder.etc.PreferenceManager;
+import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.etc.VersionManager;
 import com.rena21c.voiceorder.firebase.SimpleAuthListener;
 import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
@@ -64,6 +64,7 @@ public class SplashActivity extends BaseActivity {
     private FirebaseDbManager dbManager;
     private Retrofit retrofit;
     private ApiService apiService;
+    private AppPreferenceManager appPreferenceManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,10 +74,11 @@ public class SplashActivity extends BaseActivity {
         dbManager = new FirebaseDbManager(this, FirebaseDatabase.getInstance());
 
         permissionManager = PermissionManager.newInstance(this);
+        appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
 
-        if (PreferenceManager.getLauncherIconCreated(this)) {
+        if (appPreferenceManager.getLauncherIconCreated()) {
             LauncherUtil.addLauncherIconToHomeScreen(this, getClass());
-            PreferenceManager.setLauncherIconCreated(this);
+            appPreferenceManager.setLauncherIconCreated();
         }
 
 
@@ -140,9 +142,9 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void signInProcess() {
-        PreferenceManager.initPhoneNumber(getApplicationContext());
+        appPreferenceManager.initPhoneNumber();
         apiService
-                .getToken(PreferenceManager.getPhoneNumber(this))
+                .getToken(appPreferenceManager.getPhoneNumber())
                 .enqueue(new Callback<UserToken>() {
                     @Override public void onResponse(Call<UserToken> call, Response<UserToken> response) {
                         signIn(response.body().firebaseCustomAuthToken);
@@ -179,7 +181,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void storeFcmToken() {
-        dbManager.getFcmToken(PreferenceManager.getPhoneNumber(this), PreferenceManager.getFcmToken(this), new SimpleAuthListener(this) {
+        dbManager.getFcmToken(appPreferenceManager.getPhoneNumber(), appPreferenceManager.getFcmToken(), new SimpleAuthListener(this) {
             @Override public void onSuccess(Object o) {
                 new Thread(new Runnable() {
                     @Override public void run() {
@@ -194,7 +196,7 @@ public class SplashActivity extends BaseActivity {
         Log.e("lifeCycle", "dataLoadSync");
         final CountDownLatch latch = new CountDownLatch(2);
 
-        dbManager.getRecordOrder(PreferenceManager.getPhoneNumber(this), new ToastErrorHandlingListener(this) {
+        dbManager.getRecordOrder(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, String>>>() {};
                 recordedFileMap = (HashMap) dataSnapshot.getValue(objectMapType);
@@ -204,7 +206,7 @@ public class SplashActivity extends BaseActivity {
         });
 
         //오퍼레이터 접수 후 데이터 로드
-        dbManager.getAcceptedOrder(PreferenceManager.getPhoneNumber(this), new ToastErrorHandlingListener(this) {
+        dbManager.getAcceptedOrder(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {};
                 acceptedOrderMap = (HashMap) dataSnapshot.getValue(objectMapType);

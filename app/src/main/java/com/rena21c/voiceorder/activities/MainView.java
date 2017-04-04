@@ -8,7 +8,7 @@ import android.widget.Toast;
 import com.google.firebase.database.DataSnapshot;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
-import com.rena21c.voiceorder.etc.PreferenceManager;
+import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
 import com.rena21c.voiceorder.view.components.OrderViewPagerLayout;
 import com.rena21c.voiceorder.view.components.RecordGuideLayout;
@@ -22,6 +22,8 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     public static final int NO_INTERNAL_MEMORY = 0;
     public static final int NO_INTERNET_CONNECT = 1;
 
+    private final AppPreferenceManager appPreferenceManager;
+
     private MainActivity activity;
 
     private ReplaceableLayout replaceableLayout;
@@ -29,8 +31,9 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     private RecordingLayout recordingLayout;
     private OrderViewPagerLayout orderViewPagerLayout;
 
-    public MainView(MainActivity activity) {
+    public MainView(MainActivity activity, AppPreferenceManager appPreferenceManager) {
         this.activity = activity;
+        this.appPreferenceManager = appPreferenceManager;
         initView();
     }
 
@@ -44,7 +47,7 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         recordAndStopButton = (RecordAndStopButton) activity.findViewById(R.id.btnRecordAndStop);
         recordAndStopButton.setListener(this);
 
-        if (PreferenceManager.getUserFirstVisit(activity)) {
+        if (appPreferenceManager.getUserFirstVisit()) {
             changeActionBarColorToYellow();
             recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_GUIDE_LAYOUT);
             replaceableLayout.replaceChildView(RecordGuideLayout.getInstance(activity, replaceableLayout).getView());
