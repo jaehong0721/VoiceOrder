@@ -6,15 +6,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class Order  {
+    public static final int IN_PROGRESS = 0;
+    public static final int ACCEPTED = 1;
+    public static final int FAILED = 2;
 
     public String timeStamp;
     public HashMap<String, VoiceRecord> itemHashMap;
+    public int orderState;
 
-    public Order(String timeStamp) {
-        this.timeStamp = timeStamp;
-    }
-
-    public Order(String timeStamp, HashMap<String, VoiceRecord> itemHashMap) {
+    public Order(int orderState, String timeStamp, HashMap<String, VoiceRecord> itemHashMap) {
+        this.orderState = orderState;
         this.timeStamp = timeStamp;
         this.itemHashMap = itemHashMap;
     }
