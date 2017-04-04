@@ -28,7 +28,7 @@ public class Dialogs {
                 .setPositiveButton("업데이트", new DialogInterface.OnClickListener() {
                     @Override public void onClick(DialogInterface dialog, int which) {
                         Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse("http://play.google.com/store/apps/details?id=com.rena21c.vendor"));
+                        intent.setData(Uri.parse("market://details?id=com.rena21c.voiceorder"));
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         activity.startActivity(intent);
                         activity.finish();
