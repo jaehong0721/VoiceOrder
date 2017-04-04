@@ -34,6 +34,7 @@ import com.rena21c.voiceorder.network.ApiService;
 import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.network.NoConnectivityException;
 import com.rena21c.voiceorder.network.RetrofitSingleton;
+import com.rena21c.voiceorder.pojo.UserToken;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 
 import java.util.ArrayList;
@@ -50,10 +51,6 @@ import retrofit2.Retrofit;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public class SplashActivity extends BaseActivity {
-
-    public class UserToken {
-        public String firebaseCustomAuthToken;
-    }
 
     private String phoneNumber;
     private PermissionManager permissionManager;
@@ -305,10 +302,11 @@ public class SplashActivity extends BaseActivity {
                         @Override public void onDataChange(DataSnapshot dataSnapshot) {
                             VendorInfo vendorInfo = dataSnapshot.getValue(VendorInfo.class);
                             VoiceRecord toRemove = itemHashMap.remove(vendorPhoneNumber);
-                            if(toRemove != null){
+                            if (toRemove != null) {
                                 itemHashMap.put(vendorInfo.vendorName, toRemove);
                             }
                         }
+
                         @Override public void onCancelled(DatabaseError databaseError) {
                             Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
                         }
