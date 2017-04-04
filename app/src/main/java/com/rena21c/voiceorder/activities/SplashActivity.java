@@ -35,6 +35,7 @@ import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.network.NoConnectivityException;
 import com.rena21c.voiceorder.network.RetrofitSingleton;
 import com.rena21c.voiceorder.pojo.UserToken;
+import com.rena21c.voiceorder.util.LauncherUtil;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 
 import java.util.ArrayList;
@@ -65,23 +66,15 @@ public class SplashActivity extends BaseActivity {
         setContentView(R.layout.activity_splash);
 
         permissionManager = PermissionManager.newInstance(this);
-
         if (PreferenceManager.getLauncherIconCreated(this)) {
-            addLauncherIconToHomeScreen();
+            LauncherUtil.addLauncherIconToHomeScreen(this, getClass());
             PreferenceManager.setLauncherIconCreated(this);
         }
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.e("lifeCycle", "onActivityResult");
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
     protected void onResume() {
         super.onResume();
-        Log.e("lifeCycle", "requestPermission");
         permissionManager.requestPermission(new PermissionManager.PermissionsPermittedListener() {
             @Override
             public void onAllPermissionsPermitted() {
@@ -91,20 +84,6 @@ public class SplashActivity extends BaseActivity {
 
     }
 
-    private void addLauncherIconToHomeScreen() {
-        Intent shortcutIntent = new Intent(getApplicationContext(), SplashActivity.class);
-
-        shortcutIntent.setAction(Intent.ACTION_MAIN);
-
-        Intent addIntent = new Intent();
-        addIntent.putExtra(Intent.EXTRA_SHORTCUT_INTENT, shortcutIntent);
-        addIntent.putExtra(Intent.EXTRA_SHORTCUT_NAME, getResources().getString(R.string.app_name));
-        addIntent.putExtra(Intent.EXTRA_SHORTCUT_ICON_RESOURCE, Intent.ShortcutIconResource.fromContext(getApplicationContext(), R.mipmap.ic_launcher));
-
-        addIntent.setAction("com.android.launcher.action.INSTALL_SHORTCUT");
-        addIntent.putExtra("duplicate", false);
-        getApplicationContext().sendBroadcast(addIntent);
-    }
 
     private void checkPlayService() {
         PlayServiceManager.checkPlayServices(SplashActivity.this, new PlayServiceManager.CheckPlayServiceListener() {
