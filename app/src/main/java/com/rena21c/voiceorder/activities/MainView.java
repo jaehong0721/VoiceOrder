@@ -9,6 +9,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
+import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
 import com.rena21c.voiceorder.view.components.OrderViewPagerLayout;
 import com.rena21c.voiceorder.view.components.RecordGuideLayout;
@@ -16,6 +17,8 @@ import com.rena21c.voiceorder.view.components.RecordingLayout;
 import com.rena21c.voiceorder.view.components.ReplaceableLayout;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 import com.rena21c.voiceorder.view.widgets.RecordAndStopButton;
+
+import java.io.FilenameFilter;
 
 public class MainView implements RecordAndStopButton.activateRecorderListener {
 
@@ -88,7 +91,7 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     }
 
     public void addOrderToViewPager(String fileName) {
-        orderViewPagerLayout.addOrder(App.makeTimeFromFileName(fileName));
+        orderViewPagerLayout.addOrder(FileNameUtil.getTimeFromFileName(fileName));
     }
 
     public void replaceAcceptedOrder(DataSnapshot dataSnapshot) {

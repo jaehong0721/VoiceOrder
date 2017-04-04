@@ -20,21 +20,22 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.etc.PermissionManager;
 import com.rena21c.voiceorder.etc.PlayServiceManager;
-import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.etc.VersionManager;
+import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.SimpleAuthListener;
 import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.model.Order;
 import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.network.ApiService;
-import com.rena21c.voiceorder.firebase.FirebaseDbManager;
-import com.rena21c.voiceorder.network.ConnectivityIntercepter;
 import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.network.NoConnectivityException;
 import com.rena21c.voiceorder.pojo.UserToken;
+import com.rena21c.voiceorder.util.Container;
+import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.util.LauncherUtil;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 
@@ -44,12 +45,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
-import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
@@ -57,8 +56,6 @@ public class SplashActivity extends BaseActivity {
 
     private PermissionManager permissionManager;
 
-    private List<String> fileNameList;
-    private HashMap<String, HashMap<String, String>> recordedFileMap;
     private HashMap<String, HashMap<String, VoiceRecord>> acceptedOrderMap;
 
     private FirebaseDbManager dbManager;
@@ -81,10 +78,9 @@ public class SplashActivity extends BaseActivity {
             appPreferenceManager.setLauncherIconCreated();
         }
 
-        retrofit = App.getApplication(this).getRetrofit();
+        retrofit = App.getApplication(getApplicationContext()).getRetrofit();
 
         apiService = retrofit.create(ApiService.class);
-
     }
 
     @Override
@@ -185,11 +181,12 @@ public class SplashActivity extends BaseActivity {
         Log.e("lifeCycle", "dataLoadSync");
         final CountDownLatch latch = new CountDownLatch(2);
 
+        final Container<List<String>> fileNameListContainter = new Container<>();
+
         dbManager.getRecordOrder(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, String>>>() {};
-                recordedFileMap = (HashMap) dataSnapshot.getValue(objectMapType);
-                fileNameList = getSortedListFromMap(recordedFileMap);
+                GenericTypeIndicator recordFileMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, String>>>() {};
+                fileNameListContainter.setObject(getSortedListFromMap((HashMap) dataSnapshot.getValue(recordFileMapType)));
                 latch.countDown();
             }
         });
@@ -205,12 +202,13 @@ public class SplashActivity extends BaseActivity {
 
         try {
             latch.await();
-            dataBinding();
+            // TODO: 앱 재시작시 App 객체의 order가 삭제 되지 않으므로, 초기화를 수행함
+            App.getApplication(getApplicationContext()).orders = getOrders(fileNameListContainter.getObject());
             goToMain();
         } catch (InterruptedException e) {}
     }
 
-    private List getSortedListFromMap(HashMap<String, HashMap<String, String>> recordedFileMap) {
+    private List<String> getSortedListFromMap(HashMap<String, HashMap<String, String>> recordedFileMap) {
         List<String> fileNameList = new ArrayList();
         if (recordedFileMap != null) {
             for (HashMap<String, String> fileNameMap : recordedFileMap.values()) {
@@ -221,32 +219,24 @@ public class SplashActivity extends BaseActivity {
         return fileNameList;
     }
 
-    private void dataBinding() {
-        // TODO: 앱 재시작시 App 객체의 order가 삭제 되지 않으므로, 초기화를 수행함
-        App.getApplication(getApplicationContext()).orders = new ArrayList<>();
-        final ArrayList<Order> orders = App.getApplication(getApplicationContext()).orders;
+    private ArrayList<Order> getOrders(List<String> fileNameList) {
+        ArrayList<Order> result = new ArrayList<>();
 
-        //데이터 바인딩
-        if (acceptedOrderMap == null && !fileNameList.isEmpty()) {
-            //접수 된 주문은 없고 접수 전 주문만 있을 때
-            for (String fileName : fileNameList) {
-                Log.e("case1", fileName);
-                String timeStamp = (App.makeTimeFromFileName(fileName));
-                orders.add(new Order(Order.IN_PROGRESS, timeStamp, null));
-            }
-        } else if (acceptedOrderMap != null && !fileNameList.isEmpty()) {
-            //접수 후 주문과 접수 전 주문이 모두 있을 때
-            for (String fileName : fileNameList) {
-                Log.e("case3", fileName);
-                String timeStamp = (App.makeTimeFromFileName(fileName));
-                if (acceptedOrderMap.containsKey(fileName)) {
-                    HashMap<String, VoiceRecord> itemHashMap = getVendorName(acceptedOrderMap.get(fileName));
-                    orders.add(new Order(Order.ACCEPTED, timeStamp, itemHashMap));
-                } else {
-                    orders.add(new Order(Order.IN_PROGRESS, timeStamp, null));
-                }
+        if (fileNameList.isEmpty()) return result;
+
+        if (acceptedOrderMap == null) acceptedOrderMap = new HashMap<>();
+
+        for (String fileName : fileNameList) {
+            String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
+            if (acceptedOrderMap.containsKey(fileName)) {
+                HashMap<String, VoiceRecord> itemHashMap = getVendorName(acceptedOrderMap.get(fileName));
+                result.add(new Order(Order.ACCEPTED, timeStamp, itemHashMap));
+            } else {
+                result.add(new Order(Order.IN_PROGRESS, timeStamp, null));
             }
         }
+
+        return result;
     }
 
     private HashMap getVendorName(final HashMap<String, VoiceRecord> itemHashMap) {
