@@ -30,6 +30,7 @@ import com.rena21c.voiceorder.model.Order;
 import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.network.ApiService;
+import com.rena21c.voiceorder.network.FirebaseDbManager;
 import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.network.NoConnectivityException;
 import com.rena21c.voiceorder.network.RetrofitSingleton;
@@ -58,10 +59,14 @@ public class SplashActivity extends BaseActivity {
     private HashMap<String, HashMap<String, String>> recordedFileMap;
     private HashMap<String, HashMap<String, VoiceRecord>> acceptedOrderMap;
 
+    private FirebaseDbManager dbManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
+
+        dbManager = new FirebaseDbManager(this, FirebaseDatabase.getInstance());
 
         permissionManager = PermissionManager.newInstance(this);
         if (PreferenceManager.getLauncherIconCreated(this)) {
@@ -158,65 +163,52 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void storeFcmToken() {
-        FirebaseDatabase.getInstance().getReference().child("restaurants")
-                .child(PreferenceManager.getPhoneNumber(this))
-                .child("info")
-                .child("fcmId")
-                .setValue(PreferenceManager.getFcmToken(getApplicationContext()))
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override public void onComplete(@NonNull Task<Void> task) {
-                        if (task.isSuccessful()) {
-                            new Thread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    dataLoad();
-                                }
-                            }).start();
-                        } else {
-                            Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+        dbManager.getFcmToken(PreferenceManager.getPhoneNumber(this), PreferenceManager.getFcmToken(this), new OnCompleteListener<Void>() {
+            @Override public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            dataLoad();
                         }
-                    }
-                });
+                    }).start();
+                } else {
+                    Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
 
     private void dataLoad() {
         Log.e("lifeCycle", "dataLoad");
         final CountDownLatch latch = new CountDownLatch(2);
 
-        //오퍼레이터 접수 전 데이터 로드
-        FirebaseDatabase.getInstance().getReference().child("restaurants")
-                .child(PreferenceManager.getPhoneNumber(this))
-                .child("recordedOrders")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                        GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, String>>>() {};
-                        recordedFileMap = (HashMap) dataSnapshot.getValue(objectMapType);
-                        fileNameList = getSortedListFromMap(recordedFileMap);
-                        latch.countDown();
-                    }
+        dbManager.getRecordOrder(PreferenceManager.getPhoneNumber(this), new ValueEventListener() {
+            @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, String>>>() {};
+                recordedFileMap = (HashMap) dataSnapshot.getValue(objectMapType);
+                fileNameList = getSortedListFromMap(recordedFileMap);
+                latch.countDown();
+            }
 
-                    @Override public void onCancelled(DatabaseError databaseError) {
-                        Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+            @Override public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
 
         //오퍼레이터 접수 후 데이터 로드
-        FirebaseDatabase.getInstance().getReference().child("orders")
-                .child("restaurants")
-                .orderByKey()
-                .startAt(PreferenceManager.getPhoneNumber(this) + "_00000000000000")
-                .endAt(PreferenceManager.getPhoneNumber(this) + "_99999999999999")
-                .addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                        GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {};
-                        acceptedOrderMap = (HashMap) dataSnapshot.getValue(objectMapType);
-                        latch.countDown();
-                    }
+        dbManager.getAcceptedOrder(PreferenceManager.getPhoneNumber(this), new ValueEventListener() {
+            @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {};
+                acceptedOrderMap = (HashMap) dataSnapshot.getValue(objectMapType);
+                latch.countDown();
+            }
 
-                    @Override public void onCancelled(DatabaseError databaseError) {
-                        Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
-                    }
-                });
+            @Override public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+
         try {
             latch.await();
             dataBinding();
@@ -267,22 +259,19 @@ public class SplashActivity extends BaseActivity {
 
     private HashMap getVendorName(final HashMap<String, VoiceRecord> itemHashMap) {
         for (final String vendorPhoneNumber : itemHashMap.keySet()) {
-            FirebaseDatabase.getInstance().getReference().child("vendors")
-                    .child(vendorPhoneNumber)
-                    .child("info")
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                            VendorInfo vendorInfo = dataSnapshot.getValue(VendorInfo.class);
-                            VoiceRecord toRemove = itemHashMap.remove(vendorPhoneNumber);
-                            if (toRemove != null) {
-                                itemHashMap.put(vendorInfo.vendorName, toRemove);
-                            }
-                        }
+            dbManager.getVendorInfo(vendorPhoneNumber, new ValueEventListener() {
+                @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                    VendorInfo vendorInfo = dataSnapshot.getValue(VendorInfo.class);
+                    VoiceRecord toRemove = itemHashMap.remove(vendorPhoneNumber);
+                    if (toRemove != null) {
+                        itemHashMap.put(vendorInfo.vendorName, toRemove);
+                    }
+                }
 
-                        @Override public void onCancelled(DatabaseError databaseError) {
-                            Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                @Override public void onCancelled(DatabaseError databaseError) {
+                    Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
         return itemHashMap;
     }
