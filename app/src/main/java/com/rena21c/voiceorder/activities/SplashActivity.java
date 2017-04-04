@@ -71,7 +71,7 @@ public class SplashActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        dbManager = new FirebaseDbManager(this, FirebaseDatabase.getInstance());
+        dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
 
         permissionManager = PermissionManager.newInstance(this);
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
@@ -81,18 +81,7 @@ public class SplashActivity extends BaseActivity {
             appPreferenceManager.setLauncherIconCreated();
         }
 
-
-        String url = getString(R.string.server_address);
-
-        OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(new ConnectivityIntercepter(this))
-                .build();
-        retrofit = new Retrofit
-                .Builder()
-                .client(client)
-                .baseUrl(url)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
+        retrofit = App.getApplication(this).getRetrofit();
 
         apiService = retrofit.create(ApiService.class);
 
