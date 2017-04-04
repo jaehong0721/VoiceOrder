@@ -16,24 +16,24 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
-import com.google.firebase.database.ValueEventListener;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.PermissionManager;
 import com.rena21c.voiceorder.etc.PlayServiceManager;
 import com.rena21c.voiceorder.etc.PreferenceManager;
 import com.rena21c.voiceorder.etc.VersionManager;
+import com.rena21c.voiceorder.firebase.SimpleAuthListener;
+import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.model.Order;
 import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.network.ApiService;
-import com.rena21c.voiceorder.network.FirebaseDbManager;
+import com.rena21c.voiceorder.firebase.FirebaseDbManager;
+import com.rena21c.voiceorder.network.ConnectivityIntercepter;
 import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.network.NoConnectivityException;
-import com.rena21c.voiceorder.network.RetrofitSingleton;
 import com.rena21c.voiceorder.pojo.UserToken;
 import com.rena21c.voiceorder.util.LauncherUtil;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
@@ -44,10 +44,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
+import okhttp3.OkHttpClient;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
@@ -60,6 +62,8 @@ public class SplashActivity extends BaseActivity {
     private HashMap<String, HashMap<String, VoiceRecord>> acceptedOrderMap;
 
     private FirebaseDbManager dbManager;
+    private Retrofit retrofit;
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,10 +73,27 @@ public class SplashActivity extends BaseActivity {
         dbManager = new FirebaseDbManager(this, FirebaseDatabase.getInstance());
 
         permissionManager = PermissionManager.newInstance(this);
+
         if (PreferenceManager.getLauncherIconCreated(this)) {
             LauncherUtil.addLauncherIconToHomeScreen(this, getClass());
             PreferenceManager.setLauncherIconCreated(this);
         }
+
+
+        String url = getString(R.string.server_address);
+
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(new ConnectivityIntercepter(this))
+                .build();
+        retrofit = new Retrofit
+                .Builder()
+                .client(client)
+                .baseUrl(url)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        apiService = retrofit.create(ApiService.class);
+
     }
 
     @Override
@@ -120,26 +141,21 @@ public class SplashActivity extends BaseActivity {
 
     private void signInProcess() {
         PreferenceManager.initPhoneNumber(getApplicationContext());
-        requestToken(new Callback<UserToken>() {
-            @Override public void onResponse(Call<UserToken> call, Response<UserToken> response) {
-                signIn(response.body().firebaseCustomAuthToken);
-            }
+        apiService
+                .getToken(PreferenceManager.getPhoneNumber(this))
+                .enqueue(new Callback<UserToken>() {
+                    @Override public void onResponse(Call<UserToken> call, Response<UserToken> response) {
+                        signIn(response.body().firebaseCustomAuthToken);
+                    }
 
-            @Override public void onFailure(Call<UserToken> call, Throwable t) {
-                if (t instanceof NoConnectivityException) {
-                    Toast.makeText(SplashActivity.this, "인터넷이 연결 되어 있지 않습니다. 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
-                } else {
-                    FirebaseCrash.report(t);
-                }
-            }
-        });
-    }
-
-    private void requestToken(final Callback<UserToken> userTokenCallback) {
-        Retrofit retrofit = RetrofitSingleton.getInstance(getApplicationContext());
-        ApiService apiService = retrofit.create(ApiService.class);
-        Call<UserToken> tokenRequest = apiService.getToken(PreferenceManager.getPhoneNumber(this));
-        tokenRequest.enqueue(userTokenCallback);
+                    @Override public void onFailure(Call<UserToken> call, Throwable t) {
+                        if (t instanceof NoConnectivityException) {
+                            Toast.makeText(SplashActivity.this, "인터넷이 연결 되어 있지 않습니다. 연결을 확인해주세요.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            FirebaseCrash.report(t);
+                        }
+                    }
+                });
     }
 
     private void signIn(String customToken) {
@@ -163,49 +179,36 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void storeFcmToken() {
-        dbManager.getFcmToken(PreferenceManager.getPhoneNumber(this), PreferenceManager.getFcmToken(this), new OnCompleteListener<Void>() {
-            @Override public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            dataLoad();
-                        }
-                    }).start();
-                } else {
-                    Toast.makeText(getApplicationContext(), task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                }
+        dbManager.getFcmToken(PreferenceManager.getPhoneNumber(this), PreferenceManager.getFcmToken(this), new SimpleAuthListener(this) {
+            @Override public void onSuccess(Object o) {
+                new Thread(new Runnable() {
+                    @Override public void run() {
+                        dataLoadSync();
+                    }
+                }).start();
             }
         });
     }
 
-    private void dataLoad() {
-        Log.e("lifeCycle", "dataLoad");
+    private void dataLoadSync() {
+        Log.e("lifeCycle", "dataLoadSync");
         final CountDownLatch latch = new CountDownLatch(2);
 
-        dbManager.getRecordOrder(PreferenceManager.getPhoneNumber(this), new ValueEventListener() {
+        dbManager.getRecordOrder(PreferenceManager.getPhoneNumber(this), new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, String>>>() {};
                 recordedFileMap = (HashMap) dataSnapshot.getValue(objectMapType);
                 fileNameList = getSortedListFromMap(recordedFileMap);
                 latch.countDown();
             }
-
-            @Override public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
-            }
         });
 
         //오퍼레이터 접수 후 데이터 로드
-        dbManager.getAcceptedOrder(PreferenceManager.getPhoneNumber(this), new ValueEventListener() {
+        dbManager.getAcceptedOrder(PreferenceManager.getPhoneNumber(this), new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {};
                 acceptedOrderMap = (HashMap) dataSnapshot.getValue(objectMapType);
                 latch.countDown();
-            }
-
-            @Override public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -213,9 +216,7 @@ public class SplashActivity extends BaseActivity {
             latch.await();
             dataBinding();
             goToMain();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        } catch (InterruptedException e) {}
     }
 
     private List getSortedListFromMap(HashMap<String, HashMap<String, String>> recordedFileMap) {
@@ -230,7 +231,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void dataBinding() {
-        //App의 orders 초기화
+        // TODO: 앱 재시작시 App 객체의 order가 삭제 되지 않으므로, 초기화를 수행함
         App.getApplication(getApplicationContext()).orders = new ArrayList<>();
         final ArrayList<Order> orders = App.getApplication(getApplicationContext()).orders;
 
@@ -259,17 +260,13 @@ public class SplashActivity extends BaseActivity {
 
     private HashMap getVendorName(final HashMap<String, VoiceRecord> itemHashMap) {
         for (final String vendorPhoneNumber : itemHashMap.keySet()) {
-            dbManager.getVendorInfo(vendorPhoneNumber, new ValueEventListener() {
+            dbManager.getVendorInfo(vendorPhoneNumber, new ToastErrorHandlingListener(this) {
                 @Override public void onDataChange(DataSnapshot dataSnapshot) {
                     VendorInfo vendorInfo = dataSnapshot.getValue(VendorInfo.class);
                     VoiceRecord toRemove = itemHashMap.remove(vendorPhoneNumber);
                     if (toRemove != null) {
                         itemHashMap.put(vendorInfo.vendorName, toRemove);
                     }
-                }
-
-                @Override public void onCancelled(DatabaseError databaseError) {
-                    Toast.makeText(getApplicationContext(), databaseError.toString(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
@@ -282,7 +279,7 @@ public class SplashActivity extends BaseActivity {
         finish();
     }
 
-    public void reStartApp(Context context) {
+    private void reStartApp(Context context) {
         Intent intent = new Intent(context, SplashActivity.class);
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);

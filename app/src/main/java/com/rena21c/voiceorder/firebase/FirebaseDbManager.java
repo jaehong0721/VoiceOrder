@@ -1,20 +1,10 @@
-package com.rena21c.voiceorder.network;
+package com.rena21c.voiceorder.firebase;
 
 import android.content.Context;
-import android.renderscript.Sampler;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
-import com.rena21c.voiceorder.etc.PreferenceManager;
-import com.rena21c.voiceorder.model.VendorInfo;
-import com.rena21c.voiceorder.model.VoiceRecord;
-
-import java.util.HashMap;
+import com.rena21c.voiceorder.firebase.SimpleAuthListener;
 
 public class FirebaseDbManager {
 
@@ -31,13 +21,14 @@ public class FirebaseDbManager {
         this.instance = instance;
     }
 
-    public void getFcmToken(String phoneNumber, final String fcmToken, OnCompleteListener listener) {
+    public void getFcmToken(String phoneNumber, final String fcmToken, SimpleAuthListener listener) {
         FirebaseDatabase.getInstance().getReference().child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(INFO)
                 .child(FCM_ID)
                 .setValue(fcmToken)
-                .addOnCompleteListener(listener);
+                .addOnSuccessListener(listener)
+                .addOnFailureListener(listener);
     }
 
     public void getRecordOrder(String phoneNumber, ValueEventListener listener) {
