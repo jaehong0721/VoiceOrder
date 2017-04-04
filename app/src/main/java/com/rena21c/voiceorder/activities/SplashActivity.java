@@ -1,6 +1,5 @@
 package com.rena21c.voiceorder.activities;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -53,7 +52,6 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 
 public class SplashActivity extends BaseActivity {
 
-    private String phoneNumber;
     private PermissionManager permissionManager;
 
     private List<String> fileNameList;
@@ -81,7 +79,6 @@ public class SplashActivity extends BaseActivity {
                 checkPlayService();
             }
         });
-
     }
 
 
@@ -117,7 +114,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void signInProcess() {
-        phoneNumber = PreferenceManager.setPhoneNumber(getApplicationContext());
+        PreferenceManager.initPhoneNumber(getApplicationContext());
         requestToken(new Callback<UserToken>() {
             @Override public void onResponse(Call<UserToken> call, Response<UserToken> response) {
                 signIn(response.body().firebaseCustomAuthToken);
@@ -136,7 +133,7 @@ public class SplashActivity extends BaseActivity {
     private void requestToken(final Callback<UserToken> userTokenCallback) {
         Retrofit retrofit = RetrofitSingleton.getInstance(getApplicationContext());
         ApiService apiService = retrofit.create(ApiService.class);
-        Call<UserToken> tokenRequest = apiService.getToken(phoneNumber);
+        Call<UserToken> tokenRequest = apiService.getToken(PreferenceManager.getPhoneNumber(this));
         tokenRequest.enqueue(userTokenCallback);
     }
 
@@ -162,7 +159,7 @@ public class SplashActivity extends BaseActivity {
 
     private void storeFcmToken() {
         FirebaseDatabase.getInstance().getReference().child("restaurants")
-                .child(phoneNumber)
+                .child(PreferenceManager.getPhoneNumber(this))
                 .child("info")
                 .child("fcmId")
                 .setValue(PreferenceManager.getFcmToken(getApplicationContext()))
@@ -188,7 +185,7 @@ public class SplashActivity extends BaseActivity {
 
         //오퍼레이터 접수 전 데이터 로드
         FirebaseDatabase.getInstance().getReference().child("restaurants")
-                .child(phoneNumber)
+                .child(PreferenceManager.getPhoneNumber(this))
                 .child("recordedOrders")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override public void onDataChange(DataSnapshot dataSnapshot) {
@@ -207,8 +204,8 @@ public class SplashActivity extends BaseActivity {
         FirebaseDatabase.getInstance().getReference().child("orders")
                 .child("restaurants")
                 .orderByKey()
-                .startAt(phoneNumber + "_00000000000000")
-                .endAt(phoneNumber + "_99999999999999")
+                .startAt(PreferenceManager.getPhoneNumber(this) + "_00000000000000")
+                .endAt(PreferenceManager.getPhoneNumber(this) + "_99999999999999")
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override public void onDataChange(DataSnapshot dataSnapshot) {
                         GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {};

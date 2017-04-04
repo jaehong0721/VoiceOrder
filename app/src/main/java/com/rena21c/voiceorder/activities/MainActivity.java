@@ -34,7 +34,6 @@ public class MainActivity extends BaseActivity {
     private MainView mainView;
     private MediaRecorder recorder;
     private String fileName;
-    private String phoneNumber;
 
     private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
     private boolean isUploading;
@@ -46,7 +45,6 @@ public class MainActivity extends BaseActivity {
         setContentView(R.layout.activity_main);
 
         mainView = new MainView(MainActivity.this);
-        phoneNumber = PreferenceManager.setPhoneNumber(getApplicationContext());
 
         setAcceptedOrderEventListener(new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -178,7 +176,7 @@ public class MainActivity extends BaseActivity {
 
     private void storeFileName() {
         FirebaseDatabase.getInstance().getReference().child("restaurants")
-                .child(phoneNumber)
+                .child(PreferenceManager.getPhoneNumber(this))
                 .child("recordedOrders")
                 .push()
                 .child("fileName")
@@ -214,8 +212,8 @@ public class MainActivity extends BaseActivity {
         FirebaseDatabase.getInstance().getReference().child("orders")
                 .child("restaurants")
                 .orderByKey()
-                .startAt(phoneNumber + "_00000000000000")
-                .endAt(phoneNumber + "_99999999999999")
+                .startAt(PreferenceManager.getPhoneNumber(this) + "_00000000000000")
+                .endAt(PreferenceManager.getPhoneNumber(this) + "_99999999999999")
                 .addChildEventListener(childEventListener);
     }
 }

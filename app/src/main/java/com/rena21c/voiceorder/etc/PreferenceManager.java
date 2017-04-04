@@ -46,7 +46,9 @@ public class PreferenceManager {
                 .getString("fcmToken", null);
     }
 
-    public static String setPhoneNumber(Context context) {
+    public static void initPhoneNumber(Context context) {
+        if (getPhoneNumber(context) != null) return;
+
         String phoneNumber = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number();
         if (phoneNumber == null) {
             phoneNumber = "01000000000";
@@ -59,11 +61,15 @@ public class PreferenceManager {
                 .edit()
                 .putString("phoneNumber", phoneNumber)
                 .apply();
-        return phoneNumber;
+
     }
 
+    private static String phoneNumber = null;
+
     public static String getPhoneNumber(Context context) {
-        return getDefaultSharedPreferences(context)
-                .getString("phoneNumber", null);
+        if(phoneNumber == null){
+            phoneNumber = getDefaultSharedPreferences(context).getString("phoneNumber", null);
+        }
+        return phoneNumber;
     }
 }
