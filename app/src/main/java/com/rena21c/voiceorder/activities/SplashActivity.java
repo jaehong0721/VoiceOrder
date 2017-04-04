@@ -172,7 +172,7 @@ public class SplashActivity extends BaseActivity {
                             Dialogs.createPlayServiceUpdateWarningDialog(SplashActivity.this, new Dialog.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
-                                    reStartApp(SplashActivity.this);
+                                    restartApp(SplashActivity.this);
                                 }
                             }).show();
                         }
@@ -281,7 +281,7 @@ public class SplashActivity extends BaseActivity {
         finish();
     }
 
-    private void reStartApp(Context context) {
+    private void restartApp(Context context) {
         Intent intent = new Intent(context, SplashActivity.class);
         intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);

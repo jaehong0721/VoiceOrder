@@ -4,7 +4,6 @@ import android.content.Context;
 
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.rena21c.voiceorder.firebase.SimpleAuthListener;
 
 public class FirebaseDbManager {
 
@@ -13,16 +12,14 @@ public class FirebaseDbManager {
     private static final String RECORDED_ORDERS = "recordedOrders";
     private static final String RESTAURANTS = "restaurants";
 
-    private final Context context;
     private final FirebaseDatabase instance;
 
-    public FirebaseDbManager(Context context, FirebaseDatabase instance) {
-        this.context = context;
+    public FirebaseDbManager(FirebaseDatabase instance) {
         this.instance = instance;
     }
 
     public void getFcmToken(String phoneNumber, final String fcmToken, SimpleAuthListener listener) {
-        FirebaseDatabase.getInstance().getReference().child(RESTAURANTS)
+        instance.getReference().child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(INFO)
                 .child(FCM_ID)
@@ -33,14 +30,14 @@ public class FirebaseDbManager {
 
     public void getRecordOrder(String phoneNumber, ValueEventListener listener) {
         //오퍼레이터 접수 전 데이터 로드
-        FirebaseDatabase.getInstance().getReference().child(RESTAURANTS)
+        instance.getReference().child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(RECORDED_ORDERS)
                 .addListenerForSingleValueEvent(listener);
     }
 
     public void getAcceptedOrder(String phoneNumber, ValueEventListener listener) {
-        FirebaseDatabase.getInstance().getReference().child("orders")
+        instance.getReference().child("orders")
                 .child(RESTAURANTS)
                 .orderByKey()
                 .startAt(phoneNumber + "_00000000000000")
@@ -49,7 +46,7 @@ public class FirebaseDbManager {
     }
 
     public void getVendorInfo(String vendorPhoneNumber, ValueEventListener listener) {
-        FirebaseDatabase.getInstance().getReference().child("vendors")
+        instance.getReference().child("vendors")
                 .child(vendorPhoneNumber)
                 .child("info")
                 .addListenerForSingleValueEvent(listener);
