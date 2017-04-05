@@ -21,6 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
+import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.network.FileTransferUtil;
 import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.services.VoiceRecorderManager;
@@ -37,12 +38,15 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
     private AppPreferenceManager appPreferenceManager;
 
     private VoiceRecorderManager recordManager;
+    private FirebaseDbManager dbManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.e("MainActivity", "OnCreate");
         setContentView(R.layout.activity_main);
+
+        dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
 
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         mainView = new MainView(MainActivity.this, appPreferenceManager);
@@ -152,13 +156,9 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
     }
 
     private void storeFileName(final String fileName) {
-        FirebaseDatabase.getInstance().getReference().child("restaurants")
-                .child(appPreferenceManager.getPhoneNumber())
-                .child("recordedOrders")
-                .push()
-                .child("fileName")
-                .setValue(fileName)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
+        dbManager.addFileName(appPreferenceManager.getPhoneNumber(), fileName, new OnCompleteListener() {
+            @Override public void onComplete(@NonNull Task task) {
+                new OnCompleteListener<Void>() {
                     @Override public void onComplete(@NonNull Task<Void> task) {
                         if (!task.isSuccessful()) {
                             mainView.replaceFailedOrder(fileName);
@@ -167,7 +167,10 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
                         }
                         isUploading = false;
                     }
-                });
+                };
+            }
+        });
+
     }
 
     private long getAvailableInternalMemorySize() {

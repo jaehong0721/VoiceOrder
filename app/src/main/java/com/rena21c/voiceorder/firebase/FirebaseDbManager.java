@@ -1,7 +1,11 @@
 package com.rena21c.voiceorder.firebase;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -50,5 +54,15 @@ public class FirebaseDbManager {
                 .child(vendorPhoneNumber)
                 .child("info")
                 .addListenerForSingleValueEvent(listener);
+    }
+
+    public void addFileName(String phoneNumber, final String fileName, OnCompleteListener listener) {
+        instance.getReference().child(RESTAURANTS)
+                .child(phoneNumber)
+                .child("recordedOrders")
+                .push()
+                .child("fileName")
+                .setValue(fileName)
+                .addOnCompleteListener(listener);
     }
 }
