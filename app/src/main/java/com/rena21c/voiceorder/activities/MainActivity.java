@@ -2,8 +2,6 @@ package com.rena21c.voiceorder.activities;
 
 
 import android.os.Bundle;
-import android.os.Environment;
-import android.os.StatFs;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
@@ -26,6 +24,7 @@ import com.rena21c.voiceorder.network.FileTransferUtil;
 import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.services.VoiceRecorderManager;
 import com.rena21c.voiceorder.util.FileNameUtil;
+import com.rena21c.voiceorder.util.MemorySizeChecker;
 
 import java.io.File;
 
@@ -33,18 +32,22 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
 
     private MainView mainView;
 
-    private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
     private boolean isUploading;
     private AppPreferenceManager appPreferenceManager;
 
     private VoiceRecorderManager recordManager;
     private FirebaseDbManager dbManager;
 
+    private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
+    private MemorySizeChecker memorySizeChecker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Log.e("MainActivity", "OnCreate");
+        Log.d("MainActivity", "OnCreate");
         setContentView(R.layout.activity_main);
+
+        memorySizeChecker = new MemorySizeChecker(REQUIRED_SPACE);
 
         dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
 
@@ -53,23 +56,24 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
 
         recordManager = new VoiceRecorderManager(getFilesDir().getPath(), this);
 
-        setAcceptedOrderEventListener(new ChildEventListener() {
+        dbManager.subscribeAcceptedOrder(appPreferenceManager.getPhoneNumber(), new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 mainView.replaceAcceptedOrder(dataSnapshot);
             }
 
             @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Log.e("onChildChanged", dataSnapshot.getKey());
+                mainView.replaceAcceptedOrder(dataSnapshot);
             }
 
             @Override public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Log.e("onChildRemoved", dataSnapshot.getKey());
+                mainView.replaceAcceptedOrder(dataSnapshot);
             }
 
             @Override public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
 
             @Override public void onCancelled(DatabaseError databaseError) {}
         });
+
     }
 
     @Override
@@ -85,7 +89,7 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
     }
 
     public void startedRecording() {
-        if (getAvailableInternalMemorySize() < REQUIRED_SPACE) {
+        if (memorySizeChecker.isEnough()) {
             mainView.showDialog(MainView.NO_INTERNAL_MEMORY);
         } else {
             mainView.setKeepScreenOn();
@@ -173,28 +177,5 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
 
     }
 
-    private long getAvailableInternalMemorySize() {
-        File path = Environment.getDataDirectory();
-        StatFs stat = new StatFs(path.getPath());
-        long blockSize;
-        long availableBlocks;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.JELLY_BEAN_MR2) {
-            availableBlocks = stat.getAvailableBlocksLong();
-            blockSize = stat.getBlockSizeLong();
-        } else {
-            availableBlocks = stat.getAvailableBlocks();
-            blockSize = stat.getBlockSize();
-        }
-        return availableBlocks * blockSize;
-    }
-
-    private void setAcceptedOrderEventListener(ChildEventListener childEventListener) {
-        FirebaseDatabase.getInstance().getReference().child("orders")
-                .child("restaurants")
-                .orderByKey()
-                .startAt(appPreferenceManager.getPhoneNumber() + "_00000000000000")
-                .endAt(appPreferenceManager.getPhoneNumber() + "_99999999999999")
-                .addChildEventListener(childEventListener);
-    }
 
 }

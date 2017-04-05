@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.crash.FirebaseCrash;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
@@ -48,6 +49,17 @@ public class FirebaseDbManager {
                 .endAt(phoneNumber + "_99999999999999")
                 .addListenerForSingleValueEvent(listener);
     }
+
+    public void subscribeAcceptedOrder(String phoneNumber, ChildEventListener listener) {
+        FirebaseDatabase.getInstance().getReference().child("orders")
+                .child(RESTAURANTS)
+                .orderByKey()
+                .startAt(phoneNumber + "_00000000000000")
+                .endAt(phoneNumber + "_99999999999999")
+                .addChildEventListener(listener);
+    }
+
+
 
     public void getVendorInfo(String vendorPhoneNumber, ValueEventListener listener) {
         instance.getReference().child("vendors")
