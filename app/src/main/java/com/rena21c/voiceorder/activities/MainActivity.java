@@ -30,7 +30,6 @@ import java.io.File;
 
 public class MainActivity extends BaseActivity implements VoiceRecorderManager.VoiceRecordCallback {
 
-
     private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
 
     private AppPreferenceManager appPreferenceManager;

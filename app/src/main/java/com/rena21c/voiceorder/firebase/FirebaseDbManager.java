@@ -1,11 +1,6 @@
 package com.rena21c.voiceorder.firebase;
 
-import android.content.Context;
-import android.support.annotation.NonNull;
-
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
@@ -16,6 +11,7 @@ public class FirebaseDbManager {
     private static final String INFO = "info";
     private static final String FCM_ID = "fcmId";
     private static final String RECORDED_ORDERS = "recordedOrders";
+    private static final String ORDERS = "orders";
     private static final String RESTAURANTS = "restaurants";
 
     private final FirebaseDatabase instance;
@@ -43,7 +39,7 @@ public class FirebaseDbManager {
     }
 
     public void getAcceptedOrder(String phoneNumber, ValueEventListener listener) {
-        instance.getReference().child("orders")
+        instance.getReference().child(ORDERS)
                 .child(RESTAURANTS)
                 .orderByKey()
                 .startAt(phoneNumber + "_00000000000000")
@@ -52,7 +48,7 @@ public class FirebaseDbManager {
     }
 
     public Query subscribeAcceptedOrder(String phoneNumber, ChildEventListener listener) {
-        Query query = FirebaseDatabase.getInstance().getReference().child("orders")
+        Query query = instance.getReference().child(ORDERS)
                 .child(RESTAURANTS)
                 .orderByKey()
                 .startAt(phoneNumber + "_00000000000000")
