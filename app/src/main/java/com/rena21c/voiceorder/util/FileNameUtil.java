@@ -1,6 +1,9 @@
 package com.rena21c.voiceorder.util;
 
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class FileNameUtil {
 
     public static String getTimeFromFileName(String fileName) {
@@ -22,6 +25,13 @@ public class FileNameUtil {
             sb.append(timeStamp.charAt(i));
         }
         return sb.toString();
+    }
+
+    public static String makeFileName(String phoneNumber, long time) {
+        SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
+        String date = dayTime.format(new Date(time));
+        String fileName = phoneNumber + "_" + date;
+        return fileName;
     }
 
 }

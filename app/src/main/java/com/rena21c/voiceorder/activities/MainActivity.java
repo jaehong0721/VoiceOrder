@@ -1,7 +1,6 @@
 package com.rena21c.voiceorder.activities;
 
 
-import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
@@ -24,21 +23,20 @@ import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.network.FileTransferUtil;
 import com.rena21c.voiceorder.network.NetworkUtil;
+import com.rena21c.voiceorder.services.VoiceRecorderManager;
+import com.rena21c.voiceorder.util.FileNameUtil;
 
 import java.io.File;
-import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends BaseActivity implements VoiceRecorderManager.VoiceRecordCallback {
 
     private MainView mainView;
-    private MediaRecorder recorder;
-    private String fileName;
 
     private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
     private boolean isUploading;
     private AppPreferenceManager appPreferenceManager;
+
+    private VoiceRecorderManager recordManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,18 +47,23 @@ public class MainActivity extends BaseActivity {
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         mainView = new MainView(MainActivity.this, appPreferenceManager);
 
+        recordManager = new VoiceRecorderManager(getFilesDir().getPath(), this);
 
         setAcceptedOrderEventListener(new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 mainView.replaceAcceptedOrder(dataSnapshot);
             }
+
             @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 Log.e("onChildChanged", dataSnapshot.getKey());
             }
+
             @Override public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.e("onChildRemoved", dataSnapshot.getKey());
             }
+
             @Override public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+
             @Override public void onCancelled(DatabaseError databaseError) {}
         });
     }
@@ -68,9 +71,13 @@ public class MainActivity extends BaseActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        stopRecord();
+        recordManager.stop();
         mainView.clearKeepScreenOn();
         mainView.replaceViewToUnRecording();
+    }
+
+    @Override public void onStartRecord() {
+        mainView.replaceViewToRecording();
     }
 
     public void startedRecording() {
@@ -93,58 +100,30 @@ public class MainActivity extends BaseActivity {
                     appPreferenceManager.setUserFirstVisit();
                     mainView.changeActionBarColorToWhite();
                 }
-                fileName = makeFileName(System.currentTimeMillis());
-                initRecorder(fileName);
-                startRecord();
+                String fileName = FileNameUtil.makeFileName(appPreferenceManager.getPhoneNumber(), System.currentTimeMillis());
+                recordManager.start(fileName);
             }
         }
     }
 
-    private String makeFileName(long time) {
-        SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
-        String date = dayTime.format(new Date(time));
-        fileName = appPreferenceManager.getPhoneNumber() + "_" + date;
-        return fileName;
-    }
-
-    private void initRecorder(String fileName) {
-        recorder = new MediaRecorder();
-        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
-        recorder.setAudioSamplingRate(44100);
-        recorder.setAudioEncodingBitRate(128000);
-        recorder.setOutputFile(getFilesDir().getPath() + "/" + fileName + ".mp4");
-    }
-
-    private void startRecord() {
-        try {
-            recorder.prepare();
-            recorder.start();
-            mainView.replaceViewToRecording();
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
     public void stoppedRecording() {
-        stopRecord();
+        final String fileName = recordManager.stop();
         mainView.clearKeepScreenOn();
+
         mainView.addOrderToViewPager(fileName);
         mainView.replaceViewToUnRecording();
 
         isUploading = true;
-        upload(new TransferListener() {
+        upload(fileName, new TransferListener() {
             @Override public void onStateChanged(int id, TransferState state) {
                 if (state == TransferState.COMPLETED) {
                     Log.e("s3 upload", "s3 state :" + state);
-                    storeFileName();
-                } else if(state == TransferState.WAITING_FOR_NETWORK) {
+                    storeFileName(fileName);
+                } else if (state == TransferState.WAITING_FOR_NETWORK) {
                     Log.e("s3 upload", "s3 state :" + state);
                     mainView.showToastWaitingForNetwork();
-                } else if(state == TransferState.FAILED) {
+                } else if (state == TransferState.FAILED) {
                     Log.e("s3 upload", "s3 state :" + state);
                     mainView.replaceFailedOrder(fileName);
                     isUploading = false;
@@ -153,24 +132,18 @@ public class MainActivity extends BaseActivity {
                     Log.e("s3 upload", "s3 state :" + state);
                 }
             }
+
             @Override public void onError(int id, Exception ex) {
                 mainView.replaceFailedOrder(fileName);
                 isUploading = false;
                 FirebaseCrash.report(ex);
             }
+
             @Override public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {}
         });
     }
 
-    private void stopRecord() {
-        if (recorder != null) {
-            recorder.stop();
-            recorder.release();
-            recorder = null;
-        }
-    }
-
-    private void upload(TransferListener transferListener) {
+    private void upload(String fileName, TransferListener transferListener) {
         final String BUCKET_NAME = getResources().getString(R.string.s3_bucket_name);
         File file = new File(getFilesDir().getPath() + "/" + fileName + ".mp4");
         TransferUtility transferUtility = FileTransferUtil.getTransferUtility(this);
@@ -178,7 +151,7 @@ public class MainActivity extends BaseActivity {
         transferObserver.setTransferListener(transferListener);
     }
 
-    private void storeFileName() {
+    private void storeFileName(final String fileName) {
         FirebaseDatabase.getInstance().getReference().child("restaurants")
                 .child(appPreferenceManager.getPhoneNumber())
                 .child("recordedOrders")
@@ -220,4 +193,5 @@ public class MainActivity extends BaseActivity {
                 .endAt(appPreferenceManager.getPhoneNumber() + "_99999999999999")
                 .addChildEventListener(childEventListener);
     }
+
 }
