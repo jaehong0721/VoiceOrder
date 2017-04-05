@@ -63,7 +63,7 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
                 .setTransferUtility(FileTransferUtil.getTransferUtility(this))
                 .build();
 
-        mainView = new MainView(MainActivity.this, appPreferenceManager);
+        mainView = new MainView(MainActivity.this, appPreferenceManager.getUserFirstVisit());
         acceptedOrderChildEventListener = new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d("DB", "added: " + dataSnapshot.toString());
@@ -104,7 +104,7 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         mainView.replaceViewToRecording();
     }
 
-    public void startedRecording() {
+    public void onStartedRecording() {
         if (memorySizeChecker.isEnough()) {
             mainView.showDialog(MainView.NO_INTERNAL_MEMORY);
         } else {
@@ -113,28 +113,10 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         }
     }
 
-    private void startRecording() {
-        if (isUploading) {
-            mainView.showToastIsUploading();
-        } else {
-            if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
-                mainView.showDialog(MainView.NO_INTERNET_CONNECT);
-            } else {
-                if (appPreferenceManager.getUserFirstVisit()) {
-                    appPreferenceManager.setUserFirstVisit();
-                    mainView.changeActionBarColorToWhite();
-                }
-                String fileName = FileNameUtil.makeFileName(appPreferenceManager.getPhoneNumber(), System.currentTimeMillis());
-                recordManager.start(fileName);
-            }
-        }
-    }
-
-    public void stoppedRecording() {
+    public void onStoppedRecording() {
         final String fileName = recordManager.stop();
         mainView.clearKeepScreenOn();
-
-        mainView.addOrderToViewPager(fileName);
+        mainView.addOrderToViewPager(FileNameUtil.getTimeFromFileName(fileName));
         mainView.replaceViewToUnRecording();
 
         isUploading = true;
@@ -165,7 +147,23 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
 
             @Override public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {}
         });
+    }
 
+    private void startRecording() {
+        if (isUploading) {
+            mainView.showToastIsUploading();
+        } else {
+            if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
+                mainView.showDialog(MainView.NO_INTERNET_CONNECT);
+            } else {
+                if (appPreferenceManager.getUserFirstVisit()) {
+                    appPreferenceManager.setUserFirstVisit();
+                    mainView.changeActionBarColorToWhite();
+                }
+                String fileName = FileNameUtil.makeFileName(appPreferenceManager.getPhoneNumber(), System.currentTimeMillis());
+                recordManager.start(fileName);
+            }
+        }
     }
 
     private void storeFileName(final String fileName) {
