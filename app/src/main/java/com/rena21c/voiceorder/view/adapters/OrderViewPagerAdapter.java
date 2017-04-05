@@ -21,7 +21,7 @@ import com.rena21c.voiceorder.model.Order;
 import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.util.FileNameUtil;
-import com.rena21c.voiceorder.view.components.OrderViewPagerLayout;
+import com.rena21c.voiceorder.view.components.OrderViewPagerLayoutHolder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,11 +69,10 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         return POSITION_NONE;
     }
 
-    //=============================================
     public View getView(int position) {
         if (orders.get(position).orderState == Order.IN_PROGRESS) {
             return getBeforeAcceptOrderView(position);
-        } else if(orders.get(position).orderState == Order.ACCEPTED) {
+        } else if (orders.get(position).orderState == Order.ACCEPTED) {
             return getAfterAcceptOrderView(position);
         } else
             return getFailedOrderView(position);
@@ -116,20 +115,20 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         return view;
     }
 
-    public void add(String timeStamp) {
+    public void addEmptyRecordView(String timeStamp) {
         orders.add(0, new Order(Order.IN_PROGRESS, timeStamp, null));
         notifyDataSetChanged();
     }
 
-    public void replaceToAcceptedOrder(DataSnapshot dataSnapshot, OrderViewPagerLayout.ReplaceOrderFinishedListener listener) {
+    public void replaceToAcceptedOrder(DataSnapshot dataSnapshot, OrderViewPagerLayoutHolder.ReplaceOrderFinishedListener listener) {
         GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, VoiceRecord>>() {};
         HashMap<String, VoiceRecord> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
 
         String timeStamp = FileNameUtil.getTimeFromFileName(dataSnapshot.getKey());
         int position = 0;
 
-        for(int i=0; i<orders.size(); i++) {
-            if(orders.get(i).timeStamp.equals(timeStamp) && orders.get(i).orderState == Order.IN_PROGRESS) {
+        for (int i = 0; i < orders.size(); i++) {
+            if (orders.get(i).timeStamp.equals(timeStamp) && orders.get(i).orderState == Order.IN_PROGRESS) {
                 getVendorName(objectMap);
                 orders.get(i).itemHashMap = objectMap;
                 orders.get(i).orderState = Order.ACCEPTED;
@@ -141,12 +140,12 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         listener.onFinish(position);
     }
 
-    public void replaceToFailedOrder(String fileName, OrderViewPagerLayout.ReplaceOrderFinishedListener listener) {
+    public void replaceToFailedOrder(String fileName, OrderViewPagerLayoutHolder.ReplaceOrderFinishedListener listener) {
         String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
         int position = 0;
 
-        for(int i=0; i<orders.size(); i++) {
-            if(orders.get(i).timeStamp.equals(timeStamp) && orders.get(i).orderState == Order.IN_PROGRESS) {
+        for (int i = 0; i < orders.size(); i++) {
+            if (orders.get(i).timeStamp.equals(timeStamp) && orders.get(i).orderState == Order.IN_PROGRESS) {
                 orders.get(i).orderState = Order.FAILED;
                 position = i;
                 break;
