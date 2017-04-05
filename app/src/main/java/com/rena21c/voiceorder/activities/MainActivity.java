@@ -6,9 +6,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.crash.FirebaseCrash;
@@ -22,6 +20,7 @@ import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.network.FileTransferUtil;
 import com.rena21c.voiceorder.network.NetworkUtil;
+import com.rena21c.voiceorder.services.AwsS3FileUploader;
 import com.rena21c.voiceorder.services.VoiceRecorderManager;
 import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.util.MemorySizeChecker;
@@ -40,6 +39,7 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
 
     private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
     private MemorySizeChecker memorySizeChecker;
+    private AwsS3FileUploader fileUploader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +50,11 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         memorySizeChecker = new MemorySizeChecker(REQUIRED_SPACE);
 
         dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
+
+        fileUploader = new AwsS3FileUploader.Builder()
+                .setBucketName(getResources().getString(R.string.s3_bucket_name))
+                .setTransferUtility(FileTransferUtil.getTransferUtility(this))
+                .build();
 
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         mainView = new MainView(MainActivity.this, appPreferenceManager);
@@ -114,7 +119,6 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         }
     }
 
-
     public void stoppedRecording() {
         final String fileName = recordManager.stop();
         mainView.clearKeepScreenOn();
@@ -123,21 +127,22 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         mainView.replaceViewToUnRecording();
 
         isUploading = true;
-        upload(fileName, new TransferListener() {
+        File file = new File(getFilesDir().getPath() + "/" + fileName + ".mp4");
+        fileUploader.upload(file, new TransferListener() {
             @Override public void onStateChanged(int id, TransferState state) {
                 if (state == TransferState.COMPLETED) {
-                    Log.e("s3 upload", "s3 state :" + state);
+                    Log.d("s3 upload", "s3 state :" + state);
                     storeFileName(fileName);
                 } else if (state == TransferState.WAITING_FOR_NETWORK) {
-                    Log.e("s3 upload", "s3 state :" + state);
+                    Log.d("s3 upload", "s3 state :" + state);
                     mainView.showToastWaitingForNetwork();
                 } else if (state == TransferState.FAILED) {
-                    Log.e("s3 upload", "s3 state :" + state);
+                    Log.d("s3 upload", "s3 state :" + state);
                     mainView.replaceFailedOrder(fileName);
                     isUploading = false;
                     FirebaseCrash.logcat(Log.WARN, "NETWORK", "Aws s3 transfer state: " + state);
                 } else {
-                    Log.e("s3 upload", "s3 state :" + state);
+                    Log.d("s3 upload", "s3 state :" + state);
                 }
             }
 
@@ -149,14 +154,7 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
 
             @Override public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {}
         });
-    }
 
-    private void upload(String fileName, TransferListener transferListener) {
-        final String BUCKET_NAME = getResources().getString(R.string.s3_bucket_name);
-        File file = new File(getFilesDir().getPath() + "/" + fileName + ".mp4");
-        TransferUtility transferUtility = FileTransferUtil.getTransferUtility(this);
-        TransferObserver transferObserver = transferUtility.upload(BUCKET_NAME, file.getName(), file);
-        transferObserver.setTransferListener(transferListener);
     }
 
     private void storeFileName(final String fileName) {
