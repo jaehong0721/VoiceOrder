@@ -14,6 +14,7 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
@@ -29,17 +30,20 @@ import java.io.File;
 
 public class MainActivity extends BaseActivity implements VoiceRecorderManager.VoiceRecordCallback {
 
+
+    private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
+
+    private AppPreferenceManager appPreferenceManager;
+    private VoiceRecorderManager recordManager;
+    private FirebaseDbManager dbManager;
+    private MemorySizeChecker memorySizeChecker;
+    private AwsS3FileUploader fileUploader;
+    private ChildEventListener acceptedOrderChildEventListener;
+
     private MainView mainView;
 
     private boolean isUploading;
-    private AppPreferenceManager appPreferenceManager;
-
-    private VoiceRecorderManager recordManager;
-    private FirebaseDbManager dbManager;
-
-    private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
-    private MemorySizeChecker memorySizeChecker;
-    private AwsS3FileUploader fileUploader;
+    private Query acceptedOrderQuery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,43 +51,51 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         Log.d("MainActivity", "OnCreate");
         setContentView(R.layout.activity_main);
 
-        memorySizeChecker = new MemorySizeChecker(REQUIRED_SPACE);
+        appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
+
+        recordManager = new VoiceRecorderManager(getFilesDir().getPath(), this);
 
         dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
+
+        memorySizeChecker = new MemorySizeChecker(REQUIRED_SPACE);
 
         fileUploader = new AwsS3FileUploader.Builder()
                 .setBucketName(getResources().getString(R.string.s3_bucket_name))
                 .setTransferUtility(FileTransferUtil.getTransferUtility(this))
                 .build();
 
-        appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         mainView = new MainView(MainActivity.this, appPreferenceManager);
-
-        recordManager = new VoiceRecorderManager(getFilesDir().getPath(), this);
-
-        dbManager.subscribeAcceptedOrder(appPreferenceManager.getPhoneNumber(), new ChildEventListener() {
+        acceptedOrderChildEventListener = new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Log.d("DB", "added: " + dataSnapshot.toString());
                 mainView.replaceAcceptedOrder(dataSnapshot);
             }
 
             @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Log.d("DB", "changed: " + dataSnapshot.toString());
                 mainView.replaceAcceptedOrder(dataSnapshot);
             }
 
             @Override public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d("DB", "removed: " + dataSnapshot.toString());
                 mainView.replaceAcceptedOrder(dataSnapshot);
             }
 
             @Override public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
 
             @Override public void onCancelled(DatabaseError databaseError) {}
-        });
+        };
+    }
 
+    @Override protected void onStart() {
+        super.onStart();
+        acceptedOrderQuery = dbManager.subscribeAcceptedOrder(appPreferenceManager.getPhoneNumber(), acceptedOrderChildEventListener);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
+        acceptedOrderQuery.removeEventListener(acceptedOrderChildEventListener);
         recordManager.stop();
         mainView.clearKeepScreenOn();
         mainView.replaceViewToUnRecording();
@@ -158,21 +170,16 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
     }
 
     private void storeFileName(final String fileName) {
-        dbManager.addFileName(appPreferenceManager.getPhoneNumber(), fileName, new OnCompleteListener() {
-            @Override public void onComplete(@NonNull Task task) {
-                new OnCompleteListener<Void>() {
-                    @Override public void onComplete(@NonNull Task<Void> task) {
-                        if (!task.isSuccessful()) {
-                            mainView.replaceFailedOrder(fileName);
-                            //s3에 올라간 파일 삭제?
-                            FirebaseCrash.report(task.getException());
-                        }
-                        isUploading = false;
-                    }
-                };
+        dbManager.addFileName(appPreferenceManager.getPhoneNumber(), fileName, new OnCompleteListener<Void>() {
+            @Override public void onComplete(@NonNull Task<Void> task) {
+                if (!task.isSuccessful()) {
+                    mainView.replaceFailedOrder(fileName);
+                    //s3에 올라간 파일 삭제?
+                    FirebaseCrash.report(task.getException());
+                }
+                isUploading = false;
             }
         });
-
     }
 
 
