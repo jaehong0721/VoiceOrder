@@ -22,7 +22,6 @@ public class App extends Application {
         return (App) context;
     }
 
-    public ArrayList<Order> orders;
     private AppPreferenceManager appPreferenceManager;
 
     @Override
@@ -32,14 +31,11 @@ public class App extends Application {
     }
 
     private void init() {
-
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
                 .setDefaultFontPath("fonts/NanumSquareRegular.ttf")
                 .setFontAttrId(R.attr.fontPath)
                 .build()
         );
-
-        orders = new ArrayList<>();
 
         appPreferenceManager = new AppPreferenceManager(this);
         OkHttpClient client = new OkHttpClient.Builder()

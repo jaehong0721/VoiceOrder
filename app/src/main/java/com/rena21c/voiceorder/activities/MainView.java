@@ -9,11 +9,14 @@ import android.widget.Toast;
 import com.google.firebase.database.DataSnapshot;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
+import com.rena21c.voiceorder.model.Order;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
 import com.rena21c.voiceorder.view.components.OrderViewPagerLayoutHolder;
 import com.rena21c.voiceorder.view.components.ReplaceableLayout;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 import com.rena21c.voiceorder.view.widgets.RecordAndStopButton;
+
+import java.util.ArrayList;
 
 public class MainView implements RecordAndStopButton.activateRecorderListener {
 
@@ -28,21 +31,19 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     private View recordingLayout;
     private OrderViewPagerLayoutHolder orderViewPagerLayoutHolder;
 
-    public MainView(MainActivity activity, boolean shouldHoswGuide, FirebaseDbManager dbManager) {
+    public MainView(MainActivity activity) {
         this.activity = activity;
-        initView(shouldHoswGuide, dbManager);
-    }
-
-    private void initView(boolean shouldHoswGuide, FirebaseDbManager dbManager) {
         ActionBarViewModel.createWithActionBar(activity.getApplicationContext(), activity.getSupportActionBar());
-
         replaceableLayout = (ReplaceableLayout) activity.findViewById(R.id.replaceableLayout);
         recordingLayout = activity.getLayoutInflater().inflate(R.layout.layout_component_recording, replaceableLayout, false);
-        orderViewPagerLayoutHolder = new OrderViewPagerLayoutHolder(activity, replaceableLayout, dbManager);
 
         recordAndStopButton = (RecordAndStopButton) activity.findViewById(R.id.btnRecordAndStop);
         recordAndStopButton.setListener(this);
+    }
 
+
+    public void initView(boolean shouldHoswGuide, FirebaseDbManager dbManager, ArrayList<Order> orders) {
+        orderViewPagerLayoutHolder = new OrderViewPagerLayoutHolder(activity, replaceableLayout, dbManager, orders);
         if (shouldHoswGuide) {
             setGuide();
         } else {
@@ -121,7 +122,7 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     }
 
     public void clearKeepScreenOn() {
-        activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
     }
 
     @Override

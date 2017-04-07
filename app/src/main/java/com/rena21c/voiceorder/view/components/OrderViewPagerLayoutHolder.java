@@ -11,10 +11,12 @@ import com.google.firebase.database.GenericTypeIndicator;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
+import com.rena21c.voiceorder.model.Order;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.view.adapters.OrderViewPagerAdapter;
 import com.rena21c.voiceorder.view.widgets.ViewPagerIndicator;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -29,13 +31,13 @@ public class OrderViewPagerLayoutHolder {
         void onFinish(int position);
     }
 
-    public OrderViewPagerLayoutHolder(Context context, ViewGroup rootView, FirebaseDbManager dbManager) {
+    public OrderViewPagerLayoutHolder(Context context, ViewGroup rootView, FirebaseDbManager dbManager, ArrayList<Order> orders) {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         view = layoutInflater.inflate(R.layout.layout_component_order_view_pager, rootView, false);
 
         viewPagerIndicator = (ViewPagerIndicator) view.findViewById(R.id.viewPagerIndicator);
         orderViewPager = (ViewPager) view.findViewById(R.id.viewPager);
-        orderViewPagerAdapter = new OrderViewPagerAdapter(context, App.getApplication(context.getApplicationContext()).orders, dbManager);
+        orderViewPagerAdapter = new OrderViewPagerAdapter(context, orders, dbManager);
 
         viewPagerIndicator.createDot(orderViewPagerAdapter.getCount());
         viewPagerIndicator.selectDot(0);
