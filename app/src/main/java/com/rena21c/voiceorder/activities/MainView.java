@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
 import com.rena21c.voiceorder.view.components.OrderViewPagerLayoutHolder;
 import com.rena21c.voiceorder.view.components.ReplaceableLayout;
@@ -27,17 +28,17 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     private View recordingLayout;
     private OrderViewPagerLayoutHolder orderViewPagerLayoutHolder;
 
-    public MainView(MainActivity activity, boolean shouldHoswGuide) {
+    public MainView(MainActivity activity, boolean shouldHoswGuide, FirebaseDbManager dbManager) {
         this.activity = activity;
-        initView(shouldHoswGuide);
+        initView(shouldHoswGuide, dbManager);
     }
 
-    private void initView(boolean shouldHoswGuide) {
+    private void initView(boolean shouldHoswGuide, FirebaseDbManager dbManager) {
         ActionBarViewModel.createWithActionBar(activity.getApplicationContext(), activity.getSupportActionBar());
 
         replaceableLayout = (ReplaceableLayout) activity.findViewById(R.id.replaceableLayout);
         recordingLayout = activity.getLayoutInflater().inflate(R.layout.layout_component_recording, replaceableLayout, false);
-        orderViewPagerLayoutHolder = new OrderViewPagerLayoutHolder(activity, replaceableLayout);
+        orderViewPagerLayoutHolder = new OrderViewPagerLayoutHolder(activity, replaceableLayout, dbManager);
 
         recordAndStopButton = (RecordAndStopButton) activity.findViewById(R.id.btnRecordAndStop);
         recordAndStopButton.setListener(this);

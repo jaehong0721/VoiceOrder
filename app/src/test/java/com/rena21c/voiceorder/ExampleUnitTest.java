@@ -1,5 +1,10 @@
 package com.rena21c.voiceorder;
 
+import android.support.v4.view.PagerAdapter;
+import android.view.View;
+
+import com.rena21c.voiceorder.model.Order;
+
 import org.junit.Test;
 
 import static org.junit.Assert.*;
@@ -12,6 +17,8 @@ import static org.junit.Assert.*;
 public class ExampleUnitTest {
     @Test
     public void addition_isCorrect() throws Exception {
-        assertEquals(4, 2 + 2);
+        Order.OrderState state = Order.OrderState.ACCEPTED;
+
+        assertTrue(Order.OrderState.ACCEPTED == state);
     }
 }

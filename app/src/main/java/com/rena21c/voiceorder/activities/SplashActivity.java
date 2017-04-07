@@ -28,6 +28,7 @@ import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.SimpleAuthListener;
 import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.model.Order;
+import com.rena21c.voiceorder.model.Order.OrderState;
 import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.network.ApiService;
@@ -230,9 +231,9 @@ public class SplashActivity extends BaseActivity {
             String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
             if (acceptedOrderMap.containsKey(fileName)) {
                 HashMap<String, VoiceRecord> itemHashMap = getVendorName(acceptedOrderMap.get(fileName));
-                result.add(new Order(Order.ACCEPTED, timeStamp, itemHashMap));
+                result.add(new Order(OrderState.ACCEPTED, timeStamp, itemHashMap));
             } else {
-                result.add(new Order(Order.IN_PROGRESS, timeStamp, null));
+                result.add(new Order(OrderState.IN_PROGRESS, timeStamp, null));
             }
         }
 

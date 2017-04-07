@@ -11,13 +11,12 @@ import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
-import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.activities.OrderDetailActivity;
+import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.model.Order;
+import com.rena21c.voiceorder.model.Order.OrderState;
 import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.util.FileNameUtil;
@@ -27,23 +26,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class OrderViewPagerAdapter extends PagerAdapter {
+
+    private final FirebaseDbManager dbManager;
     private Context context;
     private LayoutInflater layoutInflater;
     private ArrayList<Order> orders;
 
-    public OrderViewPagerAdapter(Context context) {
-        super();
+    public OrderViewPagerAdapter(Context context, ArrayList<Order> orders, FirebaseDbManager dbManager) {
         this.context = context;
-        this.orders = App.getApplication(context.getApplicationContext()).orders;
+        this.orders = orders;
         layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.dbManager = dbManager;
     }
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         View view = getView(position);
-        if (view != null) {
-            container.addView(view);
-        }
+        container.addView(view);
         return view;
     }
 
@@ -70,9 +69,9 @@ public class OrderViewPagerAdapter extends PagerAdapter {
     }
 
     public View getView(int position) {
-        if (orders.get(position).orderState == Order.IN_PROGRESS) {
+        if (orders.get(position).orderState == OrderState.IN_PROGRESS) {
             return getBeforeAcceptOrderView(position);
-        } else if (orders.get(position).orderState == Order.ACCEPTED) {
+        } else if (orders.get(position).orderState == OrderState.ACCEPTED) {
             return getAfterAcceptOrderView(position);
         } else
             return getFailedOrderView(position);
@@ -116,61 +115,55 @@ public class OrderViewPagerAdapter extends PagerAdapter {
     }
 
     public void addEmptyRecordView(String timeStamp) {
-        orders.add(0, new Order(Order.IN_PROGRESS, timeStamp, null));
+        orders.add(0, new Order(OrderState.IN_PROGRESS, timeStamp, null));
         notifyDataSetChanged();
     }
 
-    public void replaceToAcceptedOrder(DataSnapshot dataSnapshot, OrderViewPagerLayoutHolder.ReplaceOrderFinishedListener listener) {
-        GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, VoiceRecord>>() {};
-        HashMap<String, VoiceRecord> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
+    public void replaceToAcceptedOrder(String fileName, HashMap<String, VoiceRecord> newItemHashMap, OrderViewPagerLayoutHolder.ReplaceOrderFinishedListener listener) {
+        String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
+        replaceNumberKeyToVendorNameKey(newItemHashMap);
 
-        String timeStamp = FileNameUtil.getTimeFromFileName(dataSnapshot.getKey());
-        int position = 0;
+        int position = getPosition(orders, timeStamp, OrderState.IN_PROGRESS);
+        Order order = orders.get(position);
+        order.itemHashMap = newItemHashMap;
+        order.orderState = OrderState.ACCEPTED;
 
-        for (int i = 0; i < orders.size(); i++) {
-            if (orders.get(i).timeStamp.equals(timeStamp) && orders.get(i).orderState == Order.IN_PROGRESS) {
-                getVendorName(objectMap);
-                orders.get(i).itemHashMap = objectMap;
-                orders.get(i).orderState = Order.ACCEPTED;
-                position = i;
-                break;
-            }
-        }
         notifyDataSetChanged();
         listener.onFinish(position);
     }
 
     public void replaceToFailedOrder(String fileName, OrderViewPagerLayoutHolder.ReplaceOrderFinishedListener listener) {
         String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
-        int position = 0;
 
-        for (int i = 0; i < orders.size(); i++) {
-            if (orders.get(i).timeStamp.equals(timeStamp) && orders.get(i).orderState == Order.IN_PROGRESS) {
-                orders.get(i).orderState = Order.FAILED;
-                position = i;
-                break;
-            }
-        }
+        int position = getPosition(orders, timeStamp, OrderState.IN_PROGRESS);
+        Order order = orders.get(position);
+        order.orderState = OrderState.FAILED;
+
         notifyDataSetChanged();
         listener.onFinish(position);
     }
 
-    private HashMap getVendorName(final HashMap<String, VoiceRecord> itemHashMap) {
+    private void replaceNumberKeyToVendorNameKey(final HashMap<String, VoiceRecord> itemHashMap) {
         for (final String vendorPhoneNumber : itemHashMap.keySet()) {
-            FirebaseDatabase.getInstance().getReference().child("vendors")
-                    .child(vendorPhoneNumber)
-                    .child("info")
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                            VendorInfo vendorInfo = dataSnapshot.getValue(VendorInfo.class);
-                            itemHashMap.put(vendorInfo.vendorName, itemHashMap.remove(vendorPhoneNumber));
-                        }
+            dbManager.getVendorInfo(vendorPhoneNumber, new ValueEventListener() {
+                @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                    VendorInfo vendorInfo = dataSnapshot.getValue(VendorInfo.class);
+                    itemHashMap.put(vendorInfo.vendorName, itemHashMap.remove(vendorPhoneNumber));
+                }
 
-                        @Override public void onCancelled(DatabaseError databaseError) {
-                            Toast.makeText(context, databaseError.toString(), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                @Override public void onCancelled(DatabaseError databaseError) {
+                    Toast.makeText(context, databaseError.toString(), Toast.LENGTH_SHORT).show();
+                }
+            });
         }
-        return itemHashMap;
+    }
+
+    private int getPosition(ArrayList<Order> orders, String timeStamp, OrderState inProgress) {
+        for (int i = 0; i < orders.size(); i++) {
+            Order order = orders.get(i);
+            order.match(timeStamp, inProgress);
+            return i;
+        }
+        throw new IllegalStateException("OrderViewPagerAdapter 오류 발생, 없는 인덱스 조회 요청");
     }
 }

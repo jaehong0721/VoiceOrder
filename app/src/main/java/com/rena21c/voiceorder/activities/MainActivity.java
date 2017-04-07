@@ -63,7 +63,7 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
                 .setTransferUtility(FileTransferUtil.getTransferUtility(this))
                 .build();
 
-        mainView = new MainView(MainActivity.this, appPreferenceManager.getUserFirstVisit());
+        mainView = new MainView(MainActivity.this, appPreferenceManager.getUserFirstVisit(), dbManager);
         acceptedOrderChildEventListener = new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d("DB", "added: " + dataSnapshot.toString());

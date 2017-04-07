@@ -7,9 +7,15 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.firebase.FirebaseDbManager;
+import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.view.adapters.OrderViewPagerAdapter;
 import com.rena21c.voiceorder.view.widgets.ViewPagerIndicator;
+
+import java.util.HashMap;
 
 
 public class OrderViewPagerLayoutHolder {
@@ -23,13 +29,13 @@ public class OrderViewPagerLayoutHolder {
         void onFinish(int position);
     }
 
-    public OrderViewPagerLayoutHolder(Context context, ViewGroup rootView) {
+    public OrderViewPagerLayoutHolder(Context context, ViewGroup rootView, FirebaseDbManager dbManager) {
         LayoutInflater layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         view = layoutInflater.inflate(R.layout.layout_component_order_view_pager, rootView, false);
 
         viewPagerIndicator = (ViewPagerIndicator) view.findViewById(R.id.viewPagerIndicator);
         orderViewPager = (ViewPager) view.findViewById(R.id.viewPager);
-        orderViewPagerAdapter = new OrderViewPagerAdapter(context);
+        orderViewPagerAdapter = new OrderViewPagerAdapter(context, App.getApplication(context.getApplicationContext()).orders, dbManager);
 
         viewPagerIndicator.createDot(orderViewPagerAdapter.getCount());
         viewPagerIndicator.selectDot(0);
@@ -60,7 +66,10 @@ public class OrderViewPagerLayoutHolder {
     }
 
     public void replaceToAcceptedOrder(DataSnapshot dataSnapshot) {
-        orderViewPagerAdapter.replaceToAcceptedOrder(dataSnapshot, new ReplaceOrderFinishedListener() {
+        GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, VoiceRecord>>() {};
+        HashMap<String, VoiceRecord> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
+        String key = dataSnapshot.getKey();
+        orderViewPagerAdapter.replaceToAcceptedOrder(key, objectMap, new ReplaceOrderFinishedListener() {
             @Override
             public void onFinish(int position) {
                 orderViewPager.setCurrentItem(position, false);

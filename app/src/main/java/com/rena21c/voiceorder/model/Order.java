@@ -5,16 +5,18 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Order  {
-    public static final int IN_PROGRESS = 0;
-    public static final int ACCEPTED = 1;
-    public static final int FAILED = 2;
+public class Order {
+
+
+    public enum OrderState {
+        IN_PROGRESS, ACCEPTED, FAILED
+    }
 
     public String timeStamp;
     public HashMap<String, VoiceRecord> itemHashMap;
-    public int orderState;
+    public OrderState orderState;
 
-    public Order(int orderState, String timeStamp, HashMap<String, VoiceRecord> itemHashMap) {
+    public Order(OrderState orderState, String timeStamp, HashMap<String, VoiceRecord> itemHashMap) {
         this.orderState = orderState;
         this.timeStamp = timeStamp;
         this.itemHashMap = itemHashMap;
@@ -43,7 +45,11 @@ public class Order  {
                     .append(item.count)
                     .append(",");
         }
-        sb.deleteCharAt(sb.length()-1);
+        sb.deleteCharAt(sb.length() - 1);
         return sb.toString();
+    }
+
+    public boolean match(String timeStamp, OrderState orderState) {
+        return timeStamp.equals(timeStamp) && this.orderState.equals(orderState);
     }
 }
