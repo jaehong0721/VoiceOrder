@@ -30,13 +30,11 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     public static final int NO_INTERNAL_MEMORY = 0;
     public static final int NO_INTERNET_CONNECT = 1;
 
-
     private MainActivity activity;
 
     private ReplaceableLayout replaceableLayout;
     private RecordAndStopButton recordAndStopButton;
     private View recordingLayout;
-
 
     private OrderViewPagerAdapter orderViewPagerAdapter;
     private ViewPager orderViewPager;
@@ -60,7 +58,12 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
 
         viewPagerIndicator = (ViewPagerIndicator) viewPager.findViewById(R.id.viewPagerIndicator);
         orderViewPager = (ViewPager) viewPager.findViewById(R.id.viewPager);
-        orderViewPagerAdapter = new OrderViewPagerAdapter(activity, orders, dbManager);
+
+        orderViewPagerAdapter = new OrderViewPagerAdapter(activity, orders, dbManager, new OrderViewPagerAdapter.ItemCountChangedListener() {
+            @Override public void itemCountChange(int count) {
+                viewPagerIndicator.createDot(count);
+            }
+        });
 
         viewPagerIndicator.createDot(orderViewPagerAdapter.getCount());
         viewPagerIndicator.selectDot(0);
@@ -130,7 +133,6 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
 
     public void addEmptyOrderToViewPager(String timeStamp) {
         orderViewPagerAdapter.addEmptyOrderView(new Order(Order.OrderState.IN_PROGRESS, timeStamp, null));
-        viewPagerIndicator.addDot();
         orderViewPager.setCurrentItem(0);
     }
 

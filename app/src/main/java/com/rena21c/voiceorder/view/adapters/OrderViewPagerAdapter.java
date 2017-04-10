@@ -13,6 +13,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.activities.MainActivity;
 import com.rena21c.voiceorder.activities.OrderDetailActivity;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.model.Order;
@@ -31,11 +32,19 @@ public class OrderViewPagerAdapter extends PagerAdapter {
     private LayoutInflater layoutInflater;
     private ArrayList<Order> orders;
 
-    public OrderViewPagerAdapter(Context context, ArrayList<Order> orders, FirebaseDbManager dbManager) {
+    private ItemCountChangedListener itemCountChangedListener;
+
+    public interface ItemCountChangedListener{
+        void itemCountChange(int count);
+    }
+
+    public OrderViewPagerAdapter(Context context, ArrayList<Order> orders, FirebaseDbManager dbManager, ItemCountChangedListener itemCountChangedListener) {
         this.context = context;
         this.orders = orders;
         layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.dbManager = dbManager;
+        this.itemCountChangedListener = itemCountChangedListener;
+        itemCountChangedListener.itemCountChange(orders.size());
     }
 
     @Override
@@ -115,6 +124,7 @@ public class OrderViewPagerAdapter extends PagerAdapter {
 
     public void addEmptyOrderView(Order emptyOrder) {
         orders.add(0, emptyOrder);
+        itemCountChangedListener.itemCountChange(orders.size());
         notifyDataSetChanged();
     }
 
