@@ -17,6 +17,7 @@ import com.rena21c.voiceorder.model.Order;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
 import com.rena21c.voiceorder.view.adapters.OrderViewPagerAdapter;
+import com.rena21c.voiceorder.view.adapters.SimpleViewPagerSelectedListener;
 import com.rena21c.voiceorder.view.components.ReplaceableLayout;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 import com.rena21c.voiceorder.view.widgets.RecordAndStopButton;
@@ -65,19 +66,11 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
             }
         });
 
-        viewPagerIndicator.createDot(orderViewPagerAdapter.getCount());
         viewPagerIndicator.selectDot(0);
 
         orderViewPager.setAdapter(orderViewPagerAdapter);
-        orderViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
-
-            @Override
-            public void onPageScrollStateChanged(int state) {}
-
-            @Override
-            public void onPageSelected(int position) {
+        orderViewPager.addOnPageChangeListener(new SimpleViewPagerSelectedListener() {
+            @Override public void onPageSelected(int position) {
                 viewPagerIndicator.selectDot(position);
             }
         });
