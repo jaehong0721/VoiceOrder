@@ -114,7 +114,7 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         return view;
     }
 
-    public void addEmptyRecordView(String timeStamp) {
+    public void addEmptyOrderView(String timeStamp) {
         orders.add(0, new Order(OrderState.IN_PROGRESS, timeStamp, null));
         notifyDataSetChanged();
     }

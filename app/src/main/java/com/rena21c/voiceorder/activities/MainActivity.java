@@ -61,7 +61,6 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         Log.d("MainActivity", "OnCreate");
         setContentView(R.layout.activity_main);
 
-
         new Thread(new Runnable() {
             @Override public void run() {
                 dataLoadSync();
@@ -105,16 +104,13 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         };
     }
 
-
-    private HashMap<String, HashMap<String, VoiceRecord>> acceptedOrderMap;
-
     private void dataLoadSync() {
         Log.e("lifeCycle", "dataLoadSync");
         final CountDownLatch latch = new CountDownLatch(2);
-
         final Container<List<String>> fileNameListContainter = new Container<>();
+        final Container<HashMap<String, HashMap<String, VoiceRecord>>> acceptedOrderMapConatiner = new Container<>();
 
-        dbManager.getRecordOrder(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
+        dbManager.getRecordedOrder(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator recordFileMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, String>>>() {};
                 fileNameListContainter.setObject(getSortedListFromMap((HashMap) dataSnapshot.getValue(recordFileMapType)));
@@ -122,11 +118,12 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
             }
         });
 
-        //오퍼레이터 접수 후 데이터 로드
+        //오퍼레이터가 입력 한 데이터를 로드함
         dbManager.getAcceptedOrder(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {};
-                acceptedOrderMap = (HashMap) dataSnapshot.getValue(objectMapType);
+                HashMap<String, HashMap<String, VoiceRecord>> acceptedOrderMap = (HashMap) dataSnapshot.getValue(objectMapType);
+                acceptedOrderMapConatiner.setObject(acceptedOrderMap);
                 latch.countDown();
             }
         });
@@ -134,7 +131,7 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         try {
             latch.await();
             // TODO: 앱 재시작시 App 객체의 order가 삭제 되지 않으므로, 초기화를 수행함
-            final ArrayList<Order> orders = getOrders(fileNameListContainter.getObject());
+            final ArrayList<Order> orders = getOrders(fileNameListContainter.getObject(), acceptedOrderMapConatiner.getObject());
             runOnUiThread(new Runnable() {
                 @Override public void run() {
                     initView(orders);
@@ -177,7 +174,7 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
     public void onStoppedRecording() {
         final String fileName = recordManager.stop();
         mainView.clearKeepScreenOn();
-        mainView.addOrderToViewPager(FileNameUtil.getTimeFromFileName(fileName));
+        mainView.addEmptyOrderToViewPager(FileNameUtil.getTimeFromFileName(fileName));
         mainView.replaceViewToUnRecording();
 
         isUploading = true;
@@ -251,8 +248,7 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         return fileNameList;
     }
 
-
-    private ArrayList<Order> getOrders(List<String> fileNameList) {
+    private ArrayList<Order> getOrders(List<String> fileNameList, HashMap<String, HashMap<String, VoiceRecord>> acceptedOrderMap) {
         ArrayList<Order> result = new ArrayList<>();
 
         if (fileNameList.isEmpty()) return result;
@@ -286,5 +282,5 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         }
         return itemHashMap;
     }
-    
+
 }

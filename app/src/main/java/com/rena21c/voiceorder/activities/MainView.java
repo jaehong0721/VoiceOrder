@@ -41,10 +41,9 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         recordAndStopButton.setListener(this);
     }
 
-
-    public void initView(boolean shouldHoswGuide, FirebaseDbManager dbManager, ArrayList<Order> orders) {
+    public void initView(boolean shouldShowGuide, FirebaseDbManager dbManager, ArrayList<Order> orders) {
         orderViewPagerLayoutHolder = new OrderViewPagerLayoutHolder(activity, replaceableLayout, dbManager, orders);
-        if (shouldHoswGuide) {
+        if (shouldShowGuide) {
             setGuide();
         } else {
             setNormal();
@@ -93,8 +92,8 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         activity.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(activity, R.color.primaryYellow)));
     }
 
-    public void addOrderToViewPager(String timeStamp) {
-        orderViewPagerLayoutHolder.addOrder(timeStamp);
+    public void addEmptyOrderToViewPager(String timeStamp) {
+        orderViewPagerLayoutHolder.addEmptyOrder(timeStamp);
     }
 
     public void replaceAcceptedOrder(DataSnapshot dataSnapshot) {

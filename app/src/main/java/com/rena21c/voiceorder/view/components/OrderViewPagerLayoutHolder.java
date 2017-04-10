@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.GenericTypeIndicator;
-import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.model.Order;
@@ -61,8 +60,8 @@ public class OrderViewPagerLayoutHolder {
         return view;
     }
 
-    public void addOrder(String fileName) {
-        orderViewPagerAdapter.addEmptyRecordView(fileName);
+    public void addEmptyOrder(String fileName) {
+        orderViewPagerAdapter.addEmptyOrderView(fileName);
         viewPagerIndicator.addDot();
         orderViewPager.setCurrentItem(0);
     }

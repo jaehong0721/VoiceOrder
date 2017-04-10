@@ -30,7 +30,7 @@ public class FirebaseDbManager {
                 .addOnFailureListener(listener);
     }
 
-    public void getRecordOrder(String phoneNumber, ValueEventListener listener) {
+    public void getRecordedOrder(String phoneNumber, ValueEventListener listener) {
         //오퍼레이터 접수 전 데이터 로드
         instance.getReference().child(RESTAURANTS)
                 .child(phoneNumber)
