@@ -69,6 +69,7 @@ public class MainActivity extends BaseActivity implements RecordAndStopButton.ac
         setChildEventListener(new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.e("onChildAdded", dataSnapshot.getKey());
+                orderViewPagerLayout.replaceToAcceptedOrder(dataSnapshot);
             }
             @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 Log.e("onChildChanged", dataSnapshot.getKey());
