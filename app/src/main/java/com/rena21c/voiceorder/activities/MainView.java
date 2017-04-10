@@ -97,7 +97,9 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     }
 
     public void replaceAcceptedOrder(DataSnapshot dataSnapshot) {
-        orderViewPagerLayoutHolder.replaceToAcceptedOrder(dataSnapshot);
+        if (orderViewPagerLayoutHolder != null) {
+            orderViewPagerLayoutHolder.replaceToAcceptedOrder(dataSnapshot);
+        }
     }
 
     public void replaceFailedOrder(String fileName) {
