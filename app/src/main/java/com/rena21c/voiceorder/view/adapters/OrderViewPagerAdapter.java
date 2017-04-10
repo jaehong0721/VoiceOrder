@@ -122,7 +122,7 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
         replaceNumberKeyToVendorNameKey(newItemHashMap);
 
-        int position = getPosition(orders, timeStamp, OrderState.IN_PROGRESS);
+        int position = getPosition(orders, timeStamp);
         Order order = orders.get(position);
         order.itemHashMap = newItemHashMap;
         order.orderState = OrderState.ACCEPTED;
@@ -134,7 +134,7 @@ public class OrderViewPagerAdapter extends PagerAdapter {
     public int replaceToFailedOrder(String fileName) {
         String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
 
-        int position = getPosition(orders, timeStamp, OrderState.IN_PROGRESS);
+        int position = getPosition(orders, timeStamp);
         Order order = orders.get(position);
         order.orderState = OrderState.FAILED;
 
@@ -157,7 +157,7 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         }
     }
 
-    private int getPosition(ArrayList<Order> orders, String timeStamp, OrderState inProgress) {
+    private int getPosition(ArrayList<Order> orders, String timeStamp) {
         for (int i = 0; i < orders.size(); i++) {
             Order order = orders.get(i);
             order.match(timeStamp);
