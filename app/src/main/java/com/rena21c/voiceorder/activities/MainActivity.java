@@ -62,22 +62,13 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         setContentView(R.layout.activity_main);
 
         mainView = new MainView(MainActivity.this);
-
-        new Thread(new Runnable() {
-            @Override public void run() {
-                dataLoadSync();
-            }
-        }).start();
-
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
-
-        recordManager = new VoiceRecorderManager(getFilesDir().getPath(), this);
-
         dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
 
+        dataLoadSync();
+
+        recordManager = new VoiceRecorderManager(getFilesDir().getPath(), this);
         memorySizeChecker = new MemorySizeChecker(REQUIRED_SPACE);
-
-
         fileUploader = new AwsS3FileUploader.Builder()
                 .setBucketName(getResources().getString(R.string.s3_bucket_name))
                 .setTransferUtility(FileTransferUtil.getTransferUtility(this))
@@ -87,7 +78,6 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d("DB", "added: " + dataSnapshot.toString());
                 mainView.addOrder(dataSnapshot);
-                mainView.replaceAcceptedOrder(dataSnapshot);
             }
 
             @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {
@@ -107,9 +97,6 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
     }
 
     private void dataLoadSync() {
-        Log.e("lifeCycle", "dataLoadSync");
-        final CountDownLatch latch = new CountDownLatch(2);
-        final Container<List<String>> fileNameListContainter = new Container<>();
         final Container<HashMap<String, HashMap<String, VoiceRecord>>> acceptedOrderMapConatiner = new Container<>();
 
         mainView.initView(appPreferenceManager.getUserFirstVisit(), dbManager);
@@ -117,8 +104,10 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         dbManager.getRecordedOrder(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator recordFileMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, String>>>() {};
-                fileNameListContainter.setObject(getSortedListFromMap((HashMap) dataSnapshot.getValue(recordFileMapType)));
-                latch.countDown();
+                List<String> fileNameList = getSortedListFromMap((HashMap) dataSnapshot.getValue(recordFileMapType));
+                for (String fileName : fileNameList) {
+                    mainView.addTimeStamp(fileName);
+                }
             }
         });
 
@@ -128,20 +117,9 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
                 GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {};
                 HashMap<String, HashMap<String, VoiceRecord>> acceptedOrderMap = (HashMap) dataSnapshot.getValue(objectMapType);
                 acceptedOrderMapConatiner.setObject(acceptedOrderMap);
-                latch.countDown();
             }
         });
 
-        try {
-            latch.await();
-            runOnUiThread(new Runnable() {
-                @Override public void run() {
-                    for (String fileName : fileNameListContainter.getObject()) {
-                        mainView.addTimeStamp(fileName);
-                    }
-                }
-            });
-        } catch (InterruptedException e) {}
     }
 
     @Override protected void onStart() {

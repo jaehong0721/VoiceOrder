@@ -35,6 +35,7 @@ public class OrderViewPagerAdapter extends PagerAdapter {
     private LayoutInflater layoutInflater;
 
     // TODO: Order 대신 TimeStamp(String)으로 변경
+    @Deprecated
     private ArrayList<Order> orders;
 
     private Map<String, Order> orderMap;
