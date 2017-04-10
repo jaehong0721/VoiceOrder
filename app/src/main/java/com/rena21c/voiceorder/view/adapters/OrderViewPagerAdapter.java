@@ -20,7 +20,6 @@ import com.rena21c.voiceorder.model.Order.OrderState;
 import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.util.FileNameUtil;
-import com.rena21c.voiceorder.view.components.OrderViewPagerLayoutHolder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -114,12 +113,12 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         return view;
     }
 
-    public void addEmptyOrderView(String timeStamp) {
-        orders.add(0, new Order(OrderState.IN_PROGRESS, timeStamp, null));
+    public void addEmptyOrderView(Order emptyOrder) {
+        orders.add(0, emptyOrder);
         notifyDataSetChanged();
     }
 
-    public void replaceToAcceptedOrder(String fileName, HashMap<String, VoiceRecord> newItemHashMap, OrderViewPagerLayoutHolder.ReplaceOrderFinishedListener listener) {
+    public int replaceToAcceptedOrder(String fileName, HashMap<String, VoiceRecord> newItemHashMap) {
         String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
         replaceNumberKeyToVendorNameKey(newItemHashMap);
 
@@ -129,10 +128,10 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         order.orderState = OrderState.ACCEPTED;
 
         notifyDataSetChanged();
-        listener.onFinish(position);
+        return position;
     }
 
-    public void replaceToFailedOrder(String fileName, OrderViewPagerLayoutHolder.ReplaceOrderFinishedListener listener) {
+    public int replaceToFailedOrder(String fileName) {
         String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
 
         int position = getPosition(orders, timeStamp, OrderState.IN_PROGRESS);
@@ -140,7 +139,7 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         order.orderState = OrderState.FAILED;
 
         notifyDataSetChanged();
-        listener.onFinish(position);
+        return position;
     }
 
     private void replaceNumberKeyToVendorNameKey(final HashMap<String, VoiceRecord> itemHashMap) {

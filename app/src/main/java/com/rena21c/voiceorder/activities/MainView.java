@@ -1,22 +1,29 @@
 package com.rena21c.voiceorder.activities;
 
+import android.content.Context;
 import android.graphics.drawable.ColorDrawable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.ViewPager;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.model.Order;
+import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
-import com.rena21c.voiceorder.view.components.OrderViewPagerLayoutHolder;
+import com.rena21c.voiceorder.view.adapters.OrderViewPagerAdapter;
 import com.rena21c.voiceorder.view.components.ReplaceableLayout;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 import com.rena21c.voiceorder.view.widgets.RecordAndStopButton;
+import com.rena21c.voiceorder.view.widgets.ViewPagerIndicator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class MainView implements RecordAndStopButton.activateRecorderListener {
 
@@ -29,7 +36,12 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     private ReplaceableLayout replaceableLayout;
     private RecordAndStopButton recordAndStopButton;
     private View recordingLayout;
-    private OrderViewPagerLayoutHolder orderViewPagerLayoutHolder;
+
+
+    private OrderViewPagerAdapter orderViewPagerAdapter;
+    private ViewPager orderViewPager;
+    private ViewPagerIndicator viewPagerIndicator;
+    private View viewPager;
 
     public MainView(MainActivity activity) {
         this.activity = activity;
@@ -42,7 +54,31 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     }
 
     public void initView(boolean shouldShowGuide, FirebaseDbManager dbManager, ArrayList<Order> orders) {
-        orderViewPagerLayoutHolder = new OrderViewPagerLayoutHolder(activity, replaceableLayout, dbManager, orders);
+
+        LayoutInflater layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        viewPager = layoutInflater.inflate(R.layout.layout_component_order_view_pager, replaceableLayout, false);
+
+        viewPagerIndicator = (ViewPagerIndicator) viewPager.findViewById(R.id.viewPagerIndicator);
+        orderViewPager = (ViewPager) viewPager.findViewById(R.id.viewPager);
+        orderViewPagerAdapter = new OrderViewPagerAdapter(activity, orders, dbManager);
+
+        viewPagerIndicator.createDot(orderViewPagerAdapter.getCount());
+        viewPagerIndicator.selectDot(0);
+
+        orderViewPager.setAdapter(orderViewPagerAdapter);
+        orderViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+
+            @Override
+            public void onPageScrollStateChanged(int state) {}
+
+            @Override
+            public void onPageSelected(int position) {
+                viewPagerIndicator.selectDot(position);
+            }
+        });
+
         if (shouldShowGuide) {
             setGuide();
         } else {
@@ -59,7 +95,7 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
 
     private void setNormal() {
         recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_ORDER_LIST_LAYOUT);
-        replaceableLayout.replaceChildView(orderViewPagerLayoutHolder.getView());
+        replaceableLayout.replaceChildView(viewPager);
     }
 
     public void replaceViewToRecording() {
@@ -68,7 +104,7 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     }
 
     public void replaceViewToUnRecording() {
-        replaceableLayout.replaceChildView(orderViewPagerLayoutHolder.getView());
+        replaceableLayout.replaceChildView(viewPager);
         recordAndStopButton.setRecordViewState();
     }
 
@@ -93,18 +129,26 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     }
 
     public void addEmptyOrderToViewPager(String timeStamp) {
-        orderViewPagerLayoutHolder.addEmptyOrder(timeStamp);
+        orderViewPagerAdapter.addEmptyOrderView(new Order(Order.OrderState.IN_PROGRESS, timeStamp, null));
+        viewPagerIndicator.addDot();
+        orderViewPager.setCurrentItem(0);
     }
 
     public void replaceAcceptedOrder(DataSnapshot dataSnapshot) {
-        if (orderViewPagerLayoutHolder != null) {
-            orderViewPagerLayoutHolder.replaceToAcceptedOrder(dataSnapshot);
+        GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, VoiceRecord>>() {};
+        HashMap<String, VoiceRecord> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
+        String key = dataSnapshot.getKey();
+        if (orderViewPagerAdapter != null) {
+            int position = orderViewPagerAdapter.replaceToAcceptedOrder(key, objectMap);
+            orderViewPager.setCurrentItem(position, false);
         }
     }
 
     public void replaceFailedOrder(String fileName) {
-        orderViewPagerLayoutHolder.replaceToFailedOrder(fileName);
+        int position = orderViewPagerAdapter.replaceToFailedOrder(fileName);
+        orderViewPager.setCurrentItem(position);
     }
+
 
     public void showToastIsUploading() {
         Toast.makeText(activity, "주문 전송 중입니다. 잠시 후 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
