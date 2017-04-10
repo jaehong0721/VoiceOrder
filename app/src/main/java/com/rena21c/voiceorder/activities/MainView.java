@@ -15,6 +15,8 @@ import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.model.Order;
 import com.rena21c.voiceorder.model.VoiceRecord;
+import com.rena21c.voiceorder.util.Container;
+import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
 import com.rena21c.voiceorder.view.adapters.OrderViewPagerAdapter;
 import com.rena21c.voiceorder.view.adapters.SimpleViewPagerSelectedListener;
@@ -25,6 +27,7 @@ import com.rena21c.voiceorder.view.widgets.ViewPagerIndicator;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class MainView implements RecordAndStopButton.activateRecorderListener {
 
@@ -52,7 +55,7 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         recordAndStopButton.setListener(this);
     }
 
-    public void initView(boolean shouldShowGuide, FirebaseDbManager dbManager, ArrayList<Order> orders) {
+    public void initView(boolean shouldShowGuide, FirebaseDbManager dbManager) {
 
         LayoutInflater layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         viewPager = layoutInflater.inflate(R.layout.layout_component_order_view_pager, replaceableLayout, false);
@@ -60,13 +63,13 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         viewPagerIndicator = (ViewPagerIndicator) viewPager.findViewById(R.id.viewPagerIndicator);
         orderViewPager = (ViewPager) viewPager.findViewById(R.id.viewPager);
 
-        orderViewPagerAdapter = new OrderViewPagerAdapter(activity, orders, dbManager, new OrderViewPagerAdapter.ItemCountChangedListener() {
+        orderViewPagerAdapter = new OrderViewPagerAdapter(activity, dbManager, new OrderViewPagerAdapter.ItemCountChangedListener() {
             @Override public void itemCountChange(int count) {
                 viewPagerIndicator.createDot(count);
+                // 최초 아이템이 하나 추가 되는 경우 첫 번째 아이템 선택
+                if(count == 1) viewPagerIndicator.selectDot(0);
             }
         });
-
-        viewPagerIndicator.selectDot(0);
 
         orderViewPager.setAdapter(orderViewPagerAdapter);
         orderViewPager.addOnPageChangeListener(new SimpleViewPagerSelectedListener() {
@@ -80,6 +83,11 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         } else {
             setNormal();
         }
+    }
+
+    public void addTimeStamp(String fileName){
+        String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
+        orderViewPagerAdapter.addEmptyOrderView(new Order(Order.OrderState.IN_PROGRESS, timeStamp, null));
     }
 
     private void setGuide() {
@@ -129,6 +137,16 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         orderViewPager.setCurrentItem(0);
     }
 
+    public void addOrder(DataSnapshot dataSnapshot) {
+        GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, VoiceRecord>>() {};
+        HashMap<String, VoiceRecord> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
+        String key = dataSnapshot.getKey();
+        int position = orderViewPagerAdapter.addOrder(key, objectMap);
+        if(position != -1){
+            orderViewPager.setCurrentItem(position, false);
+        }
+    }
+
     public void replaceAcceptedOrder(DataSnapshot dataSnapshot) {
         GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, VoiceRecord>>() {};
         HashMap<String, VoiceRecord> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
@@ -174,4 +192,5 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     public void onStopRecording() {
         activity.onStoppedRecording();
     }
+
 }

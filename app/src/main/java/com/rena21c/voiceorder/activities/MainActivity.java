@@ -61,6 +61,8 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         Log.d("MainActivity", "OnCreate");
         setContentView(R.layout.activity_main);
 
+        mainView = new MainView(MainActivity.this);
+
         new Thread(new Runnable() {
             @Override public void run() {
                 dataLoadSync();
@@ -75,7 +77,6 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
 
         memorySizeChecker = new MemorySizeChecker(REQUIRED_SPACE);
 
-        mainView = new MainView(MainActivity.this);
 
         fileUploader = new AwsS3FileUploader.Builder()
                 .setBucketName(getResources().getString(R.string.s3_bucket_name))
@@ -85,6 +86,7 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         acceptedOrderChildEventListener = new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d("DB", "added: " + dataSnapshot.toString());
+                mainView.addOrder(dataSnapshot);
                 mainView.replaceAcceptedOrder(dataSnapshot);
             }
 
@@ -110,6 +112,8 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         final Container<List<String>> fileNameListContainter = new Container<>();
         final Container<HashMap<String, HashMap<String, VoiceRecord>>> acceptedOrderMapConatiner = new Container<>();
 
+        mainView.initView(appPreferenceManager.getUserFirstVisit(), dbManager);
+
         dbManager.getRecordedOrder(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
                 GenericTypeIndicator recordFileMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, String>>>() {};
@@ -130,18 +134,14 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
 
         try {
             latch.await();
-            // TODO: 앱 재시작시 App 객체의 order가 삭제 되지 않으므로, 초기화를 수행함
-            final ArrayList<Order> orders = getOrders(fileNameListContainter.getObject(), acceptedOrderMapConatiner.getObject());
             runOnUiThread(new Runnable() {
                 @Override public void run() {
-                    initView(orders);
+                    for (String fileName : fileNameListContainter.getObject()) {
+                        mainView.addTimeStamp(fileName);
+                    }
                 }
             });
         } catch (InterruptedException e) {}
-    }
-
-    private void initView(ArrayList<Order> orders) {
-        mainView.initView(appPreferenceManager.getUserFirstVisit(), dbManager, orders);
     }
 
     @Override protected void onStart() {
