@@ -122,7 +122,7 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         int position = 0;
 
         for(int i=0; i<orders.size(); i++) {
-            if(orders.get(i).timeStamp.equals(timeStamp) && orders.get(i).itemHashMap == null) {
+            if(orders.get(i).timeStamp.equals(timeStamp)) {
                 getVendorName(objectMap);
                 orders.get(i).itemHashMap = objectMap;
                 position = i;
