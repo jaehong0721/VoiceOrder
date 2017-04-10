@@ -86,6 +86,7 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         acceptedOrderChildEventListener = new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d("DB", "added: " + dataSnapshot.toString());
+                mainView.replaceAcceptedOrder(dataSnapshot);
             }
 
             @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {

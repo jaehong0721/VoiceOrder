@@ -49,7 +49,7 @@ public class Order {
         return sb.toString();
     }
 
-    public boolean match(String timeStamp, OrderState orderState) {
-        return timeStamp.equals(timeStamp) && this.orderState.equals(orderState);
+    public boolean match(String timeStamp) {
+        return timeStamp.equals(timeStamp);
     }
 }

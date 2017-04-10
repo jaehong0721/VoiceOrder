@@ -161,7 +161,7 @@ public class OrderViewPagerAdapter extends PagerAdapter {
     private int getPosition(ArrayList<Order> orders, String timeStamp, OrderState inProgress) {
         for (int i = 0; i < orders.size(); i++) {
             Order order = orders.get(i);
-            order.match(timeStamp, inProgress);
+            order.match(timeStamp);
             return i;
         }
         throw new IllegalStateException("OrderViewPagerAdapter 오류 발생, 없는 인덱스 조회 요청");
