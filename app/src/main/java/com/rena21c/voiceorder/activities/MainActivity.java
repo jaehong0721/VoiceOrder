@@ -60,7 +60,7 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
 
-        dataLoadSync();
+        mainView.initView(appPreferenceManager.getUserFirstVisit(), dbManager);
 
         recordManager = new VoiceRecorderManager(getFilesDir().getPath(), this);
         memorySizeChecker = new MemorySizeChecker(REQUIRED_SPACE);
@@ -91,15 +91,6 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         };
 
         acceptedOrderQuery = dbManager.subscribeAcceptedOrder(appPreferenceManager.getPhoneNumber(), acceptedOrderChildEventListener);
-    }
-
-    @Override protected void onDestroy() {
-        super.onDestroy();
-        acceptedOrderQuery.removeEventListener(acceptedOrderChildEventListener);
-    }
-
-    private void dataLoadSync() {
-        mainView.initView(appPreferenceManager.getUserFirstVisit(), dbManager);
 
         dbManager.getRecordedOrder(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
@@ -111,6 +102,11 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
             }
         });
 
+    }
+
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        acceptedOrderQuery.removeEventListener(acceptedOrderChildEventListener);
     }
 
     @Override
