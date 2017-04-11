@@ -9,9 +9,11 @@ import android.widget.TextView;
 
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.model.VoiceRecord;
+import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
 import com.rena21c.voiceorder.view.adapters.OrderDetailRecyclerAdapter;
 
+import java.io.File;
 import java.util.HashMap;
 
 public class OrderDetailActivity extends BaseActivity {
@@ -36,7 +38,8 @@ public class OrderDetailActivity extends BaseActivity {
                 });
 
         tvTimeStamp = (TextView) findViewById(R.id.tvTimeStamp);
-        tvTimeStamp.setText(timeStamp);
+        String displayTime = FileNameUtil.getDisplayTimeFromfileName(timeStamp);
+        tvTimeStamp.setText(displayTime);
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         OrderDetailRecyclerAdapter orderDetailRecyclerAdapter = new OrderDetailRecyclerAdapter(itemHashMap);
