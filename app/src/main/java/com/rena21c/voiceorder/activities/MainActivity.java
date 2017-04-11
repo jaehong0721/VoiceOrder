@@ -21,14 +21,10 @@ import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
-import com.rena21c.voiceorder.model.Order;
-import com.rena21c.voiceorder.model.VendorInfo;
-import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.network.FileTransferUtil;
 import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.services.AwsS3FileUploader;
 import com.rena21c.voiceorder.services.VoiceRecorderManager;
-import com.rena21c.voiceorder.util.Container;
 import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.util.MemorySizeChecker;
 
@@ -37,7 +33,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 public class MainActivity extends BaseActivity implements VoiceRecorderManager.VoiceRecordCallback {
 
@@ -97,8 +92,6 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
     }
 
     private void dataLoadSync() {
-        final Container<HashMap<String, HashMap<String, VoiceRecord>>> acceptedOrderMapConatiner = new Container<>();
-
         mainView.initView(appPreferenceManager.getUserFirstVisit(), dbManager);
 
         dbManager.getRecordedOrder(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
@@ -108,15 +101,6 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
                 for (String fileName : fileNameList) {
                     mainView.addTimeStamp(fileName);
                 }
-            }
-        });
-
-        //오퍼레이터가 입력 한 데이터를 로드함
-        dbManager.getAcceptedOrder(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
-            @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, VoiceRecord>>>() {};
-                HashMap<String, HashMap<String, VoiceRecord>> acceptedOrderMap = (HashMap) dataSnapshot.getValue(objectMapType);
-                acceptedOrderMapConatiner.setObject(acceptedOrderMap);
             }
         });
 
@@ -224,41 +208,6 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
             Collections.sort(fileNameList, Collections.<String>reverseOrder());
         }
         return fileNameList;
-    }
-
-    private ArrayList<Order> getOrders(List<String> fileNameList, HashMap<String, HashMap<String, VoiceRecord>> acceptedOrderMap) {
-        ArrayList<Order> result = new ArrayList<>();
-
-        if (fileNameList.isEmpty()) return result;
-
-        if (acceptedOrderMap == null) acceptedOrderMap = new HashMap<>();
-
-        for (String fileName : fileNameList) {
-            String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
-            if (acceptedOrderMap.containsKey(fileName)) {
-                HashMap<String, VoiceRecord> itemHashMap = getVendorName(acceptedOrderMap.get(fileName));
-                result.add(new Order(Order.OrderState.ACCEPTED, timeStamp, itemHashMap));
-            } else {
-                result.add(new Order(Order.OrderState.IN_PROGRESS, timeStamp, null));
-            }
-        }
-
-        return result;
-    }
-
-    private HashMap getVendorName(final HashMap<String, VoiceRecord> itemHashMap) {
-        for (final String vendorPhoneNumber : itemHashMap.keySet()) {
-            dbManager.getVendorInfo(vendorPhoneNumber, new ToastErrorHandlingListener(this) {
-                @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                    VendorInfo vendorInfo = dataSnapshot.getValue(VendorInfo.class);
-                    VoiceRecord toRemove = itemHashMap.remove(vendorPhoneNumber);
-                    if (toRemove != null) {
-                        itemHashMap.put(vendorInfo.vendorName, toRemove);
-                    }
-                }
-            });
-        }
-        return itemHashMap;
     }
 
 }
