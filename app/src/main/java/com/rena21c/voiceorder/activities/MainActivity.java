@@ -89,6 +89,13 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
 
             @Override public void onCancelled(DatabaseError databaseError) {}
         };
+
+        acceptedOrderQuery = dbManager.subscribeAcceptedOrder(appPreferenceManager.getPhoneNumber(), acceptedOrderChildEventListener);
+    }
+
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        acceptedOrderQuery.removeEventListener(acceptedOrderChildEventListener);
     }
 
     private void dataLoadSync() {
@@ -106,15 +113,9 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
 
     }
 
-    @Override protected void onStart() {
-        super.onStart();
-        acceptedOrderQuery = dbManager.subscribeAcceptedOrder(appPreferenceManager.getPhoneNumber(), acceptedOrderChildEventListener);
-    }
-
     @Override
     protected void onStop() {
         super.onStop();
-        acceptedOrderQuery.removeEventListener(acceptedOrderChildEventListener);
         recordManager.stop();
         mainView.clearKeepScreenOn();
         mainView.replaceViewToUnRecording();
