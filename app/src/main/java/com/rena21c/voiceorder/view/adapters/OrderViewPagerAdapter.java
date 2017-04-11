@@ -147,6 +147,7 @@ public class OrderViewPagerAdapter extends PagerAdapter {
                 @Override public void onDataChange(DataSnapshot dataSnapshot) {
                     VendorInfo vendorInfo = dataSnapshot.getValue(VendorInfo.class);
                     itemHashMap.put(vendorInfo.vendorName, itemHashMap.remove(vendorPhoneNumber));
+                    notifyDataSetChanged();
                 }
 
                 @Override public void onCancelled(DatabaseError databaseError) {
