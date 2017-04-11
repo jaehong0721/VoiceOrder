@@ -7,8 +7,12 @@ import java.util.Date;
 public class FileNameUtil {
 
     public static String getTimeFromFileName(String fileName) {
+        return fileName.substring(12, 26);
+    }
+
+    public static String getDisplayTimeFromfileName(String fileName) {
         StringBuffer sb = new StringBuffer();
-        String timeStamp = fileName.substring(16, 26);
+        String timeStamp = fileName.substring(4, 14);
         for (int i = 0; i < timeStamp.length(); i++) {
             if (i == 2) {
                 sb.append(".");
@@ -26,6 +30,7 @@ public class FileNameUtil {
         }
         return sb.toString();
     }
+
 
     public static String makeFileName(String phoneNumber, long time) {
         SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");

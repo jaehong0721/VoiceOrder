@@ -4,10 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
-import com.rena21c.voiceorder.model.Order;
 import com.rena21c.voiceorder.network.ConnectivityIntercepter;
-
-import java.util.ArrayList;
 
 import okhttp3.OkHttpClient;
 import retrofit2.Retrofit;

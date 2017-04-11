@@ -13,9 +13,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
-import com.rena21c.voiceorder.model.Order;
 import com.rena21c.voiceorder.model.VoiceRecord;
-import com.rena21c.voiceorder.util.Container;
 import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
 import com.rena21c.voiceorder.view.adapters.OrderViewPagerAdapter;
@@ -25,9 +23,7 @@ import com.rena21c.voiceorder.view.dialogs.Dialogs;
 import com.rena21c.voiceorder.view.widgets.RecordAndStopButton;
 import com.rena21c.voiceorder.view.widgets.ViewPagerIndicator;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 
 public class MainView implements RecordAndStopButton.activateRecorderListener {
 
@@ -67,7 +63,7 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
             @Override public void itemCountChange(int count) {
                 viewPagerIndicator.createDot(count);
                 // 최초 아이템이 하나 추가 되는 경우 첫 번째 아이템 선택
-                if(count == 1) viewPagerIndicator.selectDot(0);
+                if (count == 1) viewPagerIndicator.selectDot(0);
             }
         });
 
@@ -85,9 +81,9 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         }
     }
 
-    public void addTimeStamp(String fileName){
+    public void addTimeStamp(String fileName) {
         String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
-        orderViewPagerAdapter.addEmptyOrderView(new Order(Order.OrderState.IN_PROGRESS, timeStamp, null));
+        orderViewPagerAdapter.addTimeStamp(timeStamp);
     }
 
     private void setGuide() {
@@ -133,7 +129,7 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     }
 
     public void addEmptyOrderToViewPager(String timeStamp) {
-        orderViewPagerAdapter.addEmptyOrderView(new Order(Order.OrderState.IN_PROGRESS, timeStamp, null));
+        orderViewPagerAdapter.addTimeStamp(timeStamp);
         orderViewPager.setCurrentItem(0);
     }
 
@@ -141,8 +137,9 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, VoiceRecord>>() {};
         HashMap<String, VoiceRecord> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
         String key = dataSnapshot.getKey();
-        int position = orderViewPagerAdapter.addOrder(key, objectMap);
-        if(position != -1){
+        String timeStamp = FileNameUtil.getTimeFromFileName(key);
+        int position = orderViewPagerAdapter.addOrder(timeStamp, objectMap);
+        if (position != -1) {
             orderViewPager.setCurrentItem(position, false);
         }
     }
@@ -152,13 +149,15 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         HashMap<String, VoiceRecord> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
         String key = dataSnapshot.getKey();
         if (orderViewPagerAdapter != null) {
-            int position = orderViewPagerAdapter.replaceToAcceptedOrder(key, objectMap);
+            String timeStamp = FileNameUtil.getTimeFromFileName(key);
+            int position = orderViewPagerAdapter.replaceToAcceptedOrder(timeStamp, objectMap);
             orderViewPager.setCurrentItem(position, false);
         }
     }
 
     public void replaceFailedOrder(String fileName) {
-        int position = orderViewPagerAdapter.replaceToFailedOrder(fileName);
+        String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
+        int position = orderViewPagerAdapter.replaceToFailedOrder(timeStamp);
         orderViewPager.setCurrentItem(position);
     }
 

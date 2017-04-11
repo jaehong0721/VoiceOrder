@@ -7,24 +7,22 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
-import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.activities.OrderDetailActivity;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
-import com.rena21c.voiceorder.model.Order;
-import com.rena21c.voiceorder.model.Order.OrderState;
 import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.model.VoiceRecord;
-import com.rena21c.voiceorder.util.FileNameUtil;
+import com.rena21c.voiceorder.viewmodel.AcceptedOrderPage;
+import com.rena21c.voiceorder.viewmodel.EmptyOrderPage;
+import com.rena21c.voiceorder.viewmodel.FailedOrderPage;
+import com.rena21c.voiceorder.viewmodel.OrderPage;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,26 +32,33 @@ public class OrderViewPagerAdapter extends PagerAdapter {
     private Context context;
     private LayoutInflater layoutInflater;
 
-    // TODO: Order 대신 TimeStamp(String)으로 변경
-    @Deprecated
-    private ArrayList<Order> orders;
-
-    private Map<String, Order> orderMap;
+    private ArrayList<String> timeStampList;
+    private Map<String, OrderPage> orderPageMap;
 
     private ItemCountChangedListener itemCountChangedListener;
+
+    OrderPage.OnClickDetailsOrderPageListener onClickDetailsOrderPageListener;
 
     public interface ItemCountChangedListener {
         void itemCountChange(int count);
     }
 
-    public OrderViewPagerAdapter(Context context, FirebaseDbManager dbManager, ItemCountChangedListener itemCountChangedListener) {
+    public OrderViewPagerAdapter(final Context context, FirebaseDbManager dbManager, ItemCountChangedListener itemCountChangedListener) {
         this.context = context;
-        this.orders = new ArrayList<>();
-        this.orderMap = new HashMap<>();
+        this.timeStampList = new ArrayList<>();
+        this.orderPageMap = new HashMap<>();
         layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.dbManager = dbManager;
         this.itemCountChangedListener = itemCountChangedListener;
-        itemCountChangedListener.itemCountChange(orders.size());
+        onClickDetailsOrderPageListener = new OrderPage.OnClickDetailsOrderPageListener() {
+            @Override public void onClickDetailsOrderPage(String timeStamp, HashMap<String, VoiceRecord> itemHashMap) {
+                Intent intent = new Intent(context, OrderDetailActivity.class);
+                intent.putExtra("timeStamp", timeStamp);
+                intent.putExtra("itemHashMap", itemHashMap);
+                context.startActivity(intent);
+            }
+        };
+        itemCountChangedListener.itemCountChange(timeStampList.size());
     }
 
     @Override
@@ -71,7 +76,7 @@ public class OrderViewPagerAdapter extends PagerAdapter {
 
     @Override
     public int getCount() {
-        return orders.size();
+        return timeStampList.size();
     }
 
     @Override
@@ -85,101 +90,52 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         return POSITION_NONE;
     }
 
-    public View getView(int position) {
-        String timeStamp = orders.get(position).timeStamp;
-        if (!orderMap.containsKey(timeStamp)) {
-            return getEmptyOrderView(position);
-        } else if (orderMap.get(timeStamp).orderState == OrderState.ACCEPTED) {
-            Order order = orderMap.get(timeStamp);
-            return getAfterAcceptOrderView(order);
-        } else
-            return getFailedOrderView(position);
-    }
-
-    private View getEmptyOrderView(int position) {
-        View view = layoutInflater.inflate(R.layout.before_accept_order_view, null, false);
-        TextView tvTimeStamp = (TextView) view.findViewById(R.id.tvTimeStamp);
-        tvTimeStamp.setText(orders.get(position).timeStamp);
-        return view;
-    }
-
-    private View getAfterAcceptOrderView(final Order order) {
-        View view = layoutInflater.inflate(R.layout.after_accept_order_view, null, false);
-        TextView tvTimeStamp = (TextView) view.findViewById(R.id.tvTimeStamp);
-        TextView tvItemList = (TextView) view.findViewById(R.id.tvItemList);
-        TextView tvVendorList = (TextView) view.findViewById(R.id.tvVendorList);
-
-        tvTimeStamp.setText(order.timeStamp);
-        tvItemList.setText(order.makeItemList());
-        tvVendorList.setText(order.makeVendorList());
-
-        TextView tvDetail = (TextView) view.findViewById(R.id.tvDetail);
-        tvDetail.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, OrderDetailActivity.class);
-                intent.putExtra("timeStamp", order.timeStamp);
-                intent.putExtra("itemHashMap", order.itemHashMap);
-                context.startActivity(intent);
-            }
-        });
-        return view;
-    }
-
-    private View getFailedOrderView(int position) {
-        View view = layoutInflater.inflate(R.layout.failed_order_view, null, false);
-        TextView tvTimeStamp = (TextView) view.findViewById(R.id.tvTimeStamp);
-        tvTimeStamp.setText(orders.get(position).timeStamp);
-        return view;
-    }
-
-    public void addEmptyOrderView(Order emptyOrder) {
-        orders.add(0, emptyOrder);
-        Collections.sort(orders, new Comparator<Order>() {
-            @Override public int compare(Order o1, Order o2) {
-                return o2.timeStamp.compareTo(o1.timeStamp);
-            }
-        });
-        itemCountChangedListener.itemCountChange(orders.size());
-        notifyDataSetChanged();
-    }
-
-    public int addOrder(String fileName, HashMap<String, VoiceRecord> newItemHashMap) {
-        String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
-        replaceNumberKeyToVendorNameKey(newItemHashMap);
-
-        int position = getPosition(timeStamp);
-
-        orderMap.put(timeStamp, new Order(OrderState.ACCEPTED, timeStamp, newItemHashMap));
-
-        Log.d("", "orderMap: " + orderMap);
-
-        notifyDataSetChanged();
-        return position;
-    }
-
-    public int replaceToAcceptedOrder(String fileName, HashMap<String, VoiceRecord> newItemHashMap) {
-        String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
-        replaceNumberKeyToVendorNameKey(newItemHashMap);
-
-        int position = getPosition(timeStamp);
-
-        if (position != -1) {
-            Order order = orders.get(position);
-            order.itemHashMap = newItemHashMap;
-            order.orderState = OrderState.ACCEPTED;
+    public void addTimeStamp(String timeStamp) {
+        timeStampList.add(timeStamp);
+        Collections.sort(timeStampList, Collections.<String>reverseOrder());
+        if (orderPageMap.containsKey(timeStamp)) {
+            // Do Nothing
+        } else {
+            orderPageMap.put(timeStamp, new EmptyOrderPage(timeStamp));
         }
+        notifyDataSetChanged();
+        itemCountChangedListener.itemCountChange(timeStampList.size());
+    }
+
+
+    public int addOrder(String timeStamp, HashMap<String, VoiceRecord> newItemHashMap) {
+        int position = getPosition(timeStamp);
+        replaceNumberKeyToVendorNameKey(newItemHashMap);
+        orderPageMap.put(timeStamp, new AcceptedOrderPage(timeStamp, newItemHashMap));
+
+        Log.d("", "orderMap: " + newItemHashMap);
+
+        notifyDataSetChanged();
+        itemCountChangedListener.itemCountChange(timeStampList.size());
+        return position;
+    }
+
+    public View getView(int position) {
+        String timeStamp = timeStampList.get(position);
+        return orderPageMap.get(timeStamp).getView(layoutInflater, onClickDetailsOrderPageListener);
+    }
+
+    public int replaceToAcceptedOrder(String timeStamp, HashMap<String, VoiceRecord> newItemHashMap) {
+        replaceNumberKeyToVendorNameKey(newItemHashMap);
+
+        int position = getPosition(timeStamp);
+
+        orderPageMap.put(timeStamp, new AcceptedOrderPage(timeStamp, newItemHashMap));
 
         notifyDataSetChanged();
         return position;
     }
 
-    public int replaceToFailedOrder(String fileName) {
-        String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
+    public int replaceToFailedOrder(String timeStamp) {
 
         int position = getPosition(timeStamp);
-        Order order = orders.get(position);
-        order.orderState = OrderState.FAILED;
+
+        orderPageMap.put(timeStamp, new FailedOrderPage(timeStamp));
 
         notifyDataSetChanged();
         return position;
@@ -201,10 +157,10 @@ public class OrderViewPagerAdapter extends PagerAdapter {
     }
 
     private int getPosition(String timeStamp) {
-        for (int i = 0; i < orders.size(); i++) {
-            Order order = orders.get(i);
-            order.match(timeStamp);
-            return i;
+        for (int i = 0; i < timeStampList.size(); i++) {
+            if (timeStampList.get(i).equals(timeStamp)) {
+                return i;
+            }
         }
         return -1;
     }
