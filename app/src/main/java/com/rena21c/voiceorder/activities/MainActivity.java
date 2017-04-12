@@ -14,7 +14,6 @@ import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.Query;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
@@ -30,8 +29,7 @@ import com.rena21c.voiceorder.util.MemorySizeChecker;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 public class MainActivity extends BaseActivity implements VoiceRecorderManager.VoiceRecordCallback {
@@ -94,8 +92,7 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
 
         dbManager.getRecordedOrder(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                GenericTypeIndicator recordFileMapType = new GenericTypeIndicator<HashMap<String, HashMap<String, String>>>() {};
-                List<String> fileNameList = getSortedListFromMap((HashMap) dataSnapshot.getValue(recordFileMapType));
+                List<String> fileNameList = getFileNameListFrom(dataSnapshot.getChildren().iterator());
                 for (String fileName : fileNameList) {
                     mainView.addTimeStamp(fileName);
                 }
@@ -196,13 +193,12 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         });
     }
 
-    private List<String> getSortedListFromMap(HashMap<String, HashMap<String, String>> recordedFileMap) {
+    private List<String> getFileNameListFrom(Iterator<DataSnapshot> dataSnapshotIterator) {
         List<String> fileNameList = new ArrayList();
-        if (recordedFileMap != null) {
-            for (HashMap<String, String> fileNameMap : recordedFileMap.values()) {
-                fileNameList.add(fileNameMap.get("fileName"));
+        if (dataSnapshotIterator != null) {
+            while (dataSnapshotIterator.hasNext()) {
+                fileNameList.add(dataSnapshotIterator.next().getKey());
             }
-            Collections.sort(fileNameList, Collections.<String>reverseOrder());
         }
         return fileNameList;
     }
