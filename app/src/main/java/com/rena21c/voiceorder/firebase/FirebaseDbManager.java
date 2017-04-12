@@ -68,9 +68,8 @@ public class FirebaseDbManager {
         instance.getReference().child(RESTAURANTS)
                 .child(phoneNumber)
                 .child("recordedOrders")
-                .push()
-                .child("fileName")
-                .setValue(fileName)
+                .child(fileName)
+                .setValue(false)
                 .addOnCompleteListener(listener);
     }
 
