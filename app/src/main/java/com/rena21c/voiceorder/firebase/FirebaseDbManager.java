@@ -35,6 +35,9 @@ public class FirebaseDbManager {
         instance.getReference().child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(RECORDED_ORDERS)
+                .orderByKey()
+                .startAt(phoneNumber + "_00000000000000")
+                .endAt(phoneNumber + "_99999999999999")
                 .addListenerForSingleValueEvent(listener);
     }
 
