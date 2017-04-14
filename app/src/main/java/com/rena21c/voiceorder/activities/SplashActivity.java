@@ -23,15 +23,12 @@ import com.rena21c.voiceorder.etc.PlayServiceManager;
 import com.rena21c.voiceorder.etc.VersionManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.SimpleAuthListener;
-import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.network.ApiService;
 import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.network.NoConnectivityException;
 import com.rena21c.voiceorder.pojo.UserToken;
 import com.rena21c.voiceorder.util.LauncherUtil;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
-
-import java.util.HashMap;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -161,7 +158,9 @@ public class SplashActivity extends BaseActivity {
 
 
     private void goToMain() {
-        startActivity(new Intent(SplashActivity.this, MainActivity.class));
+        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         finish();
     }
