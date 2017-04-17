@@ -119,11 +119,11 @@ public class SplashActivity extends BaseActivity {
         if(user != null) {
             storeFcmToken();
         } else {
-            signInProcess();
+            requestUserToken();
         }
     }
 
-    private void signInProcess() {
+    private void requestUserToken() {
         appPreferenceManager.initPhoneNumber();
         apiService
                 .getToken(appPreferenceManager.getPhoneNumber())
