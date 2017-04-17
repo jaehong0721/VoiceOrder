@@ -13,6 +13,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rena21c.voiceorder.App;
@@ -42,6 +43,8 @@ public class SplashActivity extends BaseActivity {
     private PermissionManager permissionManager;
 
     private FirebaseDbManager dbManager;
+
+    private FirebaseAuth firebaseAuth;
     private Retrofit retrofit;
     private ApiService apiService;
     private AppPreferenceManager appPreferenceManager;
@@ -52,6 +55,8 @@ public class SplashActivity extends BaseActivity {
         setContentView(R.layout.activity_splash);
 
         dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
+
+        firebaseAuth = FirebaseAuth.getInstance();
 
         permissionManager = PermissionManager.newInstance(this);
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
@@ -104,9 +109,18 @@ public class SplashActivity extends BaseActivity {
         VersionManager.checkAppVersion(SplashActivity.this, new VersionManager.MeetRequiredVersionListener() {
             @Override
             public void onMeetRequiredVersion() {
-                signInProcess();
+                checkUserSignedIn();
             }
         });
+    }
+
+    private void checkUserSignedIn() {
+        FirebaseUser user = firebaseAuth.getCurrentUser();
+        if(user != null) {
+            storeFcmToken();
+        } else {
+            signInProcess();
+        }
     }
 
     private void signInProcess() {
@@ -129,8 +143,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void signIn(String customToken) {
-        FirebaseAuth
-                .getInstance()
+        firebaseAuth
                 .signInWithCustomToken(customToken)
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override public void onComplete(@NonNull Task<AuthResult> task) {
