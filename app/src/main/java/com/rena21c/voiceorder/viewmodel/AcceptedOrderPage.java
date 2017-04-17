@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.rena21c.voiceorder.R;
@@ -35,8 +36,8 @@ public class AcceptedOrderPage extends OrderPage {
         tvItemList.setText(makeItemList());
         tvVendorList.setText(makeVendorList());
 
-        TextView tvDetail = (TextView) view.findViewById(R.id.tvDetail);
-        tvDetail.setOnClickListener(new OnClickListener() {
+        Button btnGoDetail = (Button) view.findViewById(R.id.btnGoDetail);
+        btnGoDetail.setOnClickListener(new OnClickListener() {
             @Override public void onClick(View v) {
                 onClickListener.onClickDetailsOrderPage(timeStamp, itemHashMap);
             }
