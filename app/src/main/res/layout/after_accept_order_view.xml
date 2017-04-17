@@ -15,7 +15,7 @@
             android:layout_height="19dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:background="@drawable/rounded_edge_button_shape"
+            android:background="@drawable/timestamp_button_shape"
             android:gravity="center"
             android:text="21:28  03.23"
             android:textColor="#ffffff" />
