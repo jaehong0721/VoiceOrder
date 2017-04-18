@@ -33,6 +33,7 @@ public class OrderDetailActivity extends BaseActivity {
                         NavUtils.navigateUpFromSameTask(OrderDetailActivity.this);
                     }
                 });
+        getSupportActionBar().setElevation(10);
 
         String displayTime = FileNameUtil.getDisplayTimeFromfileName(timeStamp);
 
