@@ -5,7 +5,6 @@ import android.support.v4.app.NavUtils;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.TextView;
 
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.model.VoiceRecord;
@@ -13,13 +12,11 @@ import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
 import com.rena21c.voiceorder.view.adapters.OrderDetailRecyclerAdapter;
 
-import java.io.File;
 import java.util.HashMap;
 
 public class OrderDetailActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
-    private TextView tvTimeStamp;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,9 +34,7 @@ public class OrderDetailActivity extends BaseActivity {
                     }
                 });
 
-        tvTimeStamp = (TextView) findViewById(R.id.tvTimeStamp);
         String displayTime = FileNameUtil.getDisplayTimeFromfileName(timeStamp);
-        tvTimeStamp.setText(displayTime);
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         OrderDetailRecyclerAdapter orderDetailRecyclerAdapter = new OrderDetailRecyclerAdapter(itemHashMap);
