@@ -23,8 +23,10 @@ public class OrderDetailActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_order_detail);
 
-        String timeStamp = getIntent().getStringExtra("timeStamp");
         HashMap<String, VoiceRecord> itemHashMap = (HashMap<String, VoiceRecord>) getIntent().getSerializableExtra("itemHashMap");
+
+        String timeStamp = getIntent().getStringExtra("timeStamp");
+        String displayTime = FileNameUtil.getDisplayTimeFromfileName(timeStamp);
 
         ActionBarViewModel.createWithActionBar(this, getSupportActionBar())
                 .setBackButtonClickListener(new View.OnClickListener() {
@@ -32,10 +34,11 @@ public class OrderDetailActivity extends BaseActivity {
                     public void onClick(View v) {
                         NavUtils.navigateUpFromSameTask(OrderDetailActivity.this);
                     }
-                });
+                })
+                .setTimeStamp(displayTime);
         getSupportActionBar().setElevation(10);
 
-        String displayTime = FileNameUtil.getDisplayTimeFromfileName(timeStamp);
+
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         OrderDetailRecyclerAdapter orderDetailRecyclerAdapter = new OrderDetailRecyclerAdapter(itemHashMap);
