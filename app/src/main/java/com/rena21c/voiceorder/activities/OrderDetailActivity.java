@@ -9,7 +9,7 @@ import android.view.View;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.util.FileNameUtil;
-import com.rena21c.voiceorder.view.actionbar.ActionBarViewModel;
+import com.rena21c.voiceorder.view.actionbar.ActionBarOnDetail;
 import com.rena21c.voiceorder.view.adapters.OrderDetailRecyclerAdapter;
 
 import java.util.HashMap;
@@ -28,7 +28,7 @@ public class OrderDetailActivity extends BaseActivity {
         String timeStamp = getIntent().getStringExtra("timeStamp");
         String displayTime = FileNameUtil.getDisplayTimeFromfileName(timeStamp);
 
-        ActionBarViewModel.createWithActionBar(this, getSupportActionBar())
+        ActionBarOnDetail.createWithActionBar(this, getSupportActionBar())
                 .setBackButtonClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
@@ -36,9 +36,6 @@ public class OrderDetailActivity extends BaseActivity {
                     }
                 })
                 .setTimeStamp(displayTime);
-        getSupportActionBar().setElevation(10);
-
-
 
         recyclerView = (RecyclerView) findViewById(R.id.recyclerView);
         OrderDetailRecyclerAdapter orderDetailRecyclerAdapter = new OrderDetailRecyclerAdapter(itemHashMap);
