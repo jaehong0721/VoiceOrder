@@ -6,25 +6,13 @@
     android:layout_height="match_parent"
     android:layout_marginLeft="27dp"
     android:layout_marginRight="27dp"
-    android:layout_marginTop="44dp"
+    android:layout_marginTop="23dp"
     tools:context="com.rena21c.voiceorder.activities.OrderDetailActivity">
-
-    <TextView
-        android:id="@+id/tvTimeStamp"
-        android:layout_width="wrap_content"
-        android:layout_height="19dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="10dp"
-        android:layout_marginBottom="8dp"
-        android:background="@drawable/rounded_edge_button_shape"
-        android:gravity="center"
-        android:text="21:28  03.23"
-        android:textColor="#ffffff" />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/tvTimeStamp">
+        android:layout_alignParentTop="true">
     </android.support.v7.widget.RecyclerView>
 </RelativeLayout>

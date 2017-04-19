@@ -18,7 +18,7 @@ import android.widget.RelativeLayout;
 
 import com.rena21c.voiceorder.R;
 
-public class RecordAndStopButton extends FrameLayout implements View.OnClickListener{
+public class RecordAndStopButton extends FrameLayout implements View.OnClickListener {
 
     public final int HEIGHT_WITH_GUIDE_LAYOUT = 222;
     public final int HEIGHT_WITH_ORDER_LIST_LAYOUT = 167;
@@ -51,6 +51,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
     public interface activateRecorderListener {
         void onStartRecording();
+
         void onStopRecording();
     }
 
@@ -68,19 +69,16 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
 
     private void init() {
-        ivRecord = (ImageView)findViewById(R.id.ivRecord);
-        ivStop = (ImageView)findViewById(R.id.ivStop);
-      
-        ivBackground = (ImageView)findViewById(R.id.ivBackground);
+        ivRecord = (ImageView) findViewById(R.id.ivRecord);
+        ivStop = (ImageView) findViewById(R.id.ivStop);
+        ivBackground = (ImageView) findViewById(R.id.ivBackground);
         ivBackground.setOnClickListener(this);
-        ivAnimation = (ImageView)findViewById(R.id.ivAnimation);
+        ivAnimation = (ImageView) findViewById(R.id.ivAnimation);
         buttonLayout = (RelativeLayout) findViewById(R.id.buttonLayout);
-
-
     }
 
     public void setInitHeight(int height) {
-        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams)buttonLayout.getLayoutParams();
+        FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) buttonLayout.getLayoutParams();
         params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, getResources().getDisplayMetrics());
         buttonLayout.setLayoutParams(params);
     }
@@ -98,9 +96,9 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         set.addAnimation(alphaAnimation);
 
         ScaleAnimation scaleAnimation = new ScaleAnimation(BACKGROUND_SCALE_RECORD_X, PULSE_SCALE_RECORD_X,
-                                                            BACKGROUND_SCALE_RECORD_Y, PULSE_SCALE_RECORD_Y,
-                                                            Animation.RELATIVE_TO_SELF, 0.5F,
-                                                            Animation.RELATIVE_TO_SELF, 0.5F);
+                BACKGROUND_SCALE_RECORD_Y, PULSE_SCALE_RECORD_Y,
+                Animation.RELATIVE_TO_SELF, 0.5F,
+                Animation.RELATIVE_TO_SELF, 0.5F);
         scaleAnimation.setRepeatCount(-1);
         set.addAnimation(scaleAnimation);
 
@@ -121,9 +119,9 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         set.addAnimation(alphaAnimation);
 
         ScaleAnimation scaleAnimation = new ScaleAnimation(BACKGROUND_SCALE_STOP_X, PULSE_SCALE_STOP_X,
-                                                            BACKGROUND_SCALE_STOP_Y, PULSE_SCALE_STOP_Y,
-                                                            Animation.RELATIVE_TO_SELF, 0.5F,
-                                                            Animation.RELATIVE_TO_SELF, 0.5F);
+                BACKGROUND_SCALE_STOP_Y, PULSE_SCALE_STOP_Y,
+                Animation.RELATIVE_TO_SELF, 0.5F,
+                Animation.RELATIVE_TO_SELF, 0.5F);
         scaleAnimation.setRepeatCount(-1);
         set.addAnimation(scaleAnimation);
 
@@ -134,15 +132,14 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
     @Override
     public void onClick(View v) {
 
-        if(isRecording) {
+        if (isRecording) {
             listener.onStopRecording();
-        }
-        else {
+        } else {
             listener.onStartRecording();
         }
     }
 
-    public void setRecordButton() {
+    public void setRecordViewState() {
         isRecording = false;
         Animation shortHeightAni = new showHeightChangeAnimation(buttonLayout, HEIGHT_WITH_ORDER_LIST_LAYOUT);
         shortHeightAni.setDuration(200);
@@ -156,7 +153,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         ivStop.setVisibility(View.INVISIBLE);
     }
 
-    public void setStopButton() {
+    public void setStopViewState() {
         isRecording = true;
         Animation longHeightAni = new showHeightChangeAnimation(buttonLayout, HEIGHT_WITH_RECORDING_LAYOUT);
         longHeightAni.setDuration(200);
@@ -184,7 +181,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         @Override
         protected void applyTransformation(float interpolatedTime, Transformation t) {
 
-            int newHeight = (int) (startHeight+(targetHeight - startHeight) * interpolatedTime);
+            int newHeight = (int) (startHeight + (targetHeight - startHeight) * interpolatedTime);
             view.getLayoutParams().height = newHeight;
             view.requestLayout();
         }
@@ -198,10 +195,6 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         public boolean willChangeBounds() {
             return true;
         }
-    }
-
-    public boolean isRecording() {
-        return isRecording;
     }
 
 }

@@ -9,4 +9,6 @@
     <color name="unselectedIndicator">#52390405</color>
 
     <color name="dividerLine">#14000000</color>
+
+    <color name="btnDetailStroke">#33390405</color>
 </resources>

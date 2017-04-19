@@ -57,8 +57,4 @@ public class ViewPagerIndicator extends RelativeLayout {
         }
     }
 
-    public void addDot() {
-        createDot(dots.size()+1);
-    }
-
 }

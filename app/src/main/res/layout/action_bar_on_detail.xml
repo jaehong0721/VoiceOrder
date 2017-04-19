@@ -4,23 +4,19 @@
                 android:layout_height="match_parent">
 
     <ImageButton
-        android:id="@+id/ibMenu"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:background="@null"
-        android:src="@drawable/btn_menu"
-        android:visibility="visible"/>
-
-    <ImageButton
         android:id="@+id/ibBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:background="@null"
-        android:src="@drawable/btn_back"
-        android:visibility="gone"/>
+        android:src="@drawable/btn_back"/>
 
+    <TextView
+        android:id="@+id/tvTimeStampInActionBar"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerHorizontal="true"
+        android:textSize="20sp"
+        android:gravity="center"/>
 </RelativeLayout>

@@ -15,7 +15,7 @@
             android:layout_height="19dp"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:background="@drawable/rounded_edge_button_shape"
+            android:background="@drawable/timestamp_button_shape"
             android:gravity="center"
             android:text="21:28  03.23"
             android:textColor="#ffffff" />
@@ -43,16 +43,15 @@
             android:text="송군식품, 미리네, 유현통상, 금자 야채가게"
             android:textSize="14sp" />
 
-        <TextView
-            android:id="@+id/tvDetail"
-            android:layout_width="wrap_content"
-            android:layout_height="21dp"
+        <Button
+            android:id="@+id/btnGoDetail"
+            android:layout_width="153dp"
+            android:layout_height="39dp"
             android:layout_below="@+id/tvVendorList"
-            android:layout_marginTop="32dp"
-            android:drawablePadding="7dp"
-            android:drawableRight="@drawable/detail"
-            android:text="자세히 보기"
-            android:textSize="19sp" />
+            android:layout_marginTop="22dp"
+            android:background="@drawable/detail_button_shape"
+            android:text="주문내역 상세보기"
+            android:textSize="16sp" />
 
     </RelativeLayout>
 

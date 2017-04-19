@@ -1,52 +1,64 @@
 package com.rena21c.voiceorder.etc;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.google.firebase.crash.FirebaseCrash;
 
-import static android.preference.PreferenceManager.getDefaultSharedPreferences;
+public class AppPreferenceManager {
 
-public class PreferenceManager {
+    private final Context context;
+    private final SharedPreferences sharedPreference;
 
-    public static void setUserFirstVisit(Context context) {
-        getDefaultSharedPreferences(context)
+    private String phoneNumber = null;
+
+    public AppPreferenceManager(Context context) {
+        this.context = context;
+        sharedPreference = PreferenceManager.getDefaultSharedPreferences(context);
+    }
+
+    public void setUserFirstVisit() {
+        sharedPreference
                 .edit()
                 .putBoolean("isFirst", false)
                 .apply();
     }
 
-    public static boolean getUserFirstVisit(Context context) {
-        return getDefaultSharedPreferences(context)
+    public boolean getUserFirstVisit() {
+        return sharedPreference
                 .getBoolean("isFirst", true);
     }
 
-    public static boolean getLauncherIconCreated(Context context) {
-        return getDefaultSharedPreferences(context)
+    public boolean getLauncherIconCreated() {
+        return sharedPreference
                 .getBoolean("isLauncerIconCreated", true);
     }
 
-    public static void setLauncherIconCreated(Context context) {
-        getDefaultSharedPreferences(context)
+    public void setLauncherIconCreated() {
+        sharedPreference
                 .edit()
                 .putBoolean("isLauncerIconCreated", false)
                 .apply();
     }
 
-    public static void setFcmToken(Context context, String token) {
-        getDefaultSharedPreferences(context)
+    public void setFcmToken(String token) {
+        sharedPreference
                 .edit()
                 .putString("fcmToken", token)
                 .apply();
     }
 
-    public static String getFcmToken(Context context) {
-        return getDefaultSharedPreferences(context)
+    public String getFcmToken() {
+        return sharedPreference
                 .getString("fcmToken", null);
     }
 
-    public static String setPhoneNumber(Context context) {
+    public void initPhoneNumber() {
+        if (getPhoneNumber() != null) return;
+
         String phoneNumber = ((TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE)).getLine1Number();
         if (phoneNumber == null) {
             phoneNumber = "01000000000";
@@ -55,15 +67,16 @@ public class PreferenceManager {
         if (phoneNumber.substring(0, 3).equals("+82")) {
             phoneNumber = phoneNumber.replace("+82", "0");
         }
-        getDefaultSharedPreferences(context)
+        sharedPreference
                 .edit()
                 .putString("phoneNumber", phoneNumber)
                 .apply();
-        return phoneNumber;
     }
 
-    public static String getPhoneNumber(Context context) {
-        return getDefaultSharedPreferences(context)
-                .getString("phoneNumber", null);
+    public String getPhoneNumber() {
+        if (phoneNumber == null) {
+            phoneNumber = sharedPreference.getString("phoneNumber", null);
+        }
+        return phoneNumber;
     }
 }

@@ -1,4 +1,4 @@
-package com.rena21c.voiceorder.fcm;
+package com.rena21c.voiceorder.firebase.fcm;
 
 import android.app.NotificationManager;
 import android.app.PendingIntent;
