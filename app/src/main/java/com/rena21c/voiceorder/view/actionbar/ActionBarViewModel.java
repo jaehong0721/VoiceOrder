@@ -22,7 +22,6 @@ public class ActionBarViewModel {
     }
 
     private ActionBar actionBar;
-    private ImageView ibMenu;
     private ImageView ibBack;
     private TextView tvTimeStampInActionBar;
 
@@ -38,13 +37,11 @@ public class ActionBarViewModel {
         actionBar.setElevation(0);
 
         View view = actionBar.getCustomView();
-        ibMenu = (ImageView)view.findViewById(R.id.ibMenu);
         ibBack = (ImageView)view.findViewById(R.id.ibBack);
         tvTimeStampInActionBar = (TextView) view.findViewById(R.id.tvTimeStampInActionBar);
     }
 
     public ActionBarViewModel setBackButtonClickListener(View.OnClickListener backButtonClickListener) {
-        ibMenu.setVisibility(View.GONE);
         ibBack.setVisibility(View.VISIBLE);
         ibBack.setOnClickListener(backButtonClickListener);
         return this;
