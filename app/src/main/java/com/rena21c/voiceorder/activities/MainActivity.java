@@ -134,7 +134,6 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         mainView.addEmptyOrderToViewPager(FileNameUtil.getTimeFromFileName(fileName));
         mainView.replaceViewToUnRecording();
         Intent intent = new Intent(this, FileUploadService.class);
-        intent.putExtra("dummy", "dummy");
         startService(intent);
     }
 

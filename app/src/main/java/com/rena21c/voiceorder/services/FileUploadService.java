@@ -72,31 +72,6 @@ public class FileUploadService extends IntentService {
         }
     }
 
-    private void uploadNext() {
-        if (getRecordFiles().isEmpty()) {
-            log("업로드 할 파일이 없음. Service 재시작과 Job을 모두 해제");
-            setIntentRedelivery(false);
-            dispatcher.cancel(NetworkJobService.JOB_TAG);
-        } else { // 모두 성공적으로 끝난 경우
-            final File file = getRecordFiles().get(0);
-            log("파일 업로드 시작: " + file.getName() + ", size: " + file.length());
-
-            fileUploader.upload(file, new TransferListener() {
-                @Override public void onStateChanged(int id, TransferState state) {
-
-                }
-
-                @Override public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) { }
-
-                @Override public void onError(int id, Exception ex) {
-                    log("파일 업로드 실패, 모든 작업을 중지하고 Job에 등록함, 예외: " + ex.toString());
-                    scheduleJob();
-                    setIntentRedelivery(false);
-                }
-            });
-        }
-    }
-
     private void startUploadFile() {
         while (!getRecordFiles().isEmpty()) {
             File file = getRecordFiles().get(0);
