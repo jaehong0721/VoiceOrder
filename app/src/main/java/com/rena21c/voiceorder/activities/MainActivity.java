@@ -1,16 +1,13 @@
 package com.rena21c.voiceorder.activities;
 
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,7 +26,6 @@ import com.rena21c.voiceorder.services.VoiceRecorderManager;
 import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.util.MemorySizeChecker;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -48,12 +44,21 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
     private MainView mainView;
 
     private Query acceptedOrderQuery;
+    private BroadcastReceiver fileUploadSuccessReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("MainActivity", "OnCreate");
         setContentView(R.layout.activity_main);
+
+        fileUploadSuccessReceiver = new BroadcastReceiver() {
+            @Override public void onReceive(Context context, Intent intent) {
+                String file = intent.getStringExtra("file");
+                boolean success = intent.getBooleanExtra("success", false);
+                Log.d("MainActivity", "파일 전송 완료, 파일: " + file + ", 성공: " + success);
+            }
+        };
 
         mainView = new MainView(MainActivity.this);
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
@@ -107,12 +112,18 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         acceptedOrderQuery.removeEventListener(acceptedOrderChildEventListener);
     }
 
+    @Override protected void onStart() {
+        super.onStart();
+        registerReceiver(fileUploadSuccessReceiver, new IntentFilter("com.rena21c.voiceorder.ACTION_UPLOAD"));
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
         recordManager.stop();
         mainView.clearKeepScreenOn();
         mainView.replaceViewToUnRecording();
+        unregisterReceiver(fileUploadSuccessReceiver);
     }
 
     @Override public void onStartRecord() {

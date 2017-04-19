@@ -105,6 +105,10 @@ public class FileUploadService extends IntentService {
                     }
                     Boolean deleted = file.delete();
                     log("파일 업로드 완료: " + file.getName() + ", 삭제 여부: " + deleted);
+                    Intent intent = new Intent("com.rena21c.voiceorder.ACTION_UPLOAD");
+                    intent.putExtra("file", file.getName());
+                    intent.putExtra("success", true);
+                    sendBroadcast(intent);
                     success.set(true);
                     latch.countDown();
                 }
@@ -116,6 +120,10 @@ public class FileUploadService extends IntentService {
                 // 실패한 경우는 redeliver를 취소하고 job에 등록한다.
                 log("파일 전송 오류: " + ex.toString());
                 success.set(false);
+                Intent intent = new Intent("com.rena21c.voiceorder.ACTION_UPLOAD");
+                intent.putExtra("file", file.getName());
+                intent.putExtra("success", false);
+                sendBroadcast(intent);
                 latch.countDown();
             }
         });
