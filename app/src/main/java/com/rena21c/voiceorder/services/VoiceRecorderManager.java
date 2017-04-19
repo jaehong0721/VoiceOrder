@@ -3,6 +3,7 @@ package com.rena21c.voiceorder.services;
 
 import android.media.MediaRecorder;
 
+import java.io.File;
 import java.io.IOException;
 
 public class VoiceRecorderManager {
@@ -43,6 +44,8 @@ public class VoiceRecorderManager {
             recorder.release();
             recorder = null;
         }
+        File dest = new File(path + "/" + fileName + ".mp4");
+        new File(path + "/temp").renameTo(dest);
         return fileName;
     }
 
@@ -53,7 +56,7 @@ public class VoiceRecorderManager {
         recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AAC);
         recorder.setAudioSamplingRate(44100);
         recorder.setAudioEncodingBitRate(128000);
-        recorder.setOutputFile(path + "/" + fileName + ".mp4");
+        recorder.setOutputFile(path + "/temp");
     }
 
 }

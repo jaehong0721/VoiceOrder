@@ -1,15 +1,13 @@
 package com.rena21c.voiceorder.activities;
 
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -23,11 +21,11 @@ import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.network.FileTransferUtil;
 import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.services.AwsS3FileUploader;
+import com.rena21c.voiceorder.services.FileUploadService;
 import com.rena21c.voiceorder.services.VoiceRecorderManager;
 import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.util.MemorySizeChecker;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -45,14 +43,22 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
 
     private MainView mainView;
 
-    private boolean isUploading;
     private Query acceptedOrderQuery;
+    private BroadcastReceiver fileUploadSuccessReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("MainActivity", "OnCreate");
         setContentView(R.layout.activity_main);
+
+        fileUploadSuccessReceiver = new BroadcastReceiver() {
+            @Override public void onReceive(Context context, Intent intent) {
+                String file = intent.getStringExtra("file");
+                boolean success = intent.getBooleanExtra("success", false);
+                Log.d("MainActivity", "파일 전송 완료, 파일: " + file + ", 성공: " + success);
+            }
+        };
 
         mainView = new MainView(MainActivity.this);
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
@@ -106,12 +112,18 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         acceptedOrderQuery.removeEventListener(acceptedOrderChildEventListener);
     }
 
+    @Override protected void onStart() {
+        super.onStart();
+        registerReceiver(fileUploadSuccessReceiver, new IntentFilter("com.rena21c.voiceorder.ACTION_UPLOAD"));
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
         recordManager.stop();
         mainView.clearKeepScreenOn();
         mainView.replaceViewToUnRecording();
+        unregisterReceiver(fileUploadSuccessReceiver);
     }
 
     @Override public void onStartRecord() {
@@ -132,65 +144,23 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
         mainView.clearKeepScreenOn();
         mainView.addEmptyOrderToViewPager(FileNameUtil.getTimeFromFileName(fileName));
         mainView.replaceViewToUnRecording();
-
-        isUploading = true;
-        File file = new File(getFilesDir().getPath() + "/" + fileName + ".mp4");
-        fileUploader.upload(file, new TransferListener() {
-            @Override public void onStateChanged(int id, TransferState state) {
-                if (state == TransferState.COMPLETED) {
-                    Log.d("s3 upload", "s3 state :" + state);
-                    storeFileName(fileName);
-                } else if (state == TransferState.WAITING_FOR_NETWORK) {
-                    Log.d("s3 upload", "s3 state :" + state);
-                    mainView.showToastWaitingForNetwork();
-                } else if (state == TransferState.FAILED) {
-                    Log.d("s3 upload", "s3 state :" + state);
-                    mainView.replaceFailedOrder(fileName);
-                    isUploading = false;
-                    FirebaseCrash.logcat(Log.WARN, "NETWORK", "Aws s3 transfer state: " + state);
-                } else {
-                    Log.d("s3 upload", "s3 state :" + state);
-                }
-            }
-
-            @Override public void onError(int id, Exception ex) {
-                mainView.replaceFailedOrder(fileName);
-                isUploading = false;
-                FirebaseCrash.report(ex);
-            }
-
-            @Override public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {}
-        });
+        Intent intent = new Intent(this, FileUploadService.class);
+        startService(intent);
     }
 
     private void startRecording() {
-        if (isUploading) {
-            mainView.showToastIsUploading();
-        } else {
-            if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
-                mainView.showDialog(MainView.NO_INTERNET_CONNECT);
-            } else {
-                if (appPreferenceManager.getUserFirstVisit()) {
-                    appPreferenceManager.setUserFirstVisit();
-                    mainView.changeActionBarColorToWhite();
-                }
-                String fileName = FileNameUtil.makeFileName(appPreferenceManager.getPhoneNumber(), System.currentTimeMillis());
-                recordManager.start(fileName);
-            }
-        }
-    }
 
-    private void storeFileName(final String fileName) {
-        dbManager.addFileName(appPreferenceManager.getPhoneNumber(), fileName, new OnCompleteListener<Void>() {
-            @Override public void onComplete(@NonNull Task<Void> task) {
-                if (!task.isSuccessful()) {
-                    mainView.replaceFailedOrder(fileName);
-                    //s3에 올라간 파일 삭제?
-                    FirebaseCrash.report(task.getException());
-                }
-                isUploading = false;
+        if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
+            mainView.showDialog(MainView.NO_INTERNET_CONNECT);
+        } else {
+            if (appPreferenceManager.getUserFirstVisit()) {
+                appPreferenceManager.setUserFirstVisit();
+                mainView.changeActionBarColorToWhite();
             }
-        });
+            String fileName = FileNameUtil.makeFileName(appPreferenceManager.getPhoneNumber(), System.currentTimeMillis());
+            recordManager.start(fileName);
+        }
+
     }
 
     private List<String> getFileNameListFrom(Iterator<DataSnapshot> dataSnapshotIterator) {
