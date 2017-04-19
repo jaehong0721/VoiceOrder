@@ -31,6 +31,10 @@ import com.rena21c.voiceorder.pojo.UserToken;
 import com.rena21c.voiceorder.util.LauncherUtil;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 
+import java.io.File;
+import java.io.FilenameFilter;
+import java.util.GregorianCalendar;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -59,16 +63,19 @@ public class SplashActivity extends BaseActivity {
         firebaseAuth = FirebaseAuth.getInstance();
 
         permissionManager = PermissionManager.newInstance(this);
+
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
+
+        retrofit = App.getApplication(getApplicationContext()).getRetrofit();
+
+        apiService = retrofit.create(ApiService.class);
 
         if (appPreferenceManager.getLauncherIconCreated()) {
             LauncherUtil.addLauncherIconToHomeScreen(this, getClass());
             appPreferenceManager.setLauncherIconCreated();
         }
 
-        retrofit = App.getApplication(getApplicationContext()).getRetrofit();
-
-        apiService = retrofit.create(ApiService.class);
+        deleteRecordedFile();
     }
 
     @Override
@@ -82,6 +89,26 @@ public class SplashActivity extends BaseActivity {
         });
     }
 
+    private void deleteRecordedFile() {
+        File dir = new File(getFilesDir().toString());
+        File[] recordedFiles = dir.listFiles(new FilenameFilter() {
+                                                 @Override
+                                                 public boolean accept(File dir, String name) {
+                                                     return name.endsWith(".mp4");
+                                                 }
+                                             });
+
+        GregorianCalendar standardTime = new GregorianCalendar(2017, 3, 19);
+        long standardTimeInMillis = standardTime.getTimeInMillis();
+
+        for (File file : recordedFiles ) {
+            Long lastModified = file.lastModified();
+
+            if (lastModified < standardTimeInMillis) {
+                file.delete();
+            }
+        }
+    }
 
     private void checkPlayService() {
         PlayServiceManager.checkPlayServices(SplashActivity.this, new PlayServiceManager.CheckPlayServiceListener() {
