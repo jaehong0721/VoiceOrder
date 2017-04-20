@@ -49,6 +49,16 @@ public class VoiceRecorderManager {
         return fileName;
     }
 
+    public void cancel() {
+        if (recorder != null) {
+            recorder.stop();
+            recorder.release();
+            recorder = null;
+        }
+        File dest = new File(path + "/" + fileName + ".mp4");
+        new File(path + "/temp").delete();
+    }
+
     private void init() {
         recorder = new MediaRecorder();
         recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
