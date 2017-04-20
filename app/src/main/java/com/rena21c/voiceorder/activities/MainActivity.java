@@ -120,7 +120,7 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
     @Override
     protected void onStop() {
         super.onStop();
-        recordManager.stop();
+        recordManager.cancel();
         mainView.clearKeepScreenOn();
         mainView.replaceViewToUnRecording();
         unregisterReceiver(fileUploadSuccessReceiver);
