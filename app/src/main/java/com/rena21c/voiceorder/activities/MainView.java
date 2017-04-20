@@ -181,7 +181,7 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     }
 
     public void clearKeepScreenOn() {
-
+        activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
     @Override
