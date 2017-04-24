@@ -98,7 +98,7 @@ public class SplashActivity extends BaseActivity {
                                                  }
                                              });
 
-        GregorianCalendar standardTime = new GregorianCalendar(2017, 3, 19);
+        GregorianCalendar standardTime = new GregorianCalendar(2017, 3, 24);
         long standardTimeInMillis = standardTime.getTimeInMillis();
 
         for (File file : recordedFiles ) {

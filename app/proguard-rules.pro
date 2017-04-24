@@ -17,6 +17,3 @@
 #}
 -renamesourcefileattribute SourceFile
 -keepattributes SourceFile,LineNumberTable
--keep class com.rena21c.voiceorder.activities.SplashActivity$* {
-    *;
-}
