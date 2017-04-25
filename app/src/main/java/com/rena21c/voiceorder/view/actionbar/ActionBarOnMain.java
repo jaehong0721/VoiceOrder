@@ -16,7 +16,6 @@ public class ActionBarOnMain implements ActionBarInterface{
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         actionBar.setCustomView(R.layout.action_bar_on_main);
         actionBar.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(context,android.R.color.white)));
-        actionBar.setElevation(0);
     }
 
     private ActionBarOnMain(Context context, ActionBar actionBar) {
