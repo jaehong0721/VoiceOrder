@@ -13,4 +13,20 @@
         <item name="android:textColor">@color/primaryBrown</item>
     </style>
 
+    <style name="MainTheme" parent="VoiceOrderTheme">
+        <item name="actionBarStyle">@style/MainActionBar</item>
+        <item name="android:windowContentOverlay">@null</item>
+    </style>
+
+    <style name="DetailTheme" parent="VoiceOrderTheme">
+        <item name="actionBarStyle">@style/DetailActionBar</item>
+    </style>
+
+    <style name="MainActionBar" parent="Widget.AppCompat.Light.ActionBar">
+        <item name="elevation">0dp</item>
+    </style>
+
+    <style name="DetailActionBar" parent="Widget.AppCompat.Light.ActionBar">
+        <item name="elevation">7dp</item>
+    </style>
 </resources>
