@@ -50,6 +50,7 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("MainActivity", "OnCreate");
+        setTheme(R.style.MainTheme);
         setContentView(R.layout.activity_main);
 
         fileUploadSuccessReceiver = new BroadcastReceiver() {
