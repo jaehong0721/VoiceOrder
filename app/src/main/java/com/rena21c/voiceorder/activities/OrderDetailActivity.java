@@ -21,6 +21,7 @@ public class OrderDetailActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTheme(R.style.DetailTheme);
         setContentView(R.layout.activity_order_detail);
 
         HashMap<String, VoiceRecord> itemHashMap = (HashMap<String, VoiceRecord>) getIntent().getSerializableExtra("itemHashMap");

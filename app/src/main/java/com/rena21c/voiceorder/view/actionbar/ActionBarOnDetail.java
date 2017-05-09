@@ -22,7 +22,6 @@ public class ActionBarOnDetail implements ActionBarInterface{
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         actionBar.setCustomView(R.layout.action_bar_on_detail);
         actionBar.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(context,android.R.color.white)));
-        actionBar.setElevation(7);
 
         View view = actionBar.getCustomView();
         ibBack = (ImageView)view.findViewById(R.id.ibBack);

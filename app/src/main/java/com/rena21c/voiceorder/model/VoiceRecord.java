@@ -6,6 +6,7 @@ import java.util.ArrayList;
 public class VoiceRecord implements Serializable{
 
     public ArrayList<OrderItem> orderItems;
+    public boolean accepted;
 
     public VoiceRecord() {}
 

@@ -50,7 +50,12 @@ public class AcceptedOrderPage extends OrderPage {
         StringBuffer sb = new StringBuffer();
 
         for (HashMap.Entry<String, VoiceRecord> entry : itemHashMap.entrySet()) {
-            sb.append(entry.getKey()).append(",");
+            sb.append(entry.getKey());
+            if (entry.getValue().accepted) {
+                sb.append("(주문확인)");
+            }
+            sb.append(",");
+
         }
         sb.deleteCharAt(sb.length() - 1);
         return sb.toString();
