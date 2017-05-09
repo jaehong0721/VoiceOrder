@@ -26,7 +26,7 @@ public class OrderDetailRecyclerAdapter extends RecyclerView.Adapter<OrderDetail
             tvVendorName = (TextView)itemView.findViewById(R.id.tvVendorName);
         }
 
-        public void bind(String key, ArrayList<OrderItem> orderItems) {
+        public void bind(String key, ArrayList<OrderItem> orderItems, boolean accepted) {
             StringBuffer sb = new StringBuffer();
             for (OrderItem item : orderItems) {
                 sb.append(item.name)
@@ -36,7 +36,7 @@ public class OrderDetailRecyclerAdapter extends RecyclerView.Adapter<OrderDetail
             }
             sb.deleteCharAt(sb.length()-1);
             tvItem.setText(sb.toString());
-            tvVendorName.setText(key);
+            tvVendorName.setText( accepted ? key + "(주문확인)" : key);
         }
     }
 
@@ -58,7 +58,8 @@ public class OrderDetailRecyclerAdapter extends RecyclerView.Adapter<OrderDetail
     public void onBindViewHolder(OrderDetailViewHolder holder, int position) {
         String key = keyList.get(position);
         VoiceRecord voiceRecord = itemHashMap.get(key);
-        holder.bind(key, voiceRecord.orderItems);
+
+        holder.bind(key, voiceRecord.orderItems, voiceRecord.accepted);
     }
 
     @Override
