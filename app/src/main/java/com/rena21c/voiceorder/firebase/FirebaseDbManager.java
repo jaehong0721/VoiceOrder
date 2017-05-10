@@ -41,6 +41,18 @@ public class FirebaseDbManager {
                 .addListenerForSingleValueEvent(listener);
     }
 
+    public Query subscribeRecordedOrder(String phoneNumber, ChildEventListener listener) {
+        Query query  = instance.getReference().child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(RECORDED_ORDERS)
+                .orderByKey()
+                .startAt(phoneNumber + "_00000000000000")
+                .endAt(phoneNumber + "_99999999999999");
+
+                query.addChildEventListener(listener);
+        return query;
+    }
+
     public void getAcceptedOrder(String phoneNumber, ValueEventListener listener) {
         instance.getReference().child(ORDERS)
                 .child(RESTAURANTS)
@@ -75,6 +87,5 @@ public class FirebaseDbManager {
                 .setValue(false)
                 .addOnCompleteListener(listener);
     }
-
 
 }

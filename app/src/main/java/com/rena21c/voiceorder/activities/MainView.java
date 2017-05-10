@@ -64,7 +64,6 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         orderViewPagerAdapter = new OrderViewPagerAdapter(activity, dbManager, new OrderViewPagerAdapter.ItemCountChangedListener() {
             @Override public void itemCountChange(int count) {
                 viewPagerIndicator.createDot(count);
-                // 최초 아이템이 하나 추가 되는 경우 첫 번째 아이템 선택
                 if (count == 1) viewPagerIndicator.selectDot(0);
             }
         });
@@ -163,6 +162,9 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         orderViewPager.setCurrentItem(position);
     }
 
+    public void remove(String timeStamp) {
+        orderViewPagerAdapter.remove(timeStamp);
+    }
 
     public void showToastIsUploading() {
         Toast.makeText(activity, "주문 전송 중입니다. 잠시 후 다시 시도해주세요.", Toast.LENGTH_SHORT).show();

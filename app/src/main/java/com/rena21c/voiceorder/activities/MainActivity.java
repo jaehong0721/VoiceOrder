@@ -45,6 +45,8 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
 
     private Query acceptedOrderQuery;
     private BroadcastReceiver fileUploadSuccessReceiver;
+    private ChildEventListener recordListListener;
+    private Query recordListQuery;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -95,8 +97,10 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
             @Override public void onCancelled(DatabaseError databaseError) {}
         };
 
+
         acceptedOrderQuery = dbManager.subscribeAcceptedOrder(appPreferenceManager.getPhoneNumber(), acceptedOrderChildEventListener);
 
+        // TODO: 구독방식으로 리팩토링
         dbManager.getRecordedOrder(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
                 List<String> fileNameList = getFileNameListFrom(dataSnapshot.getChildren().iterator());
@@ -106,11 +110,29 @@ public class MainActivity extends BaseActivity implements VoiceRecorderManager.V
             }
         });
 
+        recordListListener = new ChildEventListener() {
+            @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) { }
+
+            @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) { }
+
+            @Override public void onChildRemoved(DataSnapshot dataSnapshot) {
+                String timeStamp = FileNameUtil.getTimeFromFileName(dataSnapshot.getKey());
+                mainView.remove(timeStamp);
+            }
+
+            @Override public void onChildMoved(DataSnapshot dataSnapshot, String s) { }
+
+            @Override public void onCancelled(DatabaseError databaseError) { }
+        };
+
+        recordListQuery = dbManager.subscribeRecordedOrder(appPreferenceManager.getPhoneNumber(), recordListListener);
+
     }
 
     @Override protected void onDestroy() {
         super.onDestroy();
         acceptedOrderQuery.removeEventListener(acceptedOrderChildEventListener);
+        recordListQuery.removeEventListener(recordListListener);
     }
 
     @Override protected void onStart() {

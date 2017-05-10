@@ -24,8 +24,8 @@ public class ViewPagerIndicator extends RelativeLayout {
         this.dots = new ArrayList<>();
     }
 
+    // TODO: Dot 추가 되는 부분 수정, (삭제 되는 경우가 고려되지 않았음)
     public void createDot(int count) {
-
         for (int i = dots.size(); i < count; i++) {
 
             View dot = new View(context);
@@ -47,11 +47,10 @@ public class ViewPagerIndicator extends RelativeLayout {
     }
 
     public void selectDot(int position) {
-        for(View dot : dots) {
-            if(dots.get(position) == dot) {
+        for (View dot : dots) {
+            if (dots.get(position) == dot) {
                 dot.setBackgroundResource(R.drawable.selected_indicator_shape);
-            }
-            else {
+            } else {
                 dot.setBackgroundResource(R.drawable.unselected_indicator_shape);
             }
         }

@@ -115,6 +115,15 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         return position;
     }
 
+    public void remove(String timeStamp) {
+        int position = getPosition(timeStamp);
+        timeStampList.remove(position);
+        itemCountChangedListener.itemCountChange(timeStampList.size());
+
+        notifyDataSetChanged();
+    }
+
+
     public View getView(int position) {
         String timeStamp = timeStampList.get(position);
         return orderPageMap.get(timeStamp).getView(layoutInflater, onClickDetailsOrderPageListener);
