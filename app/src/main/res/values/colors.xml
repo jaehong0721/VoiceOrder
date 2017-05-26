@@ -3,6 +3,8 @@
     <color name="primaryYellow">#FFC145</color>
     <color name="primaryBrown">#390405</color>
 
+    <color name="unselectedColor">#80390405</color>
+
     <color name="textGuideInstruction">#643A3B</color>
 
     <color name="selectedIndicator">#390405</color>
