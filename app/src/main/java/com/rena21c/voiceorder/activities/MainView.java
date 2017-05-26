@@ -44,7 +44,9 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     public MainView(MainActivity activity) {
         this.activity = activity;
 
-        ActionBarOnMain.createWithActionBar(activity.getApplicationContext(), activity.getSupportActionBar());
+        ActionBarOnMain
+                .createWithActionBar(activity.getApplicationContext(), activity.getSupportActionBar())
+                .setInitialTab();
 
         replaceableLayout = (ReplaceableLayout) activity.findViewById(R.id.replaceableLayout);
         recordingLayout = activity.getLayoutInflater().inflate(R.layout.layout_component_recording, replaceableLayout, false);
