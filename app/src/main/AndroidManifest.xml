@@ -69,7 +69,7 @@
         </activity>
         <activity android:name=".activities.RecommendActivity">
         </activity>
-        <activity android:name=".activities.Main3Activity">
+        <activity android:name=".activities.MyPartnerActivity">
         </activity>
     </application>
 

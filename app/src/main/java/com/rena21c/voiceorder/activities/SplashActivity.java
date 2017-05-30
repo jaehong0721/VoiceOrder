@@ -218,7 +218,7 @@ public class SplashActivity extends BaseActivity {
                 break;
 
             case MY_PARTNER:
-                intent.setComponent(new ComponentName(SplashActivity.this, Main3Activity.class));
+                intent.setComponent(new ComponentName(SplashActivity.this, MyPartnerActivity.class));
                 break;
         }
 

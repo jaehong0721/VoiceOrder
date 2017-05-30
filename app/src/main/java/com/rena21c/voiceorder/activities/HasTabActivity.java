@@ -47,7 +47,7 @@ public class HasTabActivity extends AppCompatActivity {
 
                     case MY_PARTNER:
                         Log.d("HasTabActivity", "거래처탭");
-                        intent.setComponent(new ComponentName(HasTabActivity.this, Main3Activity.class));
+                        intent.setComponent(new ComponentName(HasTabActivity.this, MyPartnerActivity.class));
                         break;
                 }
 

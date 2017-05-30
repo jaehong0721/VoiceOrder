@@ -5,11 +5,11 @@ import android.os.Bundle;
 import com.rena21c.voiceorder.R;
 
 
-public class Main3Activity extends HasTabActivity {
+public class MyPartnerActivity extends HasTabActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main3);
+        setContentView(R.layout.activity_my_partner);
     }
 }
