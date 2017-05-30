@@ -79,4 +79,16 @@ public class AppPreferenceManager {
         }
         return phoneNumber;
     }
+
+    public void setClickedTab(String clickedTabName) {
+        sharedPreference
+                .edit()
+                .putString("clickedTabName", clickedTabName)
+                .apply();
+    }
+
+    public String getClickedTab() {
+        return sharedPreference
+                .getString("clickedTabName", null);
+    }
 }
