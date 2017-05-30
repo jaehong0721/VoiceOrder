@@ -37,7 +37,7 @@ public class HasTabActivity extends AppCompatActivity {
                 switch (tab) {
                     case RECOMMEND:
                         Log.d("HasTabActivity", "추천탭");
-                        intent.setComponent(new ComponentName(HasTabActivity.this, Main2Activity.class));
+                        intent.setComponent(new ComponentName(HasTabActivity.this, RecommendActivity.class));
                         break;
 
                     case VOICE_ORDER:

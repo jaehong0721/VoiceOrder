@@ -67,7 +67,7 @@
 
         <activity android:name=".activities.HasTabActivity">
         </activity>
-        <activity android:name=".activities.Main2Activity">
+        <activity android:name=".activities.RecommendActivity">
         </activity>
         <activity android:name=".activities.Main3Activity">
         </activity>

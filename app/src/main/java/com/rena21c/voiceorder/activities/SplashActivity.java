@@ -210,7 +210,7 @@ public class SplashActivity extends BaseActivity {
 
         switch (tab) {
             case RECOMMEND:
-                intent.setComponent(new ComponentName(SplashActivity.this, Main2Activity.class));
+                intent.setComponent(new ComponentName(SplashActivity.this, RecommendActivity.class));
                 break;
 
             case VOICE_ORDER:
