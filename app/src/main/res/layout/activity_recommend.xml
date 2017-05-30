@@ -1,13 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context="com.rena21c.voiceorder.activities.RecommendActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="main2"/>
-</RelativeLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:background="#f7f7f7"
+        android:orientation="horizontal"
+        android:paddingBottom="14dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:paddingTop="14dp">
+
+        <Button
+            android:id="@+id/btnSearch"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:background="@null"
+            android:drawableLeft="@drawable/search"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            android:text="품목을 입력하세요"
+            android:textColor="#4d390405"
+            android:textSize="@dimen/text_default_size"/>
+
+        <TextView
+            android:id="@+id/tvCurrentLocation"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:drawableLeft="@drawable/crosshair"
+            android:gravity="center"
+            android:textSize="@dimen/text_default_size"
+            tools:text="재궁동"/>
+        
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dividerLine"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvVendors"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+</LinearLayout>
