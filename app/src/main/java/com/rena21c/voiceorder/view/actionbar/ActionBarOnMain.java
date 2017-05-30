@@ -28,6 +28,8 @@ public class ActionBarOnMain implements ActionBarInterface, View.OnClickListener
     private final Context context;
     private final ActionBar actionBar;
 
+    private View tabView;
+
     private UnderLineButton btnRecommend;
     private UnderLineButton btnVoiceOrder;
     private UnderLineButton btnMyPartner;
@@ -40,7 +42,7 @@ public class ActionBarOnMain implements ActionBarInterface, View.OnClickListener
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         actionBar.setCustomView(R.layout.action_bar_on_main);
 
-        View tabView = actionBar.getCustomView();
+        tabView = actionBar.getCustomView();
 
         Toolbar toolbar = (Toolbar) tabView.getParent();
         toolbar.setContentInsetsAbsolute(0,0);
@@ -56,8 +58,6 @@ public class ActionBarOnMain implements ActionBarInterface, View.OnClickListener
         btnRecommend.setOnClickListener(this);
         btnVoiceOrder.setOnClickListener(this);
         btnMyPartner.setOnClickListener(this);
-
-        setInitialTab(tabView);
     }
 
     private ActionBarOnMain(Context context, ActionBar actionBar) {
@@ -65,9 +65,8 @@ public class ActionBarOnMain implements ActionBarInterface, View.OnClickListener
         this.actionBar = actionBar;
     }
 
-    private void setInitialTab(View tabView) {
-        String clickedTab = App.getApplication(context).getPreferenceManager().getClickedTab();
-        (tabView.findViewById(Tab.valueOf(clickedTab).viewIdOfTab)).setSelected(true);
+    public void setInitialTab(Tab tab) {
+        (tabView.findViewById(tab.viewIdOfTab)).setSelected(true);
     }
 
     public static ActionBarOnMain createWithActionBar(Context context, ActionBar supportActionBar) {

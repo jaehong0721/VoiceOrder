@@ -16,7 +16,10 @@ public class HasTabActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        String tab = getIntent().getStringExtra("tab");
+
         actionBarOnMain = ActionBarOnMain.createWithActionBar(getApplicationContext(), getSupportActionBar());
+        actionBarOnMain.setInitialTab(ActionBarOnMain.Tab.valueOf(tab));
     }
 
     @Override protected void onStart() {
@@ -29,26 +32,26 @@ public class HasTabActivity extends AppCompatActivity {
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                intent.putExtra("tab", tab.toString());
 
                 switch (tab) {
                     case RECOMMEND:
                         Log.d("HasTabActivity", "추천탭");
                         intent.setComponent(new ComponentName(HasTabActivity.this, Main2Activity.class));
-                        startActivity(intent);
                         break;
 
                     case VOICE_ORDER:
                         Log.d("HasTabActivity", "주문탭");
                         intent.setComponent(new ComponentName(HasTabActivity.this, MainActivity.class));
-                        startActivity(intent);
                         break;
 
                     case MY_PARTNER:
                         Log.d("HasTabActivity", "거래처탭");
                         intent.setComponent(new ComponentName(HasTabActivity.this, Main3Activity.class));
-                        startActivity(intent);
                         break;
                 }
+
+                startActivity(intent);
             }
         });
     }
