@@ -42,7 +42,7 @@ public class HasTabActivity extends AppCompatActivity {
 
                     case VOICE_ORDER:
                         Log.d("HasTabActivity", "주문탭");
-                        intent.setComponent(new ComponentName(HasTabActivity.this, MainActivity.class));
+                        intent.setComponent(new ComponentName(HasTabActivity.this, VoiceOrderActivity.class));
                         break;
 
                     case MY_PARTNER:

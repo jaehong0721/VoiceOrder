@@ -214,7 +214,7 @@ public class SplashActivity extends BaseActivity {
                 break;
 
             case VOICE_ORDER:
-                intent.setComponent(new ComponentName(SplashActivity.this, MainActivity.class));
+                intent.setComponent(new ComponentName(SplashActivity.this, VoiceOrderActivity.class));
                 break;
 
             case MY_PARTNER:

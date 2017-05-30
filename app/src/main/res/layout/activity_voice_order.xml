@@ -5,7 +5,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@android:color/white"
-                tools:context="com.rena21c.voiceorder.activities.MainActivity">
+                tools:context="com.rena21c.voiceorder.activities.VoiceOrderActivity">
 
     <com.rena21c.voiceorder.view.components.ReplaceableLayout
         android:id="@+id/replaceableLayout"

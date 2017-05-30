@@ -24,12 +24,12 @@ import com.rena21c.voiceorder.view.widgets.ViewPagerIndicator;
 
 import java.util.HashMap;
 
-public class MainView implements RecordAndStopButton.activateRecorderListener {
+public class VoiceOrderView implements RecordAndStopButton.activateRecorderListener {
 
     public static final int NO_INTERNAL_MEMORY = 0;
     public static final int NO_INTERNET_CONNECT = 1;
 
-    private MainActivity activity;
+    private VoiceOrderActivity activity;
 
     private ReplaceableLayout replaceableLayout;
     private RecordAndStopButton recordAndStopButton;
@@ -40,7 +40,7 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     private ViewPagerIndicator viewPagerIndicator;
     private View viewPager;
 
-    public MainView(MainActivity activity) {
+    public VoiceOrderView(VoiceOrderActivity activity) {
         this.activity = activity;
 
         replaceableLayout = (ReplaceableLayout) activity.findViewById(R.id.replaceableLayout);
