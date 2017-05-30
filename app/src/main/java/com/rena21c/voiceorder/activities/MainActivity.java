@@ -67,7 +67,7 @@ public class MainActivity extends HasTabActivity implements VoiceRecorderManager
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
 
-        mainView.initView(appPreferenceManager.getUserFirstVisit(), dbManager);
+        mainView.initView(dbManager);
 
         recordManager = new VoiceRecorderManager(getFilesDir().getPath(), this);
         memorySizeChecker = new MemorySizeChecker(REQUIRED_SPACE);
@@ -138,6 +138,7 @@ public class MainActivity extends HasTabActivity implements VoiceRecorderManager
     @Override protected void onStart() {
         super.onStart();
         registerReceiver(fileUploadSuccessReceiver, new IntentFilter("com.rena21c.voiceorder.ACTION_UPLOAD"));
+        mainView.setView(appPreferenceManager.getUserFirstVisit());
     }
 
     @Override

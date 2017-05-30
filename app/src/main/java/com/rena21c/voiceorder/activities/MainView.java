@@ -50,7 +50,7 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         recordAndStopButton.setListener(this);
     }
 
-    public void initView(boolean shouldShowGuide, FirebaseDbManager dbManager) {
+    public void initView(FirebaseDbManager dbManager) {
 
         LayoutInflater layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         viewPager = layoutInflater.inflate(R.layout.layout_component_order_view_pager, replaceableLayout, false);
@@ -71,7 +71,9 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
                 viewPagerIndicator.selectDot(position);
             }
         });
+    }
 
+    public void setView(boolean shouldShowGuide) {
         if (shouldShowGuide) {
             setGuide();
         } else {
