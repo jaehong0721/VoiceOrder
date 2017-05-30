@@ -9,7 +9,7 @@ import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.view.widgets.UnderLineButton;
 
-public class ActionBarOnMain implements ActionBarInterface, View.OnClickListener {
+public class TabActionBar implements ActionBarInterface, View.OnClickListener {
 
     public enum Tab {
         RECOMMEND(R.id.btnRecommend),
@@ -60,7 +60,7 @@ public class ActionBarOnMain implements ActionBarInterface, View.OnClickListener
         btnMyPartner.setOnClickListener(this);
     }
 
-    private ActionBarOnMain(Context context, ActionBar actionBar) {
+    private TabActionBar(Context context, ActionBar actionBar) {
         this.context = context;
         this.actionBar = actionBar;
     }
@@ -69,8 +69,8 @@ public class ActionBarOnMain implements ActionBarInterface, View.OnClickListener
         (tabView.findViewById(tab.viewIdOfTab)).setSelected(true);
     }
 
-    public static ActionBarOnMain createWithActionBar(Context context, ActionBar supportActionBar) {
-        ActionBarOnMain instance = new ActionBarOnMain(context, supportActionBar);
+    public static TabActionBar createWithActionBar(Context context, ActionBar supportActionBar) {
+        TabActionBar instance = new TabActionBar(context, supportActionBar);
         instance.setUp();
         return instance;
     }

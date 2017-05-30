@@ -7,7 +7,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.google.firebase.crash.FirebaseCrash;
-import com.rena21c.voiceorder.view.actionbar.ActionBarOnMain;
+import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 
 public class AppPreferenceManager {
 
@@ -90,6 +90,6 @@ public class AppPreferenceManager {
 
     public String getClickedTab() {
         return sharedPreference
-                .getString("clickedTabName", ActionBarOnMain.Tab.RECOMMEND.toString());
+                .getString("clickedTabName", TabActionBar.Tab.RECOMMEND.toString());
     }
 }

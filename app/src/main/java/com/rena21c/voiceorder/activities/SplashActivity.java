@@ -30,7 +30,7 @@ import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.network.NoConnectivityException;
 import com.rena21c.voiceorder.pojo.UserToken;
 import com.rena21c.voiceorder.util.LauncherUtil;
-import com.rena21c.voiceorder.view.actionbar.ActionBarOnMain;
+import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 
 import java.io.File;
@@ -202,7 +202,7 @@ public class SplashActivity extends BaseActivity {
     private void goToMain() {
         String clickedTab = appPreferenceManager.getClickedTab();
 
-        ActionBarOnMain.Tab tab = ActionBarOnMain.Tab.valueOf(clickedTab);
+        TabActionBar.Tab tab = TabActionBar.Tab.valueOf(clickedTab);
 
         Intent intent = new Intent();
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);

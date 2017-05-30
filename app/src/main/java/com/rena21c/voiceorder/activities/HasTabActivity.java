@@ -6,11 +6,11 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.rena21c.voiceorder.view.actionbar.ActionBarOnMain;
+import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 
 public class HasTabActivity extends AppCompatActivity {
 
-    private ActionBarOnMain actionBarOnMain;
+    private TabActionBar tabActionBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,15 +18,15 @@ public class HasTabActivity extends AppCompatActivity {
 
         String tab = getIntent().getStringExtra("tab");
 
-        actionBarOnMain = ActionBarOnMain.createWithActionBar(getApplicationContext(), getSupportActionBar());
-        actionBarOnMain.setInitialTab(ActionBarOnMain.Tab.valueOf(tab));
+        tabActionBar = TabActionBar.createWithActionBar(getApplicationContext(), getSupportActionBar());
+        tabActionBar.setInitialTab(TabActionBar.Tab.valueOf(tab));
     }
 
     @Override protected void onStart() {
         super.onStart();
 
-        actionBarOnMain.setTabClickListener(new ActionBarOnMain.TabClickListener() {
-            @Override public void OnTabClicked(ActionBarOnMain.Tab tab) {
+        tabActionBar.setTabClickListener(new TabActionBar.TabClickListener() {
+            @Override public void OnTabClicked(TabActionBar.Tab tab) {
 
                 Intent intent = new Intent();
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -59,6 +59,6 @@ public class HasTabActivity extends AppCompatActivity {
     @Override protected void onStop() {
         super.onStop();
 
-        actionBarOnMain.removeTabClickListener();
+        tabActionBar.removeTabClickListener();
     }
 }
