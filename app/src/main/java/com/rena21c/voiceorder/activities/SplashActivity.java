@@ -200,17 +200,13 @@ public class SplashActivity extends BaseActivity {
 
 
     private void goToMain() {
-        String clickedTabName = appPreferenceManager.getClickedTab();
+        String clickedTab = appPreferenceManager.getClickedTab();
 
-        if(clickedTabName == null) {
-            appPreferenceManager.setClickedTab(ActionBarOnMain.Tab.RECOMMEND.toString());
-            clickedTabName = ActionBarOnMain.Tab.RECOMMEND.toString();
-        }
-
-        ActionBarOnMain.Tab tab = ActionBarOnMain.Tab.valueOf(clickedTabName);
+        ActionBarOnMain.Tab tab = ActionBarOnMain.Tab.valueOf(clickedTab);
 
         Intent intent = new Intent();
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("tab", clickedTab);
 
         switch (tab) {
             case RECOMMEND:
