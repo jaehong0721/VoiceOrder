@@ -39,7 +39,7 @@
             android:gravity="center"
             android:textSize="@dimen/text_default_size"
             tools:text="재궁동"/>
-        
+
     </LinearLayout>
 
     <View
@@ -50,6 +50,7 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvVendors"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        tools:listitem="@layout/item_vendors"/>
 
 </LinearLayout>

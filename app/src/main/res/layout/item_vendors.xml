@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="21dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginTop="21dp">
+
+    <TextView
+        android:id="@+id/tvVendorName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:textColor="@color/primaryBrown"
+        android:textSize="23sp"
+        tools:text="미리네 식품"/>
+
+    <TextView
+        android:id="@+id/tvBusinessContent"
+        android:layout_width="232dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="9dp"
+        android:layout_below="@+id/tvVendorName"
+        android:textColor="@color/primaryBrown"
+        android:textSize="14sp"
+        android:maxLines="100"
+        android:ellipsize="end"
+        tools:text="고추, 참기름, 마늘, 된장, 초장 등 양념 업체"/>
+
+    <ImageView
+        android:id="@+id/ivCall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/call"
+        android:layout_alignParentRight="true"
+        android:layout_marginBottom="15dp"/>
+
+    <TextView
+        android:id="@+id/tvTimeElapsedFromCall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ivCall"
+        android:layout_alignParentRight="true"
+        android:textSize="13sp"
+        android:textColor="#99390405"
+        tools:text="2분전 통화"/>
+    
+</RelativeLayout>
