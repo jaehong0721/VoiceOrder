@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class MainActivity extends BaseActivity implements VoiceRecorderManager.VoiceRecordCallback {
+public class MainActivity extends HasTabActivity implements VoiceRecorderManager.VoiceRecordCallback {
 
     private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
 

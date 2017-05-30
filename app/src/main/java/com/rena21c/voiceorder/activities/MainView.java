@@ -15,7 +15,6 @@ import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.util.FileNameUtil;
-import com.rena21c.voiceorder.view.actionbar.ActionBarOnMain;
 import com.rena21c.voiceorder.view.adapters.OrderViewPagerAdapter;
 import com.rena21c.voiceorder.view.adapters.SimpleViewPagerSelectedListener;
 import com.rena21c.voiceorder.view.components.ReplaceableLayout;
@@ -43,10 +42,6 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
 
     public MainView(MainActivity activity) {
         this.activity = activity;
-
-        ActionBarOnMain
-                .createWithActionBar(activity.getApplicationContext(), activity.getSupportActionBar())
-                .setInitialTab();
 
         replaceableLayout = (ReplaceableLayout) activity.findViewById(R.id.replaceableLayout);
         recordingLayout = activity.getLayoutInflater().inflate(R.layout.layout_component_recording, replaceableLayout, false);
