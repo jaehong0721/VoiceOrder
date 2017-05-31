@@ -46,5 +46,16 @@
         android:textSize="13sp"
         android:textColor="#99390405"
         tools:text="2분전 통화"/>
+
+    <GridLayout
+        android:id="@+id/deliveryAreasContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvBusinessContent"
+        android:columnCount="4"
+        android:orientation="horizontal"
+        android:useDefaultMargins="true">
+
+    </GridLayout>
     
 </RelativeLayout>

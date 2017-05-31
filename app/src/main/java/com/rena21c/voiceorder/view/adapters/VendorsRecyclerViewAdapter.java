@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.GridLayout;
 import android.widget.TextView;
 
 import com.rena21c.voiceorder.R;
@@ -17,11 +18,14 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorsRecy
 
         private TextView tvVendorName;
         private TextView tvBusinessContent;
-        
+
+        private GridLayout deliveryAreasContainer;
+
         public VendorInfoViewHolder(View itemView) {
             super(itemView);
             tvVendorName = (TextView) itemView.findViewById(R.id.tvVendorName);
             tvBusinessContent = (TextView) itemView.findViewById(R.id.tvBusinessContent);
+            deliveryAreasContainer = (GridLayout) itemView.findViewById(R.id.deliveryAreasContainer);
         }
 
         public void bind(String s) {
