@@ -17,7 +17,7 @@
         android:textSize="23sp"
         tools:text="미리네 식품"/>
 
-    <TextView
+    <com.rena21c.voiceorder.view.widgets.CharacterWrapTextView
         android:id="@+id/tvBusinessContent"
         android:layout_width="232dp"
         android:layout_height="wrap_content"
