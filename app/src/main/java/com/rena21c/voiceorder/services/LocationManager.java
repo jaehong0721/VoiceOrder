@@ -1,0 +1,186 @@
+package com.rena21c.voiceorder.services;
+
+
+import android.content.Context;
+import android.content.IntentSender;
+import android.location.Location;
+import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.util.Log;
+
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+
+public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
+                                        GoogleApiClient.OnConnectionFailedListener,
+                                        LocationListener {
+
+    public interface LocationUpdateListener {
+        void onLocationUpdateFailed(Status status) throws IntentSender.SendIntentException;
+        void onLocationUpdated(double latitude, double longitude);
+    }
+
+    private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
+
+    private static final long FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS =
+            UPDATE_INTERVAL_IN_MILLISECONDS / 2;
+
+    private static final float SMALLEST_DISPLACEMENT_METERS = 100;
+
+    private GoogleApiClient googleApiClient;
+
+    private LocationRequest locationRequest;
+
+    private LocationSettingsRequest locationSettingsRequest;
+
+    private Location currentLocation;
+
+    private LocationUpdateListener listener;
+
+    private boolean isTrackingLocation;
+
+    public LocationManager(Context context) {
+        buildGoogleApiClient(context);
+        createLocationRequest();
+        buildLocationSettingsRequest();
+    }
+
+    public void connectGoogleApiClient() {
+        googleApiClient.connect();
+    }
+
+    public void disconnectGoogleApiClient() {
+        googleApiClient.disconnect();
+    }
+
+    public void setLocationUpdateListener(LocationUpdateListener listener) {
+        this.listener = listener;
+    }
+
+    public void startLocationUpdates() {
+
+        if(isTrackingLocation) {
+            return;
+        }
+
+        isTrackingLocation = true;
+
+        LocationServices.SettingsApi.checkLocationSettings(
+                googleApiClient,
+                locationSettingsRequest
+        ).setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @Override
+            public void onResult(LocationSettingsResult locationSettingsResult) {
+                final Status status = locationSettingsResult.getStatus();
+
+                switch (status.getStatusCode()) {
+
+                    case LocationSettingsStatusCodes.SUCCESS:
+
+                        try {
+                            LocationServices.FusedLocationApi.requestLocationUpdates(
+                                    googleApiClient, locationRequest, LocationManager.this);
+                        } catch (SecurityException e) {e.printStackTrace();}
+
+                        break;
+
+                    case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
+
+                        try {
+                            listener.onLocationUpdateFailed(status);
+                        } catch (IntentSender.SendIntentException e) {e.printStackTrace();}
+
+                        break;
+
+                    case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
+
+                        Log.d("LocationService", "위치 찾기 실패");
+
+                        break;
+                }
+            }
+        });
+    }
+
+    @Override public void onConnected(@Nullable Bundle bundle) {
+        if(currentLocation != null) {
+            return;
+        }
+
+        try {
+            currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+            listener.onLocationUpdated(currentLocation.getLatitude(), currentLocation.getLongitude());
+            startLocationUpdates();
+        } catch (SecurityException e) {e.printStackTrace();}
+    }
+
+    @Override public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        Log.d("LocationService", "Connection failed");
+    }
+
+    @Override public void onConnectionSuspended(int i) {
+        Log.d("LocationService", "Connection suspended");
+    }
+
+    @Override public void onLocationChanged(Location location) {
+
+        if(currentLocation == null || getDistance(currentLocation, location) > SMALLEST_DISPLACEMENT_METERS) {
+            currentLocation = location;
+            listener.onLocationUpdated(currentLocation.getLatitude(), currentLocation.getLongitude());
+        }
+    }
+
+    public void stopLocationUpdates() {
+        isTrackingLocation = false;
+        LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
+    }
+
+    private void buildGoogleApiClient(Context context) {
+        googleApiClient = new GoogleApiClient.Builder(context)
+                .addConnectionCallbacks(this)
+                .addApi(LocationServices.API)
+                .build();
+    }
+
+    private void createLocationRequest() {
+        locationRequest = new LocationRequest();
+        locationRequest.setInterval(UPDATE_INTERVAL_IN_MILLISECONDS)
+                .setFastestInterval(FASTEST_UPDATE_INTERVAL_IN_MILLISECONDS)
+                .setSmallestDisplacement(SMALLEST_DISPLACEMENT_METERS)
+                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    private void buildLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
+        builder.addLocationRequest(locationRequest);
+        locationSettingsRequest = builder.build();
+    }
+
+    private double getDistance(Location location1, Location location2) {
+        double latitude1 = location1.getLatitude();
+        double longitude1 = location1.getLongitude();
+
+        double latitude2 = location2.getLatitude();
+        double longitude2 = location2.getLongitude();
+
+
+        double theta = longitude1 - longitude2;
+        double dist = Math.sin(Math.toRadians(latitude1)) * Math.sin(Math.toRadians(latitude2)) +
+                        Math.cos(Math.toRadians(latitude1)) * Math.cos(Math.toRadians(latitude2)) * Math.cos(Math.toRadians(theta));
+
+        dist = Math.acos(dist);
+        dist = Math.toDegrees(dist);
+        dist = dist * 60 * 1.1515;
+
+        return dist * 1609.344;
+    }
+}
