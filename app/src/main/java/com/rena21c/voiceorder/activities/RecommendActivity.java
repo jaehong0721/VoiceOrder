@@ -10,11 +10,22 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
+import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.network.ApiService;
+import com.rena21c.voiceorder.pojo.Vendor;
 import com.rena21c.voiceorder.services.LocationManager;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.adapters.VendorsRecyclerViewAdapter;
+
+import java.util.HashMap;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 
 public class RecommendActivity extends HasTabActivity {
@@ -24,6 +35,11 @@ public class RecommendActivity extends HasTabActivity {
     private LocationManager.LocationUpdateListener listener;
     private LocationManager locationManager;
 
+    private Retrofit retrofit;
+    private ApiService apiService;
+
+    private VendorsRecyclerViewAdapter adapter;
+
     private RecyclerView rvVendors;
 
     @Override
@@ -31,21 +47,41 @@ public class RecommendActivity extends HasTabActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recommend);
 
+        adapter = new VendorsRecyclerViewAdapter();
+
+        retrofit = App.getApplication(getApplicationContext()).getRetrofit();
+
+        apiService = retrofit.create(ApiService.class);
+
         listener = new LocationManager.LocationUpdateListener() {
             @Override public void onLocationUpdateFailed(Status status) throws IntentSender.SendIntentException {
                 status.startResolutionForResult(RecommendActivity.this, REQUEST_CHECK_SETTINGS);
             }
 
             @Override public void onLocationUpdated(double latitude, double longitude) {
-                Log.d("LocationService", latitude + " , " + longitude);
+                Log.d("LocationService,activit", latitude + " , " + longitude);
 
+                HashMap<String, Double> bodyMap = new HashMap<>();
+                bodyMap.put("latitude", latitude);
+                bodyMap.put("longitude", longitude);
+
+                apiService
+                        .getNearbyVendors(bodyMap)
+                        .enqueue(new Callback<List<Vendor>>() {
+                            @Override public void onResponse(Call<List<Vendor>> call, Response<List<Vendor>> response) {
+                                Log.d("LocationService", response.body().toString());
+                                adapter.setVendors(response.body());
+                            }
+
+                            @Override public void onFailure(Call<List<Vendor>> call, Throwable t) {
+                                Log.d("LocationService", t.toString());
+                            }
+                        });
             }
         };
 
         locationManager = new LocationManager(this);
         locationManager.setLocationUpdateListener(listener);
-
-        VendorsRecyclerViewAdapter adapter = new VendorsRecyclerViewAdapter();
 
         rvVendors = (RecyclerView) findViewById(R.id.rvVendors);
         rvVendors.setLayoutManager(new LinearLayoutManager(this));

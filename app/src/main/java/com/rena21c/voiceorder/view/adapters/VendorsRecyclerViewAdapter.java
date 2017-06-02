@@ -9,8 +9,10 @@ import android.widget.GridLayout;
 import android.widget.TextView;
 
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.pojo.Vendor;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorsRecyclerViewAdapter.VendorInfoViewHolder>{
 
@@ -28,28 +30,16 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorsRecy
             deliveryAreasContainer = (GridLayout) itemView.findViewById(R.id.deliveryAreasContainer);
         }
 
-        public void bind(String s) {
-            tvVendorName.setText(s);
-            tvBusinessContent.setText(s);
+        public void bind(String vendorName, String businessContent) {
+            tvVendorName.setText(vendorName);
+            tvBusinessContent.setText(businessContent);
         }
     }
 
-    ArrayList<String> dummys;
+    List<Vendor> vendors;
 
     public VendorsRecyclerViewAdapter() {
-        dummys = new ArrayList<>();
-        dummys.add("dummy01");
-        dummys.add("dummy02");
-        dummys.add("dummy03");
-        dummys.add("dummy04");
-        dummys.add("dummy05");
-        dummys.add("dummy06");
-        dummys.add("dummy07");
-        dummys.add("dummy08");
-        dummys.add("dummy09");
-        dummys.add("dummy10");
-        dummys.add("dummy11");
-        dummys.add("dummy12");
+        vendors = new ArrayList<>();
     }
 
     @Override public VendorInfoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -58,10 +48,18 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorsRecy
     }
 
     @Override public void onBindViewHolder(VendorInfoViewHolder holder, int position) {
-        holder.bind(dummys.get(position));
+        Vendor vendor = vendors.get(position);
+        String vendorName = vendor.name;
+        String businessContent = vendor.items;
+        holder.bind(vendorName, businessContent);
     }
 
     @Override public int getItemCount() {
-        return dummys.size();
+        return vendors.size();
+    }
+
+    public void setVendors(List<Vendor> vendors) {
+        this.vendors = vendors;
+        notifyDataSetChanged();
     }
 }
