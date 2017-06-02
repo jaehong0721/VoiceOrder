@@ -19,7 +19,7 @@ public class HasTabActivity extends AppCompatActivity {
         String tab = getIntent().getStringExtra("tab");
 
         tabActionBar = TabActionBar.createWithActionBar(getApplicationContext(), getSupportActionBar());
-        tabActionBar.setInitialTab(TabActionBar.Tab.valueOf(tab));
+        tabActionBar.setTab(TabActionBar.Tab.valueOf(tab));
     }
 
     @Override protected void onStart() {
@@ -60,5 +60,9 @@ public class HasTabActivity extends AppCompatActivity {
         super.onStop();
 
         tabActionBar.removeTabClickListener();
+    }
+
+    protected void moveTab(TabActionBar.Tab tab) {
+        tabActionBar.moveTab(tab);
     }
 }

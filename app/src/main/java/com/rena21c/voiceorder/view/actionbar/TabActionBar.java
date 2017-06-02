@@ -65,14 +65,18 @@ public class TabActionBar implements ActionBarInterface, View.OnClickListener {
         this.actionBar = actionBar;
     }
 
-    public void setInitialTab(Tab tab) {
-        (tabView.findViewById(tab.viewIdOfTab)).setSelected(true);
-    }
-
     public static TabActionBar createWithActionBar(Context context, ActionBar supportActionBar) {
         TabActionBar instance = new TabActionBar(context, supportActionBar);
         instance.setUp();
         return instance;
+    }
+
+    public void setTab(Tab tab) {
+        (tabView.findViewById(tab.viewIdOfTab)).setSelected(true);
+    }
+
+    public void moveTab(Tab tab) {
+        (tabView.findViewById(tab.viewIdOfTab)).callOnClick();
     }
 
     public void setTabClickListener(TabClickListener listener) {
