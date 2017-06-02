@@ -1,5 +1,5 @@
 <resources>
     <string name="app_name">거상 베타</string>
-    <string name="server_address">http://52.78.67.115:9000</string>
+    <string name="server_address">http://13.124.55.105:9000</string>
     <string name="s3_bucket_name">tgmorders-dev</string>
 </resources>
