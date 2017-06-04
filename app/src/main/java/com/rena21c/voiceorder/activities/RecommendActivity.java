@@ -1,10 +1,14 @@
 package com.rena21c.voiceorder.activities;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.location.Geocoder;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -52,9 +56,12 @@ public class RecommendActivity extends HasTabActivity {
 
         adapter = new VendorsRecyclerViewAdapter(new VendorsRecyclerViewAdapter.CallButtonClickListener() {
             @Override public void onCallButtonClick(String phoneNumber) {
-                Log.d("RecommendActivity", phoneNumber);
+                Intent intent = new Intent(Intent.ACTION_CALL);
+                intent.setData(Uri.parse("tel:" + phoneNumber));
+                startActivity(intent);
             }
         });
+
         rvVendors = (RecyclerView) findViewById(R.id.rvVendors);
         tvCurrentLocation = (TextView) findViewById(R.id.tvCurrentLocation);
 
