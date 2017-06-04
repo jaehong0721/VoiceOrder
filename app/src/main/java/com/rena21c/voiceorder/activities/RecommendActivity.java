@@ -22,6 +22,7 @@ import com.rena21c.voiceorder.services.LocationManager;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.adapters.VendorsRecyclerViewAdapter;
+import com.rena21c.voiceorder.viewholder.VendorInfoViewHolder;
 
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +55,7 @@ public class RecommendActivity extends HasTabActivity {
 
         final AppPreferenceManager appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
 
-        adapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorsRecyclerViewAdapter.CallButtonClickListener() {
+        adapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorInfoViewHolder.CallButtonClickListener() {
             @Override public void onCallButtonClick(String phoneNumber) {
 
                 appPreferenceManager.setCallTime(phoneNumber, System.currentTimeMillis());
