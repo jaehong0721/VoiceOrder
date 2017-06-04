@@ -50,7 +50,11 @@ public class RecommendActivity extends HasTabActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recommend);
 
-        adapter = new VendorsRecyclerViewAdapter();
+        adapter = new VendorsRecyclerViewAdapter(new VendorsRecyclerViewAdapter.CallButtonClickListener() {
+            @Override public void onCallButtonClick(String phoneNumber) {
+                Log.d("RecommendActivity", phoneNumber);
+            }
+        });
         rvVendors = (RecyclerView) findViewById(R.id.rvVendors);
         tvCurrentLocation = (TextView) findViewById(R.id.tvCurrentLocation);
 

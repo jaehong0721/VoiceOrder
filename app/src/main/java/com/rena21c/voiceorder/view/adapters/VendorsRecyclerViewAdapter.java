@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.rena21c.voiceorder.R;
@@ -15,30 +16,40 @@ import java.util.List;
 
 public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorsRecyclerViewAdapter.VendorInfoViewHolder>{
 
+    public interface CallButtonClickListener {
+        void onCallButtonClick(String phoneNumber);
+    }
+
     class VendorInfoViewHolder extends RecyclerView.ViewHolder {
 
         private TextView tvVendorName;
         private TextView tvBusinessContent;
         private TextView tvAddress;
+        private ImageView ivCalll;
 
         public VendorInfoViewHolder(View itemView) {
             super(itemView);
             tvVendorName = (TextView) itemView.findViewById(R.id.tvVendorName);
             tvBusinessContent = (TextView) itemView.findViewById(R.id.tvBusinessContent);
             tvAddress = (TextView) itemView.findViewById(R.id.tvAddress);
+            ivCalll = (ImageView) itemView.findViewById(R.id.ivCall);
         }
 
-        public void bind(String vendorName, String businessContent, String address) {
+        public void bind(String vendorName, String businessContent, String address, View.OnClickListener clickListener) {
             tvVendorName.setText(vendorName);
             tvBusinessContent.setText(businessContent);
             tvAddress.setText(address);
+            ivCalll.setOnClickListener(clickListener);
         }
     }
 
     List<Vendor> vendors;
 
-    public VendorsRecyclerViewAdapter() {
+    CallButtonClickListener callButtonClickListener;
+
+    public VendorsRecyclerViewAdapter(CallButtonClickListener callButtonClickListener) {
         vendors = new ArrayList<>();
+        this.callButtonClickListener = callButtonClickListener;
     }
 
     @Override public VendorInfoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -48,10 +59,17 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorsRecy
 
     @Override public void onBindViewHolder(VendorInfoViewHolder holder, int position) {
         Vendor vendor = vendors.get(position);
+
         String vendorName = vendor.name;
         String address = transformToSimpleAddress(vendor.address);
         String businessContent = removeAddressAndNameInContent(vendor.items,  vendorName, address);
-        holder.bind(vendorName, businessContent, address);
+
+        final String phoneNumber = vendor.phoneNumber;
+        holder.bind(vendorName, businessContent, address, new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                callButtonClickListener.onCallButtonClick(phoneNumber);
+            }
+        });
     }
 
     @Override public int getItemCount() {
