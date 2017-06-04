@@ -21,41 +21,42 @@
         android:id="@+id/tvBusinessContent"
         android:layout_width="232dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="9dp"
         android:layout_below="@+id/tvVendorName"
+        android:layout_marginBottom="9dp"
+        android:ellipsize="end"
+        android:maxLines="100"
         android:textColor="@color/primaryBrown"
         android:textSize="14sp"
-        android:maxLines="100"
-        android:ellipsize="end"
         tools:text="고추, 참기름, 마늘, 된장, 초장 등 양념 업체"/>
 
     <ImageView
         android:id="@+id/ivCall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/call"
         android:layout_alignParentRight="true"
-        android:layout_marginBottom="15dp"/>
+        android:layout_marginBottom="15dp"
+        android:src="@drawable/call"/>
 
     <TextView
         android:id="@+id/tvTimeElapsedFromCall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/ivCall"
         android:layout_alignParentRight="true"
-        android:textSize="13sp"
+        android:layout_below="@+id/ivCall"
         android:textColor="#99390405"
+        android:textSize="13sp"
         tools:text="2분전 통화"/>
 
-    <GridLayout
-        android:id="@+id/deliveryAreasContainer"
-        android:layout_width="match_parent"
+
+    <TextView
+        android:id="@+id/tvAddress"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tvBusinessContent"
-        android:columnCount="4"
-        android:orientation="horizontal"
-        android:useDefaultMargins="true">
+        android:background="@drawable/shape_colorful_border"
+        android:gravity="center"
+        android:padding="5dp"
+        android:textSize="12sp"
+        tools:text="서울 강남구"/>
 
-    </GridLayout>
-    
 </RelativeLayout>
