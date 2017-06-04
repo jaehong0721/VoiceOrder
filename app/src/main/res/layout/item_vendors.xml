@@ -38,7 +38,7 @@
         android:src="@drawable/call"/>
 
     <TextView
-        android:id="@+id/tvTimeElapsedFromCall"
+        android:id="@+id/tvElapsedTimeFromCall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"

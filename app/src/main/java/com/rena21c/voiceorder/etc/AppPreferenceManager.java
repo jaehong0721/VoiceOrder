@@ -92,4 +92,16 @@ public class AppPreferenceManager {
         return sharedPreference
                 .getString("clickedTabName", TabActionBar.Tab.RECOMMEND.toString());
     }
+
+    public void setCallTime(String vendorPhoneNumber, long callTime) {
+        sharedPreference
+                .edit()
+                .putLong(vendorPhoneNumber, callTime)
+                .apply();
+    }
+
+    public long getCallTime(String vendorPhoneNumber) {
+        return sharedPreference
+                .getLong(vendorPhoneNumber, -1);
+    }
 }

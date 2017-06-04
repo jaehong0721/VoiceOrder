@@ -1,14 +1,11 @@
 package com.rena21c.voiceorder.activities;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
-import android.content.pm.PackageManager;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -18,6 +15,7 @@ import android.widget.Toast;
 import com.google.android.gms.common.api.Status;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.network.ApiService;
 import com.rena21c.voiceorder.pojo.Vendor;
 import com.rena21c.voiceorder.services.LocationManager;
@@ -54,8 +52,13 @@ public class RecommendActivity extends HasTabActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recommend);
 
-        adapter = new VendorsRecyclerViewAdapter(new VendorsRecyclerViewAdapter.CallButtonClickListener() {
+        final AppPreferenceManager appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
+
+        adapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorsRecyclerViewAdapter.CallButtonClickListener() {
             @Override public void onCallButtonClick(String phoneNumber) {
+
+                appPreferenceManager.setCallTime(phoneNumber, System.currentTimeMillis());
+
                 Intent intent = new Intent(Intent.ACTION_CALL);
                 intent.setData(Uri.parse("tel:" + phoneNumber));
                 startActivity(intent);
