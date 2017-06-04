@@ -121,17 +121,19 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
         });
     }
 
+    @SuppressWarnings("MissingPermission")
     @Override public void onConnected(@Nullable Bundle bundle) {
-        if(currentLocation != null) {
-            return;
-        }
 
-        try {
-            currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-            String locality = getLocalityFrom(currentLocation.getLatitude(), currentLocation.getLongitude());
-            listener.onLocationUpdated(currentLocation.getLatitude(), currentLocation.getLongitude(), locality);
-            startLocationUpdates();
-        } catch (SecurityException e) {e.printStackTrace();}
+        if(currentLocation != null) return;
+
+        Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
+
+        if(lastLocation == null) return;
+
+        currentLocation = lastLocation;
+        String locality = getLocalityFrom(currentLocation.getLatitude(), currentLocation.getLongitude());
+        listener.onLocationUpdated(currentLocation.getLatitude(), currentLocation.getLongitude(), locality);
+        startLocationUpdates();
     }
 
     @Override public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
