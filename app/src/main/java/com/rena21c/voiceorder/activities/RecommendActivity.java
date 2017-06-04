@@ -22,6 +22,7 @@ import com.rena21c.voiceorder.services.LocationManager;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.adapters.VendorsRecyclerViewAdapter;
+import com.rena21c.voiceorder.view.widgets.RecyclerViewEmptySupport;
 import com.rena21c.voiceorder.viewholder.VendorInfoViewHolder;
 
 import java.util.HashMap;
@@ -45,7 +46,7 @@ public class RecommendActivity extends HasTabActivity {
 
     private VendorsRecyclerViewAdapter adapter;
 
-    private RecyclerView rvVendors;
+    private RecyclerViewEmptySupport rvVendors;
     private TextView tvCurrentLocation;
 
     @Override
@@ -66,7 +67,7 @@ public class RecommendActivity extends HasTabActivity {
             }
         });
 
-        rvVendors = (RecyclerView) findViewById(R.id.rvVendors);
+        rvVendors = (RecyclerViewEmptySupport) findViewById(R.id.rvVendors);
         tvCurrentLocation = (TextView) findViewById(R.id.tvCurrentLocation);
 
         retrofit = App.getApplication(getApplicationContext()).getRetrofit();
@@ -106,6 +107,7 @@ public class RecommendActivity extends HasTabActivity {
         locationManager.setLocationUpdateListener(listener);
 
         rvVendors.setLayoutManager(new LinearLayoutManager(this));
+        rvVendors.setEmptyView(findViewById(R.id.tvEmptyView));
         rvVendors.addItemDecoration(new DividerItemDecoration(getApplicationContext(), R.drawable.shape_divider_recycler_view));
         rvVendors.setAdapter(adapter);
     }

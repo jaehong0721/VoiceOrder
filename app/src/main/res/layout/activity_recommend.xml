@@ -47,10 +47,20 @@
         android:layout_height="1dp"
         android:background="@color/dividerLine"/>
 
-    <android.support.v7.widget.RecyclerView
+    <com.rena21c.voiceorder.view.widgets.RecyclerViewEmptySupport
         android:id="@+id/rvVendors"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:listitem="@layout/item_vendors"/>
+
+    <TextView
+        android:id="@+id/tvEmptyView"
+        android:layout_marginTop="56dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="반경 5km 내에 납품업체가\n존재하지 않습니다"
+        android:textSize="23sp"
+        android:layout_gravity="center"
+        android:gravity="center"/>
 
 </LinearLayout>
