@@ -7,7 +7,6 @@ import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,13 +37,13 @@ public class RecommendActivity extends HasTabActivity {
 
     public static final int REQUEST_CHECK_SETTINGS = 0x1;
 
-    private LocationManager.LocationUpdateListener listener;
+    private LocationManager.LocationUpdateListener locationUpdateListener;
     private LocationManager locationManager;
 
     private Retrofit retrofit;
     private ApiService apiService;
 
-    private VendorsRecyclerViewAdapter adapter;
+    private VendorsRecyclerViewAdapter rvAdapter;
 
     private RecyclerViewEmptySupport rvVendors;
     private TextView tvCurrentLocation;
@@ -56,7 +55,8 @@ public class RecommendActivity extends HasTabActivity {
 
         final AppPreferenceManager appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
 
-        adapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorInfoViewHolder.CallButtonClickListener() {
+        rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorInfoViewHolder.CallButtonClickListener() {
+            @SuppressWarnings("MissingPermission")
             @Override public void onCallButtonClick(String phoneNumber) {
 
                 appPreferenceManager.setCallTime(phoneNumber, System.currentTimeMillis());
@@ -74,7 +74,7 @@ public class RecommendActivity extends HasTabActivity {
 
         apiService = retrofit.create(ApiService.class);
 
-        listener = new LocationManager.LocationUpdateListener() {
+        locationUpdateListener = new LocationManager.LocationUpdateListener() {
             @Override public void onLocationUpdateFailed(Status status) throws IntentSender.SendIntentException {
                 status.startResolutionForResult(RecommendActivity.this, REQUEST_CHECK_SETTINGS);
             }
@@ -92,7 +92,7 @@ public class RecommendActivity extends HasTabActivity {
                         .getNearbyVendors(bodyMap)
                         .enqueue(new Callback<List<Vendor>>() {
                             @Override public void onResponse(Call<List<Vendor>> call, Response<List<Vendor>> response) {
-                                if(response.body() != null) adapter.setVendors(response.body());
+                                if(response.body() != null) rvAdapter.setVendors(response.body());
                             }
 
                             @Override public void onFailure(Call<List<Vendor>> call, Throwable t) {
@@ -104,12 +104,12 @@ public class RecommendActivity extends HasTabActivity {
 
         Geocoder geocoder = new Geocoder(this);
         locationManager = new LocationManager(this, geocoder);
-        locationManager.setLocationUpdateListener(listener);
+        locationManager.setLocationUpdateListener(locationUpdateListener);
 
         rvVendors.setLayoutManager(new LinearLayoutManager(this));
         rvVendors.setEmptyView(findViewById(R.id.tvEmptyView));
         rvVendors.addItemDecoration(new DividerItemDecoration(getApplicationContext(), R.drawable.shape_divider_recycler_view));
-        rvVendors.setAdapter(adapter);
+        rvVendors.setAdapter(rvAdapter);
     }
 
     @Override protected void onStart() {

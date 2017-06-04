@@ -31,6 +31,7 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
     public interface LocationUpdateListener {
         void onLocationUpdateFailed(Status status) throws IntentSender.SendIntentException;
+
         void onLocationUpdated(double latitude, double longitude, String locality);
     }
 
@@ -78,7 +79,7 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
     public void startLocationUpdates() {
 
-        if(isTrackingLocation) {
+        if (isTrackingLocation) {
             return;
         }
 
@@ -88,6 +89,7 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
                 googleApiClient,
                 locationSettingsRequest
         ).setResultCallback(new ResultCallback<LocationSettingsResult>() {
+            @SuppressWarnings("MissingPermission")
             @Override
             public void onResult(LocationSettingsResult locationSettingsResult) {
                 final Status status = locationSettingsResult.getStatus();
@@ -96,10 +98,8 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
                     case LocationSettingsStatusCodes.SUCCESS:
 
-                        try {
-                            LocationServices.FusedLocationApi.requestLocationUpdates(
-                                    googleApiClient, locationRequest, LocationManager.this);
-                        } catch (SecurityException e) {e.printStackTrace();}
+                        LocationServices.FusedLocationApi.requestLocationUpdates(
+                                googleApiClient, locationRequest, LocationManager.this);
 
                         break;
 
@@ -107,7 +107,9 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
                         try {
                             listener.onLocationUpdateFailed(status);
-                        } catch (IntentSender.SendIntentException e) {e.printStackTrace();}
+                        } catch (IntentSender.SendIntentException e) {
+                            e.printStackTrace();
+                        }
 
                         break;
 
@@ -124,11 +126,11 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
     @SuppressWarnings("MissingPermission")
     @Override public void onConnected(@Nullable Bundle bundle) {
 
-        if(currentLocation != null) return;
+        if (currentLocation != null) return;
 
         Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
 
-        if(lastLocation == null) return;
+        if (lastLocation == null) return;
 
         currentLocation = lastLocation;
         String locality = getLocalityFrom(currentLocation.getLatitude(), currentLocation.getLongitude());
@@ -146,7 +148,7 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
     @Override public void onLocationChanged(Location location) {
 
-        if(currentLocation == null || getDistance(currentLocation, location) > SMALLEST_DISPLACEMENT_METERS) {
+        if (currentLocation == null || getDistance(currentLocation, location) > SMALLEST_DISPLACEMENT_METERS) {
             currentLocation = location;
             String locality = getLocalityFrom(currentLocation.getLatitude(), currentLocation.getLongitude());
             listener.onLocationUpdated(currentLocation.getLatitude(), currentLocation.getLongitude(), locality);
@@ -202,7 +204,9 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
         List<Address> addressList = null;
         try {
             addressList = geocoder.getFromLocation(latitude, longitude, 1);
-        } catch (IOException e) {e.printStackTrace();}
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         return addressList != null ? addressList.get(0).getLocality() : "알수없음";
     }
