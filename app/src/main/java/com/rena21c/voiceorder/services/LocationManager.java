@@ -3,6 +3,8 @@ package com.rena21c.voiceorder.services;
 
 import android.content.Context;
 import android.content.IntentSender;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -20,13 +22,16 @@ import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.LocationSettingsResult;
 import com.google.android.gms.location.LocationSettingsStatusCodes;
 
+import java.io.IOException;
+import java.util.List;
+
 public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
                                         GoogleApiClient.OnConnectionFailedListener,
                                         LocationListener {
 
     public interface LocationUpdateListener {
         void onLocationUpdateFailed(Status status) throws IntentSender.SendIntentException;
-        void onLocationUpdated(double latitude, double longitude);
+        void onLocationUpdated(double latitude, double longitude, String locality);
     }
 
     private static final long UPDATE_INTERVAL_IN_MILLISECONDS = 10000;
@@ -48,7 +53,12 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
     private boolean isTrackingLocation;
 
-    public LocationManager(Context context) {
+    private Geocoder geocoder;
+
+    public LocationManager(Context context, Geocoder geocoder) {
+
+        this.geocoder = geocoder;
+
         buildGoogleApiClient(context);
         createLocationRequest();
         buildLocationSettingsRequest();
@@ -118,7 +128,8 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
         try {
             currentLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
-            listener.onLocationUpdated(currentLocation.getLatitude(), currentLocation.getLongitude());
+            String locality = getLocalityFrom(currentLocation.getLatitude(), currentLocation.getLongitude());
+            listener.onLocationUpdated(currentLocation.getLatitude(), currentLocation.getLongitude(), locality);
             startLocationUpdates();
         } catch (SecurityException e) {e.printStackTrace();}
     }
@@ -135,7 +146,8 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
         if(currentLocation == null || getDistance(currentLocation, location) > SMALLEST_DISPLACEMENT_METERS) {
             currentLocation = location;
-            listener.onLocationUpdated(currentLocation.getLatitude(), currentLocation.getLongitude());
+            String locality = getLocalityFrom(currentLocation.getLatitude(), currentLocation.getLongitude());
+            listener.onLocationUpdated(currentLocation.getLatitude(), currentLocation.getLongitude(), locality);
         }
     }
 
@@ -183,4 +195,14 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
         return dist * 1609.344;
     }
+
+    private String getLocalityFrom(double latitude, double longitude) {
+        List<Address> addressList = null;
+        try {
+            addressList = geocoder.getFromLocation(latitude, longitude, 1);
+        } catch (IOException e) {e.printStackTrace();}
+
+        return addressList != null ? addressList.get(0).getLocality() : "알수없음";
+    }
+
 }

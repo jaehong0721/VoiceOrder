@@ -3,10 +3,12 @@ package com.rena21c.voiceorder.activities;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentSender;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
@@ -41,6 +43,7 @@ public class RecommendActivity extends HasTabActivity {
     private VendorsRecyclerViewAdapter adapter;
 
     private RecyclerView rvVendors;
+    private TextView tvCurrentLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +51,8 @@ public class RecommendActivity extends HasTabActivity {
         setContentView(R.layout.activity_recommend);
 
         adapter = new VendorsRecyclerViewAdapter();
+        rvVendors = (RecyclerView) findViewById(R.id.rvVendors);
+        tvCurrentLocation = (TextView) findViewById(R.id.tvCurrentLocation);
 
         retrofit = App.getApplication(getApplicationContext()).getRetrofit();
 
@@ -58,8 +63,10 @@ public class RecommendActivity extends HasTabActivity {
                 status.startResolutionForResult(RecommendActivity.this, REQUEST_CHECK_SETTINGS);
             }
 
-            @Override public void onLocationUpdated(double latitude, double longitude) {
+            @Override public void onLocationUpdated(double latitude, double longitude, String locality) {
                 Log.d("LocationService,activit", latitude + " , " + longitude);
+
+                tvCurrentLocation.setText(locality);
 
                 HashMap<String, Double> bodyMap = new HashMap<>();
                 bodyMap.put("latitude", latitude);
@@ -69,8 +76,7 @@ public class RecommendActivity extends HasTabActivity {
                         .getNearbyVendors(bodyMap)
                         .enqueue(new Callback<List<Vendor>>() {
                             @Override public void onResponse(Call<List<Vendor>> call, Response<List<Vendor>> response) {
-                                Log.d("LocationService", response.body().toString());
-                                adapter.setVendors(response.body());
+                                if(response.body() != null) adapter.setVendors(response.body());
                             }
 
                             @Override public void onFailure(Call<List<Vendor>> call, Throwable t) {
@@ -80,10 +86,10 @@ public class RecommendActivity extends HasTabActivity {
             }
         };
 
-        locationManager = new LocationManager(this);
+        Geocoder geocoder = new Geocoder(this);
+        locationManager = new LocationManager(this, geocoder);
         locationManager.setLocationUpdateListener(listener);
 
-        rvVendors = (RecyclerView) findViewById(R.id.rvVendors);
         rvVendors.setLayoutManager(new LinearLayoutManager(this));
         rvVendors.addItemDecoration(new DividerItemDecoration(getApplicationContext(), R.drawable.shape_divider_recycler_view));
         rvVendors.setAdapter(adapter);
