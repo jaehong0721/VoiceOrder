@@ -49,8 +49,8 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorsRecy
     @Override public void onBindViewHolder(VendorInfoViewHolder holder, int position) {
         Vendor vendor = vendors.get(position);
         String vendorName = vendor.name;
-        String businessContent = vendor.items;
         String address = transformToSimpleAddress(vendor.address);
+        String businessContent = removeAddressAndNameInContent(vendor.items,  vendorName, address);
         holder.bind(vendorName, businessContent, address);
     }
 
@@ -63,8 +63,8 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorsRecy
         notifyDataSetChanged();
     }
 
-    private String transformToSimpleAddress(String address) {
-        String[] array = address.split(" ");
+    private String transformToSimpleAddress(String fullAddress) {
+        String[] array = fullAddress.split(" ");
 
         String state = array[0];
         String locality = array[1];
@@ -74,4 +74,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorsRecy
         return state + " " + locality;
     }
     
+    private String removeAddressAndNameInContent(String content, String name, String address) {
+        return content.replaceAll(name, "").replaceAll(address, "");
+    }
 }
