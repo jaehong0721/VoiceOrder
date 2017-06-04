@@ -16,7 +16,8 @@ public class PermissionManager {
     public static PermissionManager newInstance(Activity activity) {
         return new PermissionManager(activity, new String[]{Manifest.permission.READ_PHONE_STATE,
                                                             Manifest.permission.RECORD_AUDIO,
-                                                            Manifest.permission.ACCESS_FINE_LOCATION},
+                                                            Manifest.permission.ACCESS_FINE_LOCATION,
+                                                            Manifest.permission.CALL_PHONE},
                 "회원가입을 위한 전화번호, 주문을 위한 녹음 권한을 요청합니다.",
                 "앱에서 필요한 권한을 요청을 할 수 없습니다.\n\n" + "서비스를 계속 사용하기 위해서 \"설정\" 버튼을 누르신 후, 권한 탭에서 직접 권한을 허락해 주세요.");
     }
