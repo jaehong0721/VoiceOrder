@@ -36,16 +36,29 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
+
+        <activity android:name=".activities.BaseActivity"/>
+
+        <activity android:name=".activities.HasTabActivity"/>
+
         <activity
             android:name=".activities.VoiceOrderActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"/>
-        <activity android:name=".activities.BaseActivity"/>
+
         <activity
             android:name=".activities.OrderDetailActivity"
             android:parentActivityName=".activities.VoiceOrderActivity"
             android:screenOrientation="portrait"/>
 
+        <activity
+            android:name=".activities.RecommendActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity
+            android:name=".activities.MyPartnerActivity"
+            android:screenOrientation="portrait"/>
+        
         <service
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
             android:enabled="true"/>
@@ -68,12 +81,6 @@
         </service>
         <service android:name=".services.FileUploadService"/>
 
-        <activity android:name=".activities.HasTabActivity">
-        </activity>
-        <activity android:name=".activities.RecommendActivity">
-        </activity>
-        <activity android:name=".activities.MyPartnerActivity">
-        </activity>
     </application>
 
 </manifest>
