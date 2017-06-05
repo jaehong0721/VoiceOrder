@@ -8,11 +8,12 @@
                 android:layout_marginRight="20dp"
                 android:layout_marginTop="21dp">
 
-    <TextView
+    <me.grantland.widget.AutofitTextView
         android:id="@+id/tvVendorName"
-        android:layout_width="wrap_content"
+        android:layout_width="232dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
+        android:maxLines="1"
         android:textColor="@color/primaryBrown"
         android:textSize="23sp"
         tools:text="미리네 식품"/>
