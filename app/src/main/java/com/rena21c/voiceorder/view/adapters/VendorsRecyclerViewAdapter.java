@@ -67,6 +67,10 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
         notifyDataSetChanged();
     }
 
+    public void clearVendors() {
+        vendors.clear();
+    }
+
     private String transformToSimpleAddress(String fullAddress) {
         String[] array = fullAddress.split(" ");
 

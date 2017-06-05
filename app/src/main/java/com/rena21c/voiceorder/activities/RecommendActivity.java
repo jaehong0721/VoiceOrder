@@ -99,7 +99,11 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                         .getNearbyVendors(bodyMap)
                         .enqueue(new Callback<List<Vendor>>() {
                             @Override public void onResponse(Call<List<Vendor>> call, Response<List<Vendor>> response) {
-                                if(response.body() != null) rvAdapter.setVendors(response.body());
+                                if(response.body() != null) {
+                                    rvAdapter.setVendors(response.body());
+                                } else {
+                                    rvAdapter.clearVendors();
+                                }
                             }
 
                             @Override public void onFailure(Call<List<Vendor>> call, Throwable t) {
