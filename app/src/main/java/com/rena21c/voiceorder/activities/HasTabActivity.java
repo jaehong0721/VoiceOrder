@@ -44,11 +44,6 @@ public class HasTabActivity extends AppCompatActivity {
                         Log.d("HasTabActivity", "주문탭");
                         intent.setComponent(new ComponentName(HasTabActivity.this, VoiceOrderActivity.class));
                         break;
-
-                    case MY_PARTNER:
-                        Log.d("HasTabActivity", "거래처탭");
-                        intent.setComponent(new ComponentName(HasTabActivity.this, MyPartnerActivity.class));
-                        break;
                 }
 
                 startActivity(intent);

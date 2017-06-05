@@ -13,8 +13,7 @@ public class TabActionBar implements ActionBarInterface, View.OnClickListener {
 
     public enum Tab {
         RECOMMEND(R.id.btnRecommend),
-        VOICE_ORDER(R.id.btnVoiceOrder),
-        MY_PARTNER(R.id.btnMyPartner);
+        VOICE_ORDER(R.id.btnVoiceOrder);
 
         public int viewIdOfTab;
 
@@ -32,7 +31,6 @@ public class TabActionBar implements ActionBarInterface, View.OnClickListener {
 
     private UnderLineButton btnRecommend;
     private UnderLineButton btnVoiceOrder;
-    private UnderLineButton btnMyPartner;
 
     public interface TabClickListener {
         void OnTabClicked(Tab tab);
@@ -49,15 +47,12 @@ public class TabActionBar implements ActionBarInterface, View.OnClickListener {
 
         btnRecommend = (UnderLineButton) tabView.findViewById(R.id.btnRecommend);
         btnVoiceOrder = (UnderLineButton) tabView.findViewById(R.id.btnVoiceOrder);
-        btnMyPartner = (UnderLineButton) tabView.findViewById(R.id.btnMyPartner);
 
         btnRecommend.setSelected(false);
         btnVoiceOrder.setSelected(false);
-        btnMyPartner.setSelected(false);
 
         btnRecommend.setOnClickListener(this);
         btnVoiceOrder.setOnClickListener(this);
-        btnMyPartner.setOnClickListener(this);
     }
 
     private TabActionBar(Context context, ActionBar actionBar) {
@@ -98,11 +93,6 @@ public class TabActionBar implements ActionBarInterface, View.OnClickListener {
             case R.id.btnVoiceOrder:
                 App.getApplication(context).getPreferenceManager().setClickedTab(Tab.VOICE_ORDER.toString());
                 listener.OnTabClicked(Tab.VOICE_ORDER);
-                break;
-
-            case R.id.btnMyPartner:
-                App.getApplication(context).getPreferenceManager().setClickedTab(Tab.MY_PARTNER.toString());
-                listener.OnTabClicked(Tab.MY_PARTNER);
                 break;
         }
     }
