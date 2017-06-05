@@ -18,9 +18,7 @@ import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
-import com.rena21c.voiceorder.network.FileTransferUtil;
 import com.rena21c.voiceorder.network.NetworkUtil;
-import com.rena21c.voiceorder.services.AwsS3FileUploader;
 import com.rena21c.voiceorder.services.FileUploadService;
 import com.rena21c.voiceorder.services.VoiceRecorderManager;
 import com.rena21c.voiceorder.util.FileNameUtil;
@@ -38,7 +36,6 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
     private VoiceRecorderManager recordManager;
     private FirebaseDbManager dbManager;
     private MemorySizeChecker memorySizeChecker;
-    private AwsS3FileUploader fileUploader;
     private ChildEventListener acceptedOrderChildEventListener;
 
     private VoiceOrderView voiceOrderView;
@@ -71,10 +68,6 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
 
         recordManager = new VoiceRecorderManager(getFilesDir().getPath(), this);
         memorySizeChecker = new MemorySizeChecker(REQUIRED_SPACE);
-        fileUploader = new AwsS3FileUploader.Builder()
-                .setBucketName(getResources().getString(R.string.s3_bucket_name))
-                .setTransferUtility(FileTransferUtil.getTransferUtility(this))
-                .build();
 
         acceptedOrderChildEventListener = new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
@@ -179,7 +172,6 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         } else {
             if (appPreferenceManager.getUserFirstVisit()) {
                 appPreferenceManager.setUserFirstVisit();
-                voiceOrderView.changeActionBarColorToWhite();
             }
             String fileName = FileNameUtil.makeFileName(appPreferenceManager.getPhoneNumber(), System.currentTimeMillis());
             recordManager.start(fileName);

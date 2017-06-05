@@ -1,13 +1,10 @@
 package com.rena21c.voiceorder.activities;
 
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.GenericTypeIndicator;
@@ -87,7 +84,6 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
     }
 
     private void setGuide() {
-        changeActionBarColorToYellow();
         recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_GUIDE_LAYOUT);
         View recordGuideLayout = activity.getLayoutInflater().inflate(R.layout.layout_component_record_guide, replaceableLayout, false);
         replaceableLayout.replaceChildView(recordGuideLayout);
@@ -120,14 +116,6 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
         }
     }
 
-    public void changeActionBarColorToWhite() {
-        activity.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(activity, android.R.color.white)));
-    }
-
-    public void changeActionBarColorToYellow() {
-        activity.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(activity, R.color.primaryYellow)));
-    }
-
     public void addEmptyOrderToViewPager(String timeStamp) {
         orderViewPagerAdapter.addTimeStamp(timeStamp);
         orderViewPager.setCurrentItem(0);
@@ -155,26 +143,8 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
         }
     }
 
-    public void replaceFailedOrder(String fileName) {
-        String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
-        int position = orderViewPagerAdapter.replaceToFailedOrder(timeStamp);
-        orderViewPager.setCurrentItem(position);
-    }
-
     public void remove(String timeStamp) {
         orderViewPagerAdapter.remove(timeStamp);
-    }
-
-    public void showToastIsUploading() {
-        Toast.makeText(activity, "주문 전송 중입니다. 잠시 후 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
-    }
-
-    public void showToastUploadError() {
-        Toast.makeText(activity, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-    }
-
-    public void showToastWaitingForNetwork() {
-        Toast.makeText(activity, "네트워크 접속이 끊겼습니다. 네트워크 접속을 활성화해주세요", Toast.LENGTH_SHORT).show();
     }
 
     public void setKeepScreenOn() {
