@@ -22,6 +22,7 @@ import com.rena21c.voiceorder.view.DividerItemDecoration;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.adapters.VendorsRecyclerViewAdapter;
 import com.rena21c.voiceorder.view.widgets.RecyclerViewEmptySupport;
+import com.rena21c.voiceorder.view.widgets.TwoButtonDialogFragment;
 import com.rena21c.voiceorder.viewholder.VendorInfoViewHolder;
 
 import java.util.HashMap;
@@ -33,7 +34,8 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 
-public class RecommendActivity extends HasTabActivity {
+@SuppressWarnings("MissingPermission")
+public class RecommendActivity extends HasTabActivity implements TwoButtonDialogFragment.TwoButtonDialogClickListener {
 
     public static final int REQUEST_CHECK_SETTINGS = 0x1;
 
@@ -42,28 +44,30 @@ public class RecommendActivity extends HasTabActivity {
 
     private Retrofit retrofit;
     private ApiService apiService;
+    private AppPreferenceManager appPreferenceManager;
 
     private VendorsRecyclerViewAdapter rvAdapter;
-
     private RecyclerViewEmptySupport rvVendors;
+
     private TextView tvCurrentLocation;
+
+    private TwoButtonDialogFragment beforeCallDialog;
+
+    private String vendorPhonNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recommend);
 
-        final AppPreferenceManager appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
+        appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
 
         rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorInfoViewHolder.CallButtonClickListener() {
-            @SuppressWarnings("MissingPermission")
+
             @Override public void onCallButtonClick(String phoneNumber) {
-
-                appPreferenceManager.setCallTime(phoneNumber, System.currentTimeMillis());
-
-                Intent intent = new Intent(Intent.ACTION_CALL);
-                intent.setData(Uri.parse("tel:" + phoneNumber));
-                startActivity(intent);
+                vendorPhonNumber = phoneNumber;
+                beforeCallDialog = TwoButtonDialogFragment.newInstance("‘거상앱으로 전화드립니다’라고 꼭 말씀해주세요","취소","통화");
+                beforeCallDialog.show(getSupportFragmentManager(),"dialog");
             }
         });
 
@@ -152,5 +156,20 @@ public class RecommendActivity extends HasTabActivity {
 
                 break;
         }
+    }
+
+    @Override public void onClickNegativeButton() {
+        beforeCallDialog.dismiss();
+    }
+
+    @Override public void onClickPositiveButton() {
+        beforeCallDialog.dismiss();
+
+        appPreferenceManager.setCallTime(vendorPhonNumber, System.currentTimeMillis());
+
+        Intent intent = new Intent(Intent.ACTION_CALL);
+        intent.setData(Uri.parse("tel:" + vendorPhonNumber));
+        startActivity(intent);
+
     }
 }

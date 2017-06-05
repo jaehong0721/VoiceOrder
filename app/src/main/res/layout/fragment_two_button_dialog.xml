@@ -1,0 +1,50 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:context="com.rena21c.voiceorder.view.widgets.TwoButtonDialogFragment">
+
+    <RelativeLayout
+        android:id="@+id/message_container"
+        android:layout_width="296dp"
+        android:layout_height="132dp">
+
+        <com.rena21c.voiceorder.view.widgets.CharacterWrapTextView
+            android:id="@+id/tvMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="42dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginRight="37dp"
+            android:layout_marginTop="28dp"
+            android:lineSpacingExtra="9sp"
+            android:textSize="22sp"
+            tools:text="‘거상앱으로 전화드립니다’라고 꼭 말씀해주세요"/>
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/btnNegative"
+        android:layout_width="148dp"
+        android:layout_height="57dp"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/message_container"
+        android:background="#adebebeb"
+        android:lineSpacingExtra="11sp"
+        android:textSize="20sp"
+        tools:text="취소"/>
+
+    <Button
+        android:id="@+id/btnPositive"
+        android:layout_width="148dp"
+        android:layout_height="57dp"
+        android:layout_below="@+id/message_container"
+        android:layout_toEndOf="@id/btnNegative"
+        android:layout_toRightOf="@+id/btnNegative"
+        android:background="@color/primaryYellow"
+        android:lineSpacingExtra="11sp"
+        android:textSize="20sp"
+        tools:text="통화"/>
+
+</RelativeLayout>
