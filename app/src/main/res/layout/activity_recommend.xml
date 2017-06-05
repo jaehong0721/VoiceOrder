@@ -58,9 +58,9 @@
         android:layout_marginTop="56dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="반경 5km 내에 납품업체가\n존재하지 않습니다"
+        android:text="현재 위치로\n 배달 가능한 업체가 없습니다"
         android:textSize="23sp"
         android:layout_gravity="center"
         android:gravity="center"/>
-
+    
 </LinearLayout>
