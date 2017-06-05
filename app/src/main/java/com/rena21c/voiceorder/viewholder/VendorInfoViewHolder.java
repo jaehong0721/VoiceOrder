@@ -11,7 +11,7 @@ import com.rena21c.voiceorder.R;
 public class VendorInfoViewHolder extends RecyclerView.ViewHolder {
 
     public interface CallButtonClickListener {
-        void onCallButtonClick(String phoneNumber);
+        void onCallButtonClick(String phoneNumber, int itemPosition);
     }
 
     private TextView tvVendorName;

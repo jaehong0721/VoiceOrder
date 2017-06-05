@@ -35,7 +35,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
         return new VendorInfoViewHolder(view);
     }
 
-    @Override public void onBindViewHolder(final VendorInfoViewHolder holder, int position) {
+    @Override public void onBindViewHolder(final VendorInfoViewHolder holder, final int position) {
         Vendor vendor = vendors.get(position);
 
         final String phoneNumber = vendor.phoneNumber;
@@ -53,8 +53,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
                 .bindElapsedTimeFromCall(elapsedTime)
                 .setCallButtonClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
-                        callButtonClickListener.onCallButtonClick(phoneNumber);
-                        holder.bindElapsedTimeFromCall("방금전 통화");
+                        callButtonClickListener.onCallButtonClick(phoneNumber, position);
                     }
                 });
     }
