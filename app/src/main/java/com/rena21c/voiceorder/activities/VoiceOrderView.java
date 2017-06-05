@@ -57,7 +57,7 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
 
         orderViewPagerAdapter = new OrderViewPagerAdapter(activity, dbManager, new OrderViewPagerAdapter.ItemCountChangedListener() {
             @Override public void itemCountChange(int count) {
-                viewPagerIndicator.createDot(count);
+                viewPagerIndicator.changeDot(count);
                 if (count == 1) viewPagerIndicator.selectDot(0);
             }
         });
