@@ -52,6 +52,7 @@
             android:screenOrientation="portrait"/>
 
         <activity
+
             android:name=".activities.RecommendActivity"
             android:screenOrientation="portrait"/>
 
@@ -59,6 +60,15 @@
             android:name=".activities.MyPartnerActivity"
             android:screenOrientation="portrait"/>
         
+        <activity
+            android:name=".activities.SearchVendorActivity"
+            android:parentActivityName=".activities.VoiceOrderActivity"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+            </intent-filter>
+        </activity>
+
         <service
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
             android:enabled="true"/>

@@ -13,4 +13,14 @@
     <color name="dividerLine">#14000000</color>
 
     <color name="btnDetailStroke">#33390405</color>
+
+    <!-- 제플린에서 추가 -->
+    <color name="sea">#2d8985</color>
+    <color name="white_80">#ccffffff</color>
+    <color name="butterscotch">#ffc145</color>
+    <color name="purple_brown">#643a3b</color>
+    <color name="dark_maroon">#390405</color>
+    <color name="white">#ffffff</color>
+    <color name="gunmetal">#494b57</color>
+
 </resources>
