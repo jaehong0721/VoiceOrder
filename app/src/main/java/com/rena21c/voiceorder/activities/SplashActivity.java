@@ -2,6 +2,7 @@ package com.rena21c.voiceorder.activities;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -29,6 +30,7 @@ import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.network.NoConnectivityException;
 import com.rena21c.voiceorder.pojo.UserToken;
 import com.rena21c.voiceorder.util.LauncherUtil;
+import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 
 import java.io.File;
@@ -198,8 +200,24 @@ public class SplashActivity extends BaseActivity {
 
 
     private void goToMain() {
-        Intent intent = new Intent(SplashActivity.this, MainActivity.class);
+        String clickedTab = appPreferenceManager.getClickedTab();
+
+        TabActionBar.Tab tab = TabActionBar.Tab.valueOf(clickedTab);
+
+        Intent intent = new Intent();
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        intent.putExtra("tab", clickedTab);
+
+        switch (tab) {
+            case RECOMMEND:
+                intent.setComponent(new ComponentName(SplashActivity.this, RecommendActivity.class));
+                break;
+
+            case VOICE_ORDER:
+                intent.setComponent(new ComponentName(SplashActivity.this, VoiceOrderActivity.class));
+                break;
+        }
+
         startActivity(intent);
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
         finish();

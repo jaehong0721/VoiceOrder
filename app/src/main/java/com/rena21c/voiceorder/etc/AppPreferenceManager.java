@@ -7,6 +7,7 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.google.firebase.crash.FirebaseCrash;
+import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 
 public class AppPreferenceManager {
 
@@ -78,5 +79,29 @@ public class AppPreferenceManager {
             phoneNumber = sharedPreference.getString("phoneNumber", null);
         }
         return phoneNumber;
+    }
+
+    public void setClickedTab(String clickedTab) {
+        sharedPreference
+                .edit()
+                .putString("clickedTabName", clickedTab)
+                .apply();
+    }
+
+    public String getClickedTab() {
+        return sharedPreference
+                .getString("clickedTabName", TabActionBar.Tab.RECOMMEND.toString());
+    }
+
+    public void setCallTime(String vendorPhoneNumber, long callTime) {
+        sharedPreference
+                .edit()
+                .putLong(vendorPhoneNumber, callTime)
+                .apply();
+    }
+
+    public long getCallTime(String vendorPhoneNumber) {
+        return sharedPreference
+                .getLong(vendorPhoneNumber, -1);
     }
 }

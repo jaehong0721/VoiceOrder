@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.rena21c.voiceorder.activities.RecommendActivity">
+
+    <LinearLayout
+        android:id="@+id/llSearch"
+        android:layout_width="match_parent"
+        android:layout_height="46dp"
+        android:background="#f7f7f7"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
+        android:orientation="horizontal"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <android.support.v7.widget.AppCompatAutoCompleteTextView
+            android:id="@+id/actvSearch"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="4"
+            android:background="@null"
+            android:drawableLeft="@drawable/search"
+            android:drawablePadding="8dp"
+            android:gravity="center_vertical"
+            android:hint="품목을 입력하세요"
+            android:paddingBottom="14dp"
+            android:paddingTop="14dp"
+            android:textColorHint="#4d390405"
+            android:inputType="text"
+            android:textSize="@dimen/text_default_size"/>
+
+        <ImageButton
+            android:id="@+id/ibClose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:paddingBottom="14dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="14dp"
+            android:visibility="gone"
+            android:src="@drawable/close"/>
+
+        <TextView
+            android:id="@+id/tvCurrentLocation"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:drawableLeft="@drawable/crosshair"
+            android:gravity="center"
+            android:textSize="@dimen/text_default_size"
+            tools:text="재궁동"/>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dividerLine"/>
+
+    <com.rena21c.voiceorder.view.widgets.RecyclerViewEmptySupport
+        android:id="@+id/rvVendors"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:listitem="@layout/item_vendors"/>
+
+    <TextView
+        android:id="@+id/tvEmptyView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="56dp"
+        android:gravity="center"
+        android:text="현재 위치로\n 배달 가능한 업체가 없습니다"
+        android:textSize="23sp"/>
+
+</LinearLayout>

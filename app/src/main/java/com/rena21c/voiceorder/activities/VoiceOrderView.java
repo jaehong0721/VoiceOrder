@@ -1,13 +1,10 @@
 package com.rena21c.voiceorder.activities;
 
 import android.content.Context;
-import android.graphics.drawable.ColorDrawable;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.GenericTypeIndicator;
@@ -15,7 +12,6 @@ import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.util.FileNameUtil;
-import com.rena21c.voiceorder.view.actionbar.ActionBarOnMain;
 import com.rena21c.voiceorder.view.adapters.OrderViewPagerAdapter;
 import com.rena21c.voiceorder.view.adapters.SimpleViewPagerSelectedListener;
 import com.rena21c.voiceorder.view.components.ReplaceableLayout;
@@ -25,12 +21,12 @@ import com.rena21c.voiceorder.view.widgets.ViewPagerIndicator;
 
 import java.util.HashMap;
 
-public class MainView implements RecordAndStopButton.activateRecorderListener {
+public class VoiceOrderView implements RecordAndStopButton.activateRecorderListener {
 
     public static final int NO_INTERNAL_MEMORY = 0;
     public static final int NO_INTERNET_CONNECT = 1;
 
-    private MainActivity activity;
+    private VoiceOrderActivity activity;
 
     private ReplaceableLayout replaceableLayout;
     private RecordAndStopButton recordAndStopButton;
@@ -41,10 +37,8 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     private ViewPagerIndicator viewPagerIndicator;
     private View viewPager;
 
-    public MainView(MainActivity activity) {
+    public VoiceOrderView(VoiceOrderActivity activity) {
         this.activity = activity;
-
-        ActionBarOnMain.createWithActionBar(activity.getApplicationContext(), activity.getSupportActionBar());
 
         replaceableLayout = (ReplaceableLayout) activity.findViewById(R.id.replaceableLayout);
         recordingLayout = activity.getLayoutInflater().inflate(R.layout.layout_component_recording, replaceableLayout, false);
@@ -53,7 +47,7 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         recordAndStopButton.setListener(this);
     }
 
-    public void initView(boolean shouldShowGuide, FirebaseDbManager dbManager) {
+    public void initView(FirebaseDbManager dbManager) {
 
         LayoutInflater layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         viewPager = layoutInflater.inflate(R.layout.layout_component_order_view_pager, replaceableLayout, false);
@@ -63,7 +57,7 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
 
         orderViewPagerAdapter = new OrderViewPagerAdapter(activity, dbManager, new OrderViewPagerAdapter.ItemCountChangedListener() {
             @Override public void itemCountChange(int count) {
-                viewPagerIndicator.createDot(count);
+                viewPagerIndicator.changeDot(count);
                 if (count == 1) viewPagerIndicator.selectDot(0);
             }
         });
@@ -74,7 +68,9 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
                 viewPagerIndicator.selectDot(position);
             }
         });
+    }
 
+    public void setView(boolean shouldShowGuide) {
         if (shouldShowGuide) {
             setGuide();
         } else {
@@ -88,7 +84,6 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
     }
 
     private void setGuide() {
-        changeActionBarColorToYellow();
         recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_GUIDE_LAYOUT);
         View recordGuideLayout = activity.getLayoutInflater().inflate(R.layout.layout_component_record_guide, replaceableLayout, false);
         replaceableLayout.replaceChildView(recordGuideLayout);
@@ -121,14 +116,6 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         }
     }
 
-    public void changeActionBarColorToWhite() {
-        activity.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(activity, android.R.color.white)));
-    }
-
-    public void changeActionBarColorToYellow() {
-        activity.getSupportActionBar().setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(activity, R.color.primaryYellow)));
-    }
-
     public void addEmptyOrderToViewPager(String timeStamp) {
         orderViewPagerAdapter.addTimeStamp(timeStamp);
         orderViewPager.setCurrentItem(0);
@@ -156,26 +143,8 @@ public class MainView implements RecordAndStopButton.activateRecorderListener {
         }
     }
 
-    public void replaceFailedOrder(String fileName) {
-        String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
-        int position = orderViewPagerAdapter.replaceToFailedOrder(timeStamp);
-        orderViewPager.setCurrentItem(position);
-    }
-
     public void remove(String timeStamp) {
         orderViewPagerAdapter.remove(timeStamp);
-    }
-
-    public void showToastIsUploading() {
-        Toast.makeText(activity, "주문 전송 중입니다. 잠시 후 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
-    }
-
-    public void showToastUploadError() {
-        Toast.makeText(activity, "파일 업로드시 오류가 발생했습니다.", Toast.LENGTH_SHORT).show();
-    }
-
-    public void showToastWaitingForNetwork() {
-        Toast.makeText(activity, "네트워크 접속이 끊겼습니다. 네트워크 접속을 활성화해주세요", Toast.LENGTH_SHORT).show();
     }
 
     public void setKeepScreenOn() {

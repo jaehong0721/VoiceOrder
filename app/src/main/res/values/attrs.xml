@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="UnderLineButton">
+        <attr name="text" format="reference|string" />
+        <attr name="selectedImage" format="reference" />
+        <attr name="unselectedImage" format="reference" />
+        <attr name="selectedColor" format="color" />
+        <attr name="unselectedColor" format="color" />
+    </declare-styleable>
+
+</resources>

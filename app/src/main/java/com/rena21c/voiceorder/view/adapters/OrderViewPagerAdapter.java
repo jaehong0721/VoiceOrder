@@ -118,9 +118,9 @@ public class OrderViewPagerAdapter extends PagerAdapter {
     public void remove(String timeStamp) {
         int position = getPosition(timeStamp);
         timeStampList.remove(position);
-        itemCountChangedListener.itemCountChange(timeStampList.size());
 
         notifyDataSetChanged();
+        itemCountChangedListener.itemCountChange(timeStampList.size());
     }
 
 

@@ -24,8 +24,14 @@ public class ViewPagerIndicator extends RelativeLayout {
         this.dots = new ArrayList<>();
     }
 
-    // TODO: Dot 추가 되는 부분 수정, (삭제 되는 경우가 고려되지 않았음)
-    public void createDot(int count) {
+    public void changeDot(int count) {
+
+        if(count < dots.size()) {
+            removeView(findViewById(dots.size()));
+            dots.remove(dots.size()-1);
+            return;
+        }
+
         for (int i = dots.size(); i < count; i++) {
 
             View dot = new View(context);

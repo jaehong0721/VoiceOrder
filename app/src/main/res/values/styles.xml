@@ -11,6 +11,8 @@
         <item name="colorControlHighlight">@color/primaryYellow</item>
 
         <item name="android:textColor">@color/primaryBrown</item>
+        
+        <item name="android:windowAnimationStyle">@null</item>
     </style>
 
     <style name="MainTheme" parent="VoiceOrderTheme">
