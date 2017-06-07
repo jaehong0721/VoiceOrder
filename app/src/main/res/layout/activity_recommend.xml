@@ -8,15 +8,18 @@
     tools:context="com.rena21c.voiceorder.activities.RecommendActivity">
 
     <LinearLayout
+        android:id="@+id/llSearch"
         android:layout_width="match_parent"
         android:layout_height="46dp"
         android:background="#f7f7f7"
+        android:focusable="true"
+        android:focusableInTouchMode="true"
         android:orientation="horizontal"
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
 
-        <Button
-            android:id="@+id/btnSearch"
+        <android.support.v7.widget.AppCompatAutoCompleteTextView
+            android:id="@+id/actvSearch"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
@@ -24,11 +27,24 @@
             android:drawableLeft="@drawable/search"
             android:drawablePadding="8dp"
             android:gravity="center_vertical"
+            android:hint="품목을 입력하세요"
             android:paddingBottom="14dp"
             android:paddingTop="14dp"
-            android:text="품목을 입력하세요"
-            android:textColor="#4d390405"
+            android:textColorHint="#4d390405"
+            android:inputType="text"
             android:textSize="@dimen/text_default_size"/>
+
+        <ImageButton
+            android:id="@+id/ibClose"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@null"
+            android:paddingBottom="14dp"
+            android:paddingLeft="8dp"
+            android:paddingRight="8dp"
+            android:paddingTop="14dp"
+            android:visibility="gone"
+            android:src="@drawable/close"/>
 
         <TextView
             android:id="@+id/tvCurrentLocation"
@@ -55,12 +71,12 @@
 
     <TextView
         android:id="@+id/tvEmptyView"
-        android:layout_marginTop="56dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="현재 위치로\n 배달 가능한 업체가 없습니다"
-        android:textSize="23sp"
         android:layout_gravity="center"
-        android:gravity="center"/>
-    
+        android:layout_marginTop="56dp"
+        android:gravity="center"
+        android:text="현재 위치로\n 배달 가능한 업체가 없습니다"
+        android:textSize="23sp"/>
+
 </LinearLayout>

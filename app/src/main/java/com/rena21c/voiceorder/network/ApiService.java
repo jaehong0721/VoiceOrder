@@ -19,5 +19,5 @@ public interface ApiService {
     Call<UserToken> getToken(@Query("phoneNumber") String phoneNumber);
 
     @POST("/vendor/getNearbyVendors")
-    Call<List<Vendor>> getNearbyVendors(@Body HashMap<String, Double> bodyMap);
+    Call<List<Vendor>> getNearbyVendors(@Body HashMap<String, Object> bodyMap);
 }
