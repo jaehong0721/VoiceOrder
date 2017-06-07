@@ -84,7 +84,7 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
         }
 
         isTrackingLocation = true;
-
+        Log.d("test:", "startLocationUpdates");
         LocationServices.SettingsApi.checkLocationSettings(
                 googleApiClient,
                 locationSettingsRequest
@@ -97,10 +97,10 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
                 switch (status.getStatusCode()) {
 
                     case LocationSettingsStatusCodes.SUCCESS:
-
+                        Log.d("test", "locationSettingsRequest success");
                         LocationServices.FusedLocationApi.requestLocationUpdates(
                                 googleApiClient, locationRequest, LocationManager.this);
-
+                        Log.d("test", "start location update");
                         break;
 
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
@@ -139,15 +139,15 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
     }
 
     @Override public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-        Log.d("LocationService", "Connection failed");
+        Log.d("test:", "Connection failed");
     }
 
     @Override public void onConnectionSuspended(int i) {
-        Log.d("LocationService", "Connection suspended");
+        Log.d("test:", "Connection suspended");
     }
 
     @Override public void onLocationChanged(Location location) {
-
+        Log.d("test:", "finish location update");
         if (currentLocation == null || getDistance(currentLocation, location) > SMALLEST_DISPLACEMENT_METERS) {
             currentLocation = location;
             String locality = getLocalityFrom(currentLocation.getLatitude(), currentLocation.getLongitude());
@@ -156,6 +156,7 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
     }
 
     public void stopLocationUpdates() {
+        Log.d("test:", "stopLocationUpdates");
         isTrackingLocation = false;
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
     }
