@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/primaryYellow">
+
+    <TextView
+        android:id="@+id/instruction1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="120dp"
+        android:gravity="center_horizontal"
+        android:lineSpacingExtra="11sp"
+        android:text="사장님이 거래하시던\n거래처를 등록해주세요!"
+        android:textColor="@color/dark_maroon"
+        android:textSize="29sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/instruction2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/instruction1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="7dp"
+        android:gravity="center_horizontal"
+        android:lineSpacingExtra="8sp"
+        android:text="거래처만 모아 볼 수도 있고, 음성주문시 배송\n관리도 쉽고 편리해집니다"
+        android:textColor="@color/dark_maroon"
+        android:textSize="15sp"/>
+
+    <Button
+        android:id="@+id/btnAddFromContact"
+        android:layout_width="310dp"
+        android:layout_height="50dp"
+        android:layout_below="@+id/instruction2"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="33dp"
+        android:background="@color/primaryBrown"
+        android:text="내 연락처에서 추가"
+        android:textColor="@color/white"
+        android:textSize="16sp"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/illustration"/>
+</RelativeLayout>
