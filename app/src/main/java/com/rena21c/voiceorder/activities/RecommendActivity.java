@@ -12,12 +12,12 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
+import com.google.firebase.crash.FirebaseCrash;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
@@ -149,7 +149,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
             }
 
             @Override public void onLocationUpdated(double latitude, double longitude, String locality) {
-                Log.d("LocationService,activit", latitude + " , " + longitude);
+                Log.d("test:", "recommend activity - latitude : " + latitude + "longitude :" + longitude);
                 located = true;
 
                 tvCurrentLocation.setText(locality);
@@ -188,32 +188,35 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                     }
 
                     @Override public void onFailure(Call<List<Vendor>> call, Throwable t) {
-                        Log.d("LocationService", t.toString());
+                        Log.d("test", t.toString());
                     }
                 });
     }
 
     @Override protected void onStart() {
-        Log.d("LocationService", "onStart");
+        Log.d("test:", "onStart");
         locationManager.connectGoogleApiClient();
         super.onStart();
     }
 
     @Override protected void onResume() {
-        Log.d("LocationService", "onResume");
+        Log.d("test:", "onResume");
         locationManager.startLocationUpdates();
         super.onResume();
     }
 
     @Override protected void onPause() {
-        Log.d("LocationService", "onPause");
+        Log.d("test:", "onPause");
         locationManager.stopLocationUpdates();
         super.onPause();
     }
 
     @Override protected void onStop() {
-        Log.d("LocationService", "onStop");
-        locationManager.disconnectGoogleApiClient();
+        Log.d("test:", "onStop");
+        try {
+            locationManager.disconnectGoogleApiClient();
+        } catch (IllegalStateException e) { FirebaseCrash.report(e); }
+
         super.onStop();
     }
 

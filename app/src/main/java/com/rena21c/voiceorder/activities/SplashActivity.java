@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -75,6 +76,11 @@ public class SplashActivity extends BaseActivity {
         if (appPreferenceManager.getLauncherIconCreated()) {
             LauncherUtil.addLauncherIconToHomeScreen(this, getClass());
             appPreferenceManager.setLauncherIconCreated();
+        }
+
+        //식당 녹음 파일 삭제 테스트용 로그 - 지우지 말 것
+        for(String fileName: getFilesDir().list()){
+        Log.d("test", "file: " + fileName);
         }
 
         deleteRecordedFile();
