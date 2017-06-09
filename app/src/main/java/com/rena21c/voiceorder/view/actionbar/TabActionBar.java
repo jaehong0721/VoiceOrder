@@ -13,7 +13,8 @@ public class TabActionBar implements ActionBarInterface, View.OnClickListener {
 
     public enum Tab {
         RECOMMEND(R.id.btnRecommend),
-        VOICE_ORDER(R.id.btnVoiceOrder);
+        VOICE_ORDER(R.id.btnVoiceOrder),
+        MY_PARTNER(R.id.btnMyPartner);
 
         public int viewIdOfTab;
 
@@ -31,9 +32,10 @@ public class TabActionBar implements ActionBarInterface, View.OnClickListener {
 
     private UnderLineButton btnRecommend;
     private UnderLineButton btnVoiceOrder;
+    private UnderLineButton btnMyPartner;
 
     public interface TabClickListener {
-        void OnTabClicked(Tab tab);
+        void onTabClicked(Tab tab);
     }
 
     @Override public void setUp() {
@@ -47,12 +49,15 @@ public class TabActionBar implements ActionBarInterface, View.OnClickListener {
 
         btnRecommend = (UnderLineButton) tabView.findViewById(R.id.btnRecommend);
         btnVoiceOrder = (UnderLineButton) tabView.findViewById(R.id.btnVoiceOrder);
+        btnMyPartner = (UnderLineButton) tabView.findViewById(R.id.btnMyPartner);
 
         btnRecommend.setSelected(false);
         btnVoiceOrder.setSelected(false);
+        btnMyPartner.setSelected(false);
 
         btnRecommend.setOnClickListener(this);
         btnVoiceOrder.setOnClickListener(this);
+        btnMyPartner.setOnClickListener(this);
     }
 
     private TabActionBar(Context context, ActionBar actionBar) {
@@ -87,13 +92,17 @@ public class TabActionBar implements ActionBarInterface, View.OnClickListener {
 
             case R.id.btnRecommend:
                 App.getApplication(context).getPreferenceManager().setClickedTab(Tab.RECOMMEND.toString());
-                listener.OnTabClicked(Tab.RECOMMEND);
+                listener.onTabClicked(Tab.RECOMMEND);
                 break;
 
             case R.id.btnVoiceOrder:
                 App.getApplication(context).getPreferenceManager().setClickedTab(Tab.VOICE_ORDER.toString());
-                listener.OnTabClicked(Tab.VOICE_ORDER);
+                listener.onTabClicked(Tab.VOICE_ORDER);
                 break;
+
+            case R.id.btnMyPartner:
+                App.getApplication(context).getPreferenceManager().setClickedTab(Tab.MY_PARTNER.toString());
+                listener.onTabClicked(Tab.MY_PARTNER);
         }
     }
 }

@@ -26,7 +26,7 @@ public class HasTabActivity extends AppCompatActivity {
         super.onStart();
 
         tabActionBar.setTabClickListener(new TabActionBar.TabClickListener() {
-            @Override public void OnTabClicked(TabActionBar.Tab tab) {
+            @Override public void onTabClicked(TabActionBar.Tab tab) {
 
                 Intent intent = new Intent();
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -43,6 +43,10 @@ public class HasTabActivity extends AppCompatActivity {
                     case VOICE_ORDER:
                         Log.d("HasTabActivity", "주문탭");
                         intent.setComponent(new ComponentName(HasTabActivity.this, VoiceOrderActivity.class));
+                        break;
+
+                    case MY_PARTNER:
+                        intent.setComponent(new ComponentName(HasTabActivity.this, MyPartnerActivity.class));
                         break;
                 }
 
