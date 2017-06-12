@@ -10,42 +10,42 @@ import android.widget.TextView;
 
 import com.rena21c.voiceorder.R;
 
-public class ActionBarOnDetail implements ActionBarInterface{
+public class NavigateBackActionBar implements ActionBarInterface{
 
     private Context context;
     private ActionBar actionBar;
 
     private ImageView ibBack;
-    private TextView tvTimeStampInActionBar;
+    private TextView tvTitle;
 
     @Override public void setUp() {
         actionBar.setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
-        actionBar.setCustomView(R.layout.action_bar_on_detail);
+        actionBar.setCustomView(R.layout.action_bar_navigate_back);
         actionBar.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(context,android.R.color.white)));
 
         View view = actionBar.getCustomView();
         ibBack = (ImageView)view.findViewById(R.id.ibBack);
-        tvTimeStampInActionBar = (TextView) view.findViewById(R.id.tvTimeStampInActionBar);
+        tvTitle = (TextView) view.findViewById(R.id.tvTitleInActionBar);
     }
 
-    private ActionBarOnDetail(Context context, ActionBar actionBar) {
+    private NavigateBackActionBar(Context context, ActionBar actionBar) {
         this.context = context;
         this.actionBar = actionBar;
     }
 
-    public static ActionBarOnDetail createWithActionBar(Context context, ActionBar supportActionBar) {
-        ActionBarOnDetail instance = new ActionBarOnDetail(context, supportActionBar);
+    public static NavigateBackActionBar createWithActionBar(Context context, ActionBar supportActionBar) {
+        NavigateBackActionBar instance = new NavigateBackActionBar(context, supportActionBar);
         instance.setUp();
         return instance;
     }
 
-    public ActionBarOnDetail setBackButtonClickListener(View.OnClickListener backButtonClickListener) {
+    public NavigateBackActionBar setBackButtonClickListener(View.OnClickListener backButtonClickListener) {
         ibBack.setOnClickListener(backButtonClickListener);
         return this;
     }
 
-    public ActionBarOnDetail setTimeStamp(String timeStamp) {
-        tvTimeStampInActionBar.setText(timeStamp);
+    public NavigateBackActionBar setTitle(String timeStamp) {
+        tvTitle.setText(timeStamp);
         return this;
     }
 
