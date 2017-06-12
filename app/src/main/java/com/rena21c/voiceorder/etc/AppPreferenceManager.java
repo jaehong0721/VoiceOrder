@@ -7,7 +7,13 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 
 import com.google.firebase.crash.FirebaseCrash;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import com.rena21c.voiceorder.util.Container;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class AppPreferenceManager {
 
@@ -94,14 +100,54 @@ public class AppPreferenceManager {
     }
 
     public void setCallTime(String vendorPhoneNumber, long callTime) {
-        sharedPreference
-                .edit()
-                .putLong(vendorPhoneNumber, callTime)
-                .apply();
+        Container<Map<String,Long>> callTimeMapContainer = getCallTimeMapContainer();
+
+        if(callTimeMapContainer == null) {
+            callTimeMapContainer = createCallTimeMapContainer();
+        }
+
+        callTimeMapContainer.getObject().put(vendorPhoneNumber, callTime);
+        setCallTimeMapContainer(callTimeMapContainer);
     }
 
     public long getCallTime(String vendorPhoneNumber) {
-        return sharedPreference
-                .getLong(vendorPhoneNumber, -1);
+        Container<Map<String,Long>> callTimeMapContainer = getCallTimeMapContainer();
+
+        if(callTimeMapContainer == null) return -1;
+
+        Long callTime = callTimeMapContainer.getObject().get(vendorPhoneNumber);
+
+        return callTime == null ? -1 : callTime;
+    }
+
+    public Map<String,Long> getAllCallTime() {
+        return getCallTimeMapContainer() == null ? null : getCallTimeMapContainer().getObject();
+    }
+
+    private Container<Map<String,Long>> getCallTimeMapContainer() {
+        Gson gson = new Gson();
+        String serializedMap = sharedPreference.getString("callTimeMap", null);
+        if(serializedMap != null) {
+            return gson.fromJson(serializedMap, new TypeToken<Container<Map<String,Long>>>(){}.getType());
+        }
+        return null;
+    }
+
+    private Container<Map<String,Long>> createCallTimeMapContainer() {
+        Map<String, Long> callTimeHistoryMap = new HashMap<>();
+        Container<Map<String, Long>> mapContainer = new Container<>();
+        mapContainer.setObject(callTimeHistoryMap);
+
+        return mapContainer;
+    }
+
+    private void setCallTimeMapContainer(Container<Map<String,Long>> mapContainer) {
+        Gson gson = new Gson();
+        String serializedMap = gson.toJson(mapContainer);
+
+        sharedPreference
+                .edit()
+                .putString("callTimeMap", serializedMap)
+                .apply();
     }
 }
