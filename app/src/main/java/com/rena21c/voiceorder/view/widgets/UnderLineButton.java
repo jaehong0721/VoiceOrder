@@ -29,7 +29,7 @@ public class UnderLineButton extends LinearLayout {
     }
 
     public UnderLineButton(Context context, @Nullable AttributeSet attrs) {
-        super(context, attrs, 0);
+        super(context, attrs);
 
         inflate(context, R.layout.widget_underline_button, this);
         ivImage = (ImageView) findViewById(R.id.ivImage);
