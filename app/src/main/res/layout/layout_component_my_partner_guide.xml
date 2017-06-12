@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
                 android:background="@color/primaryYellow">
 
     <TextView
@@ -30,17 +31,17 @@
         android:textColor="@color/dark_maroon"
         android:textSize="15sp"/>
 
-    <Button
-        android:id="@+id/btnAddFromContact"
+    <com.rena21c.voiceorder.view.widgets.AddPartnerButton
+        android:id="@+id/btnAddPartner"
         android:layout_width="310dp"
         android:layout_height="50dp"
         android:layout_below="@+id/instruction2"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="33dp"
-        android:background="@color/primaryBrown"
-        android:text="내 연락처에서 추가"
-        android:textColor="@color/white"
-        android:textSize="16sp"/>
+        app:background="@color/primaryBrown"
+        app:text="내 연락처에서 추가"
+        app:textSize="16"
+        app:textColor="@color/white"/>
 
     <ImageView
         android:layout_width="match_parent"

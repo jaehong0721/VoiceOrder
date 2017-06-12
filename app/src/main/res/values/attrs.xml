@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+    <attr name="text" format="string"/>
+    <attr name="textColor" format="color" />
+    <attr name="textSize" format="float" />
+    <attr name="background" format="reference" />
+
     <declare-styleable name="UnderLineButton">
-        <attr name="text" format="reference|string" />
+        <attr name="text" />
         <attr name="selectedImage" format="reference" />
         <attr name="unselectedImage" format="reference" />
         <attr name="selectedColor" format="color" />
         <attr name="unselectedColor" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="AddPartnerButton">
+        <attr name="text" />
+        <attr name="textSize" />
+        <attr name="textColor" />
+        <attr name="background" />
     </declare-styleable>
 
 </resources>
