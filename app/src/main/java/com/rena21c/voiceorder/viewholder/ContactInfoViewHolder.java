@@ -11,10 +11,16 @@ import com.rena21c.voiceorder.model.Contact;
 
 public class ContactInfoViewHolder extends RecyclerView.ViewHolder{
 
+    public interface CheckContactListener {
+        void onCheck(Contact contact);
+    }
+
+    private Contact contact;
+
     private TextView tvNameOnContact;
     private ImageView ivCheckMark;
 
-    public ContactInfoViewHolder(final View itemView) {
+    public ContactInfoViewHolder(final View itemView, final CheckContactListener listener) {
         super(itemView);
 
         tvNameOnContact = (TextView) itemView.findViewById(R.id.tvNameOnContact);
@@ -23,12 +29,13 @@ public class ContactInfoViewHolder extends RecyclerView.ViewHolder{
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 ivCheckMark.setSelected(!ivCheckMark.isSelected());
+                listener.onCheck(contact);
             }
         });
     }
 
     public void bind(Contact contact) {
-
+        this.contact = contact;
         tvNameOnContact.setText(contact.name);
 
         if(contact.isChecked) {

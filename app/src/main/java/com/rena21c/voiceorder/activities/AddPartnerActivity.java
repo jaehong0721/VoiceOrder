@@ -22,9 +22,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class AddPartnerActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class AddPartnerActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>, ContactInfoViewHolder.CheckContactListener{
 
     private Uri contactUri;
+
+    private HashMap<String, String> checkedContactMap;
 
     private ContactsRecyclerViewAdapter contactsAdapter;
 
@@ -44,8 +46,10 @@ public class AddPartnerActivity extends BaseActivity implements LoaderManager.Lo
                 })
                 .setTitle("거래처 등록");
 
+        checkedContactMap = new HashMap<>();
+
         rvContacts = (RecyclerView) findViewById(R.id.rvContacts);
-        contactsAdapter = new ContactsRecyclerViewAdapter();
+        contactsAdapter = new ContactsRecyclerViewAdapter(this);
 
         rvContacts.setLayoutManager(new LinearLayoutManager(this));
         rvContacts.addItemDecoration(new DividerItemDecoration(getApplicationContext(), R.drawable.shape_divider_recycler_view));
@@ -122,4 +126,13 @@ public class AddPartnerActivity extends BaseActivity implements LoaderManager.Lo
 
     @Override public void onLoaderReset(Loader loader) {}
 
+    @Override public void onCheck(Contact contact) {
+        contact.isChecked = !contact.isChecked;
+
+        if(contact.isChecked) {
+            checkedContactMap.put(contact.phoneNumber, contact.name);
+        } else {
+            checkedContactMap.remove(contact.phoneNumber);
+        }
+    }
 }

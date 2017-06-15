@@ -14,11 +14,17 @@ import java.util.ArrayList;
 
 public class ContactsRecyclerViewAdapter extends RecyclerView.Adapter<ContactInfoViewHolder> {
 
+    private ContactInfoViewHolder.CheckContactListener listener;
+
     private ArrayList<Contact> contacts = new ArrayList<>();
+
+    public ContactsRecyclerViewAdapter(ContactInfoViewHolder.CheckContactListener listener) {
+        this.listener = listener;
+    }
 
     @Override public ContactInfoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_contacts, parent, false);
-        return new ContactInfoViewHolder(view);
+        return new ContactInfoViewHolder(view, listener);
     }
 
     @Override public void onBindViewHolder(ContactInfoViewHolder holder, int position) {
