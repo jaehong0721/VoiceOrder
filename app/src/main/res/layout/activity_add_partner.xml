@@ -34,8 +34,14 @@
             android:textSize="@dimen/text_default_size"/>
     </LinearLayout>
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_below="@+id/search_layout"
+        android:background="@color/dividerLine"/>
+
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/rvPartners"
+        android:id="@+id/rvContacts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/btnRegister"

@@ -7,19 +7,28 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.util.Log;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.model.Contact;
+import com.rena21c.voiceorder.view.DividerItemDecoration;
 import com.rena21c.voiceorder.view.actionbar.NavigateBackActionBar;
+import com.rena21c.voiceorder.view.adapters.ContactsRecyclerViewAdapter;
+import com.rena21c.voiceorder.viewholder.ContactInfoViewHolder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 
-public class AddPartnerActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor>{
+public class AddPartnerActivity extends BaseActivity implements LoaderManager.LoaderCallbacks<Cursor> {
 
     private Uri contactUri;
+
+    private ContactsRecyclerViewAdapter contactsAdapter;
+
+    private RecyclerView rvContacts;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +43,13 @@ public class AddPartnerActivity extends BaseActivity implements LoaderManager.Lo
                     }
                 })
                 .setTitle("거래처 등록");
+
+        rvContacts = (RecyclerView) findViewById(R.id.rvContacts);
+        contactsAdapter = new ContactsRecyclerViewAdapter();
+
+        rvContacts.setLayoutManager(new LinearLayoutManager(this));
+        rvContacts.addItemDecoration(new DividerItemDecoration(getApplicationContext(), R.drawable.shape_divider_recycler_view));
+        rvContacts.setAdapter(contactsAdapter);
     }
 
     @Override protected void onStart() {
@@ -52,8 +68,8 @@ public class AddPartnerActivity extends BaseActivity implements LoaderManager.Lo
         String[] projection =
                 {
                         ContactsContract.Contacts.Entity.RAW_CONTACT_ID,
-                        ContactsContract.Contacts.Entity.DATA1,
                         ContactsContract.Contacts.Entity.MIMETYPE,
+                        ContactsContract.Contacts.Entity.DATA1
                 };
 
         String selection = "(" + ContactsContract.Contacts.Entity.MIMETYPE + " = " + "'" + ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE + "'" + " OR "
@@ -80,7 +96,7 @@ public class AddPartnerActivity extends BaseActivity implements LoaderManager.Lo
         do{
             int lastIndex = contacts.size() - 1;
 
-            if(cursor.getString(2).equals(ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)) {
+            if(cursor.getString(1).equals(ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)) {
 
                 if(contacts.size() != 0 && contacts.get(lastIndex).phoneNumber == null)
                     contacts.remove(lastIndex);
@@ -88,24 +104,22 @@ public class AddPartnerActivity extends BaseActivity implements LoaderManager.Lo
                 id = cursor.getString(0);
 
                 Contact contact = new Contact();
-                contact.name = cursor.getString(1);
+                contact.name = cursor.getString(2);
                 contacts.add(contact);
             }
 
-            if(cursor.getString(2).equals(ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)) {
+            if(cursor.getString(1).equals(ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)) {
 
                 if(cursor.getString(0).equals(id))
-                    contacts.get(lastIndex).phoneNumber = cursor.getString(1);
+                    contacts.get(lastIndex).phoneNumber = cursor.getString(2);
             }
 
         } while(cursor.moveToNext());
 
+        contactsAdapter.setContacts(contacts);
 
-        for(Contact c : contacts) {
-            Log.d("test", "폰번호 : " + c.phoneNumber);
-            Log.d("test", "이름 : " + c.name);
-        }
     }
 
     @Override public void onLoaderReset(Loader loader) {}
+
 }
