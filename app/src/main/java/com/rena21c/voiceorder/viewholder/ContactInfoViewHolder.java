@@ -20,11 +20,21 @@ public class ContactInfoViewHolder extends RecyclerView.ViewHolder{
         tvNameOnContact = (TextView) itemView.findViewById(R.id.tvNameOnContact);
         ivCheckMark = (ImageView) itemView.findViewById(R.id.ivCheckMark);
 
+        itemView.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                ivCheckMark.setSelected(!ivCheckMark.isSelected());
+            }
+        });
     }
 
     public void bind(Contact contact) {
 
         tvNameOnContact.setText(contact.name);
-        
+
+        if(contact.isChecked) {
+            ivCheckMark.setSelected(true);
+        } else {
+            ivCheckMark.setSelected(false);
+        }
     }
 }
