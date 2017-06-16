@@ -78,18 +78,18 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
             checkedContactMap.put(contact.phoneNumber, contact.name);
 
             if(checkedContactMap.size() == 1) {
-                Animation longHeightAni = new ShowHeightChangeAnimation(btnRegister, DpToPxConverter.convertDpToPx(54,getResources().getDisplayMetrics()));
-                longHeightAni.setDuration(200);
-                btnRegister.startAnimation(longHeightAni);
+                Animation heightChangeAnimation = new ShowHeightChangeAnimation(btnRegister, DpToPxConverter.convertDpToPx(54,getResources().getDisplayMetrics()));
+                heightChangeAnimation.setDuration(200);
+                btnRegister.startAnimation(heightChangeAnimation);
             }
 
         } else {
             checkedContactMap.remove(contact.phoneNumber);
 
             if(checkedContactMap.size() == 0) {
-                Animation longHeightAni = new ShowHeightChangeAnimation(btnRegister, 0);
-                longHeightAni.setDuration(200);
-                btnRegister.startAnimation(longHeightAni);
+                Animation heightChangeAnimation = new ShowHeightChangeAnimation(btnRegister, 0);
+                heightChangeAnimation.setDuration(200);
+                btnRegister.startAnimation(heightChangeAnimation);
             }
         }
     }
