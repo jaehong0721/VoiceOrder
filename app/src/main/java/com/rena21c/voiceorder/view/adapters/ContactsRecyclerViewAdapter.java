@@ -16,10 +16,11 @@ public class ContactsRecyclerViewAdapter extends RecyclerView.Adapter<ContactInf
 
     private ContactInfoViewHolder.CheckContactListener listener;
 
-    private ArrayList<Contact> contacts = new ArrayList<>();
+    private ArrayList<Contact> contacts;
 
     public ContactsRecyclerViewAdapter(ContactInfoViewHolder.CheckContactListener listener) {
         this.listener = listener;
+        contacts = new ArrayList<>();
     }
 
     @Override public ContactInfoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

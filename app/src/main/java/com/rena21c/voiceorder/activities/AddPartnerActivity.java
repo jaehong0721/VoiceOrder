@@ -7,7 +7,9 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.widget.Button;
 
+import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.model.Contact;
 import com.rena21c.voiceorder.util.ContactsLoader;
 import com.rena21c.voiceorder.util.DpToPxConverter;
@@ -26,12 +28,16 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
 
     private ContactsLoader contactsLoader;
 
+    private AppPreferenceManager appPreferenceManager;
+
     private HashMap<String, String> checkedContactMap;
 
     private ContactsRecyclerViewAdapter contactsAdapter;
 
     private RecyclerView rvContacts;
     private Button btnRegister;
+
+    private boolean isInitialAdd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +56,10 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
         contactsLoader = new ContactsLoader(getLoaderManager(), getApplicationContext());
         contactsLoader.setLoadFinishedListener(this);
 
-        checkedContactMap = new HashMap<>();
+        appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
+
+        checkedContactMap = appPreferenceManager.getMyPartners();
+        isInitialAdd = checkedContactMap.size() == 0;
 
         rvContacts = (RecyclerView) findViewById(R.id.rvContacts);
         contactsAdapter = new ContactsRecyclerViewAdapter(this);
@@ -60,6 +69,12 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
         rvContacts.setAdapter(contactsAdapter);
 
         btnRegister = (Button) findViewById(R.id.btnRegister);
+        btnRegister.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                appPreferenceManager.setMyPartners(checkedContactMap);
+                finish();
+            }
+        });
     }
 
     @Override protected void onStart() {
@@ -68,7 +83,11 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
     }
 
     @Override public void onLoadFinished(ArrayList<Contact> contacts) {
-        contactsAdapter.setContacts(contacts);
+        if(checkedContactMap.size() != 0) {
+            contactsAdapter.setContacts(sortByIsChecked(contacts));
+        } else {
+            contactsAdapter.setContacts(contacts);
+        }
     }
 
     @Override public void onCheck(Contact contact) {
@@ -76,23 +95,39 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
 
         if(contact.isChecked) {
             checkedContactMap.put(contact.phoneNumber, contact.name);
-
-            if(checkedContactMap.size() == 1) {
-                Animation heightChangeAnimation = new ShowHeightChangeAnimation(btnRegister, DpToPxConverter.convertDpToPx(54, getResources().getDisplayMetrics()));
-                heightChangeAnimation.setDuration(200);
-                btnRegister.startAnimation(heightChangeAnimation);
-            }
-
         } else {
             checkedContactMap.remove(contact.phoneNumber);
-
-            if(checkedContactMap.size() == 0) {
-                Animation heightChangeAnimation = new ShowHeightChangeAnimation(btnRegister, 0);
-                heightChangeAnimation.setDuration(200);
-                btnRegister.startAnimation(heightChangeAnimation);
-            }
         }
 
-        if(checkedContactMap.size() != 0) btnRegister.setText("거래처로 등록" + " (" + checkedContactMap.size() + ")");
+        showBtnRegister();
+    }
+
+    private ArrayList<Contact> sortByIsChecked(ArrayList<Contact> contacts) {
+        ArrayList<Contact> sortedContacts = new ArrayList<>();
+        int i = 0;
+
+        for (Contact contact : contacts) {
+            if (checkedContactMap.containsKey(contact.phoneNumber)) {
+                contact.isChecked = true;
+                sortedContacts.add(i, contact);
+                i += 1;
+            } else {
+                sortedContacts.add(contact);
+            }
+        }
+        return sortedContacts;
+    }
+
+    private void showBtnRegister() {
+        if(btnRegister.getHeight() == 0) {
+            Animation heightChangeAnimation = new ShowHeightChangeAnimation(btnRegister, DpToPxConverter.convertDpToPx(54, getResources().getDisplayMetrics()));
+            heightChangeAnimation.setDuration(200);
+            btnRegister.startAnimation(heightChangeAnimation);
+        }
+        if(checkedContactMap.size() != 0) {
+            btnRegister.setText("거래처로 등록" + " (" + checkedContactMap.size() + ")");
+        } else {
+            btnRegister.setText(isInitialAdd ? "취소" : "모든 거래처 삭제");
+        }
     }
 }

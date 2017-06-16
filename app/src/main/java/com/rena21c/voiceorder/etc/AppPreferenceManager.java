@@ -100,18 +100,25 @@ public class AppPreferenceManager {
     }
 
     public void setCallTime(String vendorPhoneNumber, long callTime) {
-        Container<Map<String,Long>> callTimeMapContainer = getCallTimeMapContainer();
+
+        TypeToken<Container<HashMap<String,Long>>> callTimeMapTypeToken = new TypeToken<Container<HashMap<String,Long>>>(){};
+
+        Container<HashMap<String,Long>> callTimeMapContainer = getMapContainer("callTimeMapContainer", callTimeMapTypeToken);
 
         if(callTimeMapContainer == null) {
-            callTimeMapContainer = createCallTimeMapContainer();
+            callTimeMapContainer = new Container<>();
+            callTimeMapContainer.setObject(new HashMap<String, Long>());
         }
 
         callTimeMapContainer.getObject().put(vendorPhoneNumber, callTime);
-        setCallTimeMapContainer(callTimeMapContainer);
+        setMapContainer("callTimeMapContainer", callTimeMapContainer);
     }
 
     public long getCallTime(String vendorPhoneNumber) {
-        Container<Map<String,Long>> callTimeMapContainer = getCallTimeMapContainer();
+
+        TypeToken<Container<HashMap<String,Long>>> callTimeMapTypeToken = new TypeToken<Container<HashMap<String,Long>>>(){};
+
+        Container<HashMap<String,Long>> callTimeMapContainer = getMapContainer("callTimeMapContainer", callTimeMapTypeToken);
 
         if(callTimeMapContainer == null) return -1;
 
@@ -120,34 +127,53 @@ public class AppPreferenceManager {
         return callTime == null ? -1 : callTime;
     }
 
-    public Map<String,Long> getAllCallTime() {
-        return getCallTimeMapContainer() == null ? null : getCallTimeMapContainer().getObject();
+    public HashMap<String,Long> getAllCallTime() {
+
+        TypeToken<Container<HashMap<String,Long>>> callTimeMapTypeToken = new TypeToken<Container<HashMap<String,Long>>>(){};
+
+        Container<HashMap<String,Long>> callTimeMapContainer = getMapContainer("callTimeMapContainer", callTimeMapTypeToken);
+        return callTimeMapContainer == null ? null : callTimeMapContainer.getObject();
     }
 
-    private Container<Map<String,Long>> getCallTimeMapContainer() {
+    public void setMyPartners(HashMap<String, String> checkedContactMap) {
+
+        TypeToken<Container<HashMap<String,String>>> myPartnerMapTypeToken = new TypeToken<Container<HashMap<String,String>>>(){};
+
+        Container<HashMap<String,String>> myPartnerMapContainer = getMapContainer("myPartnerMapContainer", myPartnerMapTypeToken);
+
+        if(myPartnerMapContainer == null) {
+            myPartnerMapContainer = new Container<>();
+        }
+
+        myPartnerMapContainer.setObject(checkedContactMap);
+        setMapContainer("myPartnerMapContainer", myPartnerMapContainer);
+    }
+
+    public HashMap<String,String> getMyPartners() {
+        TypeToken<Container<HashMap<String,String>>> myPartnerMapTypeToken = new TypeToken<Container<HashMap<String,String>>>(){};
+
+        Container<HashMap<String,String>> myPartnerMapContainer = getMapContainer("myPartnerMapContainer", myPartnerMapTypeToken);
+
+        return myPartnerMapContainer == null ? new HashMap<String,String>() : myPartnerMapContainer.getObject();
+    }
+
+    private <T extends Map> Container<T> getMapContainer(String key, TypeToken<Container<T>> typeToken) {
         Gson gson = new Gson();
-        String serializedMap = sharedPreference.getString("callTimeMap", null);
+        String serializedMap = sharedPreference.getString(key, null);
         if(serializedMap != null) {
-            return gson.fromJson(serializedMap, new TypeToken<Container<Map<String,Long>>>(){}.getType());
+            return gson.fromJson(serializedMap, typeToken.getType());
         }
         return null;
     }
 
-    private Container<Map<String,Long>> createCallTimeMapContainer() {
-        Map<String, Long> callTimeHistoryMap = new HashMap<>();
-        Container<Map<String, Long>> mapContainer = new Container<>();
-        mapContainer.setObject(callTimeHistoryMap);
-
-        return mapContainer;
-    }
-
-    private void setCallTimeMapContainer(Container<Map<String,Long>> mapContainer) {
+    private <T extends Map> void setMapContainer(String key, Container<T> mapContainer) {
         Gson gson = new Gson();
         String serializedMap = gson.toJson(mapContainer);
 
         sharedPreference
                 .edit()
-                .putString("callTimeMap", serializedMap)
+                .putString(key, serializedMap)
                 .apply();
     }
+
 }
