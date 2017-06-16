@@ -78,7 +78,7 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
             checkedContactMap.put(contact.phoneNumber, contact.name);
 
             if(checkedContactMap.size() == 1) {
-                Animation heightChangeAnimation = new ShowHeightChangeAnimation(btnRegister, DpToPxConverter.convertDpToPx(54,getResources().getDisplayMetrics()));
+                Animation heightChangeAnimation = new ShowHeightChangeAnimation(btnRegister, DpToPxConverter.convertDpToPx(54, getResources().getDisplayMetrics()));
                 heightChangeAnimation.setDuration(200);
                 btnRegister.startAnimation(heightChangeAnimation);
             }
@@ -92,5 +92,7 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
                 btnRegister.startAnimation(heightChangeAnimation);
             }
         }
+
+        if(checkedContactMap.size() != 0) btnRegister.setText("거래처로 등록" + " (" + checkedContactMap.size() + ")");
     }
 }
