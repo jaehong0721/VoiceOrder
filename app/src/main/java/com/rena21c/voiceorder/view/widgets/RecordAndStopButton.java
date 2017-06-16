@@ -3,7 +3,6 @@ package com.rena21c.voiceorder.view.widgets;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -16,14 +15,15 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.util.DpToPxConverter;
 import com.rena21c.voiceorder.view.animation.ShowHeightChangeAnimation;
 
 public class RecordAndStopButton extends FrameLayout implements View.OnClickListener {
 
-    public final int HEIGHT_WITH_GUIDE_LAYOUT = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 222, getResources().getDisplayMetrics());
-    public final int HEIGHT_WITH_ORDER_LIST_LAYOUT = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 167, getResources().getDisplayMetrics());
+    public final int HEIGHT_WITH_GUIDE_LAYOUT = DpToPxConverter.convertDpToPx(222,getResources().getDisplayMetrics());
+    public final int HEIGHT_WITH_ORDER_LIST_LAYOUT = DpToPxConverter.convertDpToPx(167,getResources().getDisplayMetrics());
 
-    private final int HEIGHT_WITH_RECORDING_LAYOUT = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 313, getResources().getDisplayMetrics());
+    private final int HEIGHT_WITH_RECORDING_LAYOUT = DpToPxConverter.convertDpToPx(313,getResources().getDisplayMetrics());
 
     private final float BACKGROUND_SCALE_RECORD_X = 1.0F;
     private final float BACKGROUND_SCALE_RECORD_Y = 1.0F;

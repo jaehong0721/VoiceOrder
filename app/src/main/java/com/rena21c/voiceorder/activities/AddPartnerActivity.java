@@ -3,7 +3,6 @@ package com.rena21c.voiceorder.activities;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.Animation;
 import android.widget.Button;
@@ -11,6 +10,7 @@ import android.widget.Button;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.model.Contact;
 import com.rena21c.voiceorder.util.ContactsLoader;
+import com.rena21c.voiceorder.util.DpToPxConverter;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
 import com.rena21c.voiceorder.view.actionbar.NavigateBackActionBar;
 import com.rena21c.voiceorder.view.adapters.ContactsRecyclerViewAdapter;
@@ -78,7 +78,7 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
             checkedContactMap.put(contact.phoneNumber, contact.name);
 
             if(checkedContactMap.size() == 1) {
-                Animation longHeightAni = new ShowHeightChangeAnimation(btnRegister, (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 54, getResources().getDisplayMetrics()));
+                Animation longHeightAni = new ShowHeightChangeAnimation(btnRegister, DpToPxConverter.convertDpToPx(54,getResources().getDisplayMetrics()));
                 longHeightAni.setDuration(200);
                 btnRegister.startAnimation(longHeightAni);
             }
