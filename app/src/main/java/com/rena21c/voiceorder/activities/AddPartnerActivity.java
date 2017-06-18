@@ -3,8 +3,11 @@ package com.rena21c.voiceorder.activities;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.animation.Animation;
+import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 
 import com.rena21c.voiceorder.App;
@@ -36,6 +39,7 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
 
     private RecyclerView rvContacts;
     private Button btnRegister;
+    private AutoCompleteTextView actvSearch;
 
     private boolean isInitialAdd;
 
@@ -75,6 +79,17 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
                 finish();
             }
         });
+
+        actvSearch = (AutoCompleteTextView) findViewById(R.id.actvSearch);
+        actvSearch.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+                contactsAdapter.getFilter().filter(s);
+            }
+
+            @Override public void afterTextChanged(Editable s) {}
+        });
     }
 
     @Override protected void onStart() {
@@ -84,9 +99,9 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
 
     @Override public void onLoadFinished(ArrayList<Contact> contacts) {
         if(checkedContactMap.size() != 0) {
-            contactsAdapter.setContacts(sortByIsChecked(contacts));
+            contactsAdapter.setOriginContacts(sortByIsChecked(contacts));
         } else {
-            contactsAdapter.setContacts(contacts);
+            contactsAdapter.setOriginContacts(contacts);
         }
     }
 
