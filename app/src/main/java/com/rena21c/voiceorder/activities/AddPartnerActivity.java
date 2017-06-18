@@ -1,5 +1,6 @@
 package com.rena21c.voiceorder.activities;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -7,8 +8,10 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.animation.Animation;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
@@ -40,6 +43,7 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
     private RecyclerView rvContacts;
     private Button btnRegister;
     private AutoCompleteTextView actvSearch;
+    private ImageView ivDelete;
 
     private boolean isInitialAdd;
 
@@ -89,6 +93,29 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
             }
 
             @Override public void afterTextChanged(Editable s) {}
+        });
+
+        ivDelete = (ImageView) findViewById(R.id.ivDelete);
+        ivDelete.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                actvSearch.setText("");
+                actvSearch.clearFocus();
+            }
+        });
+
+        actvSearch.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override public void onFocusChange(View v, boolean hasFocus) {
+                if(v != actvSearch) return;
+
+                if(hasFocus) {
+                    ivDelete.setVisibility(View.VISIBLE);
+                } else {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(actvSearch.getWindowToken(), 0);
+
+                    ivDelete.setVisibility(View.GONE);
+                }
+            }
         });
     }
 
