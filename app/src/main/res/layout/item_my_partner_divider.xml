@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+    <View
+        android:id="@+id/divider_line"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/dividerLine"/>
+
+    <TextView
+        android:id="@+id/tvLabel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/divider_line"
+        android:background="#F0F0F0"
+        android:paddingBottom="9dp"
+        android:paddingLeft="16dp"
+        android:paddingTop="16dp"
+        android:textColor="@color/dark_maroon"
+        android:textSize="13sp"/>
+
+</RelativeLayout>
