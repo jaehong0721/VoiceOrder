@@ -40,7 +40,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
 
         final String phoneNumber = vendor.phoneNumber;
 
-        String vendorName = vendor.name;
+        final String vendorName = vendor.name;
         String address = transformToSimpleAddress(vendor.address);
         String businessContent = removeAddressAndNameInContent(vendor.items,  vendorName, address);
 
@@ -53,7 +53,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
                 .bindElapsedTimeFromCall(elapsedTime)
                 .setCallButtonClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
-                        callButtonClickListener.onCallButtonClick(phoneNumber, position);
+                        callButtonClickListener.onCallButtonClick(phoneNumber, vendorName, position);
                     }
                 });
     }

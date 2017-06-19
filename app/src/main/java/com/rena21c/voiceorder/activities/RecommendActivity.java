@@ -64,8 +64,12 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
     private TwoButtonDialogFragment beforeCallDialog;
 
+    private HashMap<String, String> calledVendors;
+
     private String vendorPhoneNumber;
+    private String vendorName;
     private int position;
+
     private LinearLayout llSearch;
     private View ibClose;
 
@@ -76,11 +80,13 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
 
+        calledVendors = appPreferenceManager.getCalledVendors();
         rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorInfoViewHolder.CallButtonClickListener() {
 
-            @Override public void onCallButtonClick(String phoneNumber, int itemPosition) {
+            @Override public void onCallButtonClick(String phoneNumber, String name, int itemPosition) {
                 position = itemPosition;
                 vendorPhoneNumber = phoneNumber;
+                vendorName = name;
 
                 beforeCallDialog = TwoButtonDialogFragment.newInstance("‘거상앱으로 전화드립니다’라고 꼭 말씀해주세요", "취소", "통화");
                 beforeCallDialog.show(getSupportFragmentManager(), "dialog");
@@ -245,13 +251,15 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
     @Override public void onClickPositiveButton() {
         beforeCallDialog.dismiss();
 
+        calledVendors.put(vendorPhoneNumber, vendorName);
+        appPreferenceManager.setCalledVendors(calledVendors);
         appPreferenceManager.setCallTime(vendorPhoneNumber, System.currentTimeMillis());
 
         Intent intent = new Intent(Intent.ACTION_CALL);
         intent.setData(Uri.parse("tel:" + vendorPhoneNumber));
         startActivity(intent);
 
-        ((VendorInfoViewHolder) rvVendors.findViewHolderForAdapterPosition(position)).bindElapsedTimeFromCall("방금전 통화");
+        rvAdapter.notifyItemChanged(position);
     }
 
 }

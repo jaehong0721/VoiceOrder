@@ -48,7 +48,7 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
     @Override protected void onResume() {
         super.onResume();
         replaceableLayout.removeAllViews();
-        if(appPreferenceManager.getAllCallTime() == null) replaceableLayout.replaceChildView(myPartnerGuideView);
+        if(appPreferenceManager.getAllCallTime().size() == 0) replaceableLayout.replaceChildView(myPartnerGuideView);
     }
 
     @Override public void onAddPartner() {

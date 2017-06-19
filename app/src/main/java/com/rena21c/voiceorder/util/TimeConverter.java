@@ -17,7 +17,7 @@ public class TimeConverter {
 
         if (elapsedTimeInMillis < MIN) {
             long seconds = elapsedTimeInMillis / SEC;
-            return seconds + "초전";
+            return seconds == 0 ? "방금전" : seconds + "초전";
         } else if (elapsedTimeInMillis < HOUR) {
             long minutes = elapsedTimeInMillis / MIN;
             return minutes + "분전";

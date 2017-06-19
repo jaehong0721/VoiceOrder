@@ -132,7 +132,7 @@ public class AppPreferenceManager {
         TypeToken<Container<HashMap<String,Long>>> callTimeMapTypeToken = new TypeToken<Container<HashMap<String,Long>>>(){};
 
         Container<HashMap<String,Long>> callTimeMapContainer = getMapContainer("callTimeMapContainer", callTimeMapTypeToken);
-        return callTimeMapContainer == null ? null : callTimeMapContainer.getObject();
+        return callTimeMapContainer == null ? new HashMap<String,Long>() : callTimeMapContainer.getObject();
     }
 
     public void setMyPartners(HashMap<String, String> checkedContactMap) {
@@ -157,6 +157,27 @@ public class AppPreferenceManager {
         return myPartnerMapContainer == null ? new HashMap<String,String>() : myPartnerMapContainer.getObject();
     }
 
+    public void setCalledVendors(HashMap<String, String> calledVendorsMap) {
+        TypeToken<Container<HashMap<String,String>>> calledVendorsMapTypeToken = new TypeToken<Container<HashMap<String,String>>>(){};
+
+        Container<HashMap<String,String>> calledVendorsMapContainer = getMapContainer("calledVendorsMapContainer", calledVendorsMapTypeToken);
+
+        if(calledVendorsMapContainer == null) {
+            calledVendorsMapContainer = new Container<>();
+        }
+
+        calledVendorsMapContainer.setObject(calledVendorsMap);
+        setMapContainer("calledVendorsMapContainer", calledVendorsMapContainer);
+    }
+
+    public HashMap<String,String> getCalledVendors() {
+        TypeToken<Container<HashMap<String,String>>> calledVendorsMapTypeToken = new TypeToken<Container<HashMap<String,String>>>(){};
+
+        Container<HashMap<String,String>> calledVendorsMapContainer = getMapContainer("calledVendorsMapContainer", calledVendorsMapTypeToken);
+
+        return calledVendorsMapContainer == null ? new HashMap<String,String>() : calledVendorsMapContainer.getObject();
+    }
+
     private <T extends Map> Container<T> getMapContainer(String key, TypeToken<Container<T>> typeToken) {
         Gson gson = new Gson();
         String serializedMap = sharedPreference.getString(key, null);
@@ -175,5 +196,4 @@ public class AppPreferenceManager {
                 .putString(key, serializedMap)
                 .apply();
     }
-
 }
