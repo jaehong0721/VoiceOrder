@@ -2,7 +2,7 @@ package com.rena21c.voiceorder.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import com.rena21c.voiceorder.App;
@@ -31,23 +31,12 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
 
         appPreferenceManager= App.getApplication(getApplicationContext()).getPreferenceManager();
 
-        guideViewModel = new MyPartnerGuideViewModel();
-        myPartnerGuideView = guideViewModel.getView(this);
+        guideViewModel = new MyPartnerGuideViewModel(this);
+        myPartnerGuideView = guideViewModel.getView(LayoutInflater.from(this));
     }
-
-    @Override protected void onPause() {
-        super.onPause();
-        Log.d("test", "mypartneracitivity onpause");
-    }
-
-    @Override protected void onStop() {
-        super.onStop();
-        Log.d("test", "mypartneracitivity onstop");
-    }
-
+    
     @Override protected void onResume() {
         super.onResume();
-        replaceableLayout.removeAllViews();
         if(appPreferenceManager.getAllCallTime().size() == 0) replaceableLayout.replaceChildView(myPartnerGuideView);
     }
 

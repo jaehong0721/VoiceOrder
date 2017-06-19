@@ -1,7 +1,6 @@
 package com.rena21c.voiceorder.viewmodel;
 
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 
@@ -10,11 +9,17 @@ import com.rena21c.voiceorder.view.widgets.AddPartnerButton;
 
 public class MyPartnerGuideViewModel {
 
-    public View getView(Context context) {
-        View view = LayoutInflater.from(context).inflate(R.layout.layout_my_partner_guide, null);
+    private final AddPartnerButton.AddPartnerListener addPartnerListener;
+
+    public MyPartnerGuideViewModel(AddPartnerButton.AddPartnerListener addPartnerListener) {
+        this.addPartnerListener = addPartnerListener;
+    }
+
+    public View getView(LayoutInflater inflater) {
+        View view = inflater.inflate(R.layout.layout_my_partner_guide, null);
         AddPartnerButton addPartnerButton = (AddPartnerButton) view.findViewById(R.id.btnAddPartner);
 
-        addPartnerButton.setAddPartnerListener((AddPartnerButton.AddPartnerListener)context);
+        if(addPartnerListener != null) addPartnerButton.setAddPartnerListener(addPartnerListener);
 
         return view;
     }
