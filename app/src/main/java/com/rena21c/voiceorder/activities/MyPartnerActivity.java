@@ -11,16 +11,16 @@ import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.view.components.ReplaceableLayout;
 import com.rena21c.voiceorder.view.widgets.AddPartnerButton;
 import com.rena21c.voiceorder.viewmodel.MyPartnerGuideViewModel;
+import com.rena21c.voiceorder.viewmodel.MyPartnerListViewModel;
+
+import java.util.HashMap;
 
 
 public class MyPartnerActivity extends HasTabActivity implements AddPartnerButton.AddPartnerListener{
 
     private AppPreferenceManager appPreferenceManager;
 
-    private MyPartnerGuideViewModel guideViewModel;
-
     private ReplaceableLayout replaceableLayout;
-    private View myPartnerGuideView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,13 +31,23 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
 
         appPreferenceManager= App.getApplication(getApplicationContext()).getPreferenceManager();
 
-        guideViewModel = new MyPartnerGuideViewModel(this);
-        myPartnerGuideView = guideViewModel.getView(LayoutInflater.from(this));
     }
     
     @Override protected void onResume() {
         super.onResume();
-        if(appPreferenceManager.getAllCallTime().size() == 0) replaceableLayout.replaceChildView(myPartnerGuideView);
+        HashMap<String,String> calledVendors = appPreferenceManager.getCalledVendors();
+        HashMap<String,String> myPartners =  appPreferenceManager.getMyPartners();
+        HashMap<String, Long> allCallTime = appPreferenceManager.getAllCallTime();
+
+        if(calledVendors.size() != 0 || myPartners.size() != 0) {
+            MyPartnerListViewModel myPartnerListViewModel= new MyPartnerListViewModel(this,calledVendors, myPartners, allCallTime);
+            View myPartnerListView = myPartnerListViewModel.getView(this);
+            replaceableLayout.replaceChildView(myPartnerListView);
+        } else {
+            MyPartnerGuideViewModel guideViewModel = new MyPartnerGuideViewModel(this);
+            View myPartnerGuideView = guideViewModel.getView(LayoutInflater.from(this));
+            replaceableLayout.replaceChildView(myPartnerGuideView);
+        }
     }
 
     @Override public void onAddPartner() {
