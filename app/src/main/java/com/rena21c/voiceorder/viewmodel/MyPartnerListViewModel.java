@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Toast;
 
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.TimeSortComparator;
@@ -19,9 +20,10 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MyPartnerListViewModel implements View.OnAttachStateChangeListener{
+public class MyPartnerListViewModel implements View.OnAttachStateChangeListener, MyPartnersRecyclerViewAdapter.ItemClickListener {
 
     private View view;
+
     private AddPartnerButton.AddPartnerListener addPartnerListener;
     private RecyclerView rvMyPartner;
 
@@ -51,6 +53,7 @@ public class MyPartnerListViewModel implements View.OnAttachStateChangeListener{
         rvMyPartner = (RecyclerView) view.findViewById(R.id.rvMyPartner);
 
         myPartnersRecyclerViewAdapter = new MyPartnersRecyclerViewAdapter(myPartners.size());
+        myPartnersRecyclerViewAdapter.setItemClickListener(this);
 
         rvMyPartner.setLayoutManager(new LinearLayoutManager(context));
         rvMyPartner.addItemDecoration(new DividerItemDecoration(context, R.drawable.shape_divider_recycler_view));
@@ -85,5 +88,9 @@ public class MyPartnerListViewModel implements View.OnAttachStateChangeListener{
     }
 
     @Override public void onViewDetachedFromWindow(View v) {}
+
+    @Override public void onItemClick(String phoneNumber) {
+        Toast.makeText(rvMyPartner.getContext(), "클릭됨", Toast.LENGTH_SHORT).show();
+    }
 }
 
