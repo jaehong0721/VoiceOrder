@@ -96,7 +96,7 @@ public class MyPartnerListViewModel implements View.OnAttachStateChangeListener,
     @Override public void onViewDetachedFromWindow(View v) {}
 
     @Override public void onItemClick(String phoneNumber, String vendorName) {
-        callDialogFragment = CallDialogFragment.newInstance(phoneNumber, vendorName, null, null);
+        callDialogFragment = CallDialogFragment.newInstance(phoneNumber, vendorName);
         callDialogFragment.setCallDialogClickListener(this);
         callDialogFragment.show(((FragmentActivity)view.getContext()).getSupportFragmentManager(), "dialog");
     }

@@ -32,13 +32,9 @@ public class CallDialogFragment extends DialogFragment {
 
     private static final String PHONE_NUMBER = "phoneNumber";
     private static final String NAME = "name";
-    private static final String BUSINESS_CONTENT = "businessContent";
-    private static final String LOCATION = "location";
 
     private String phoneNumber;
     private String name;
-    private String businessContent;
-    private String location;
 
     private AutofitTextView aftvVendorName;
     private TextView tvBusinessContent;
@@ -49,13 +45,11 @@ public class CallDialogFragment extends DialogFragment {
 
     public CallDialogFragment() {}
 
-    public static CallDialogFragment newInstance(String phoneNumber, String name, String businessContent, String location) {
+    public static CallDialogFragment newInstance(String phoneNumber, String name) {
         CallDialogFragment fragment = new CallDialogFragment();
         Bundle args = new Bundle();
         args.putString(PHONE_NUMBER, phoneNumber);
         args.putString(NAME, name);
-        args.putString(BUSINESS_CONTENT, businessContent);
-        args.putString(LOCATION, location);
         fragment.setArguments(args);
         return fragment;
     }
@@ -66,8 +60,6 @@ public class CallDialogFragment extends DialogFragment {
         if (getArguments() != null) {
             phoneNumber = getArguments().getString(PHONE_NUMBER);
             name = getArguments().getString(NAME);
-            businessContent = getArguments().getString(BUSINESS_CONTENT);
-            location = getArguments().getString(LOCATION);
         }
     }
 
@@ -100,11 +92,6 @@ public class CallDialogFragment extends DialogFragment {
                 listener.onClickCall(phoneNumber);
             }
         });
-
-        if(location != null) {
-            tvAddress.setVisibility(View.VISIBLE);
-            tvAddress.setText(location);
-        }
     }
 
     @Override
@@ -125,7 +112,7 @@ public class CallDialogFragment extends DialogFragment {
                 .enqueue(new Callback<HashMap<String, String>>() {
                     @Override public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
                         if(response.body() == null) return;
-                        Log.d("test", "hasmap 있음");
+
                         if(response.body().get("address") != null) {
                             tvAddress.setVisibility(View.VISIBLE);
                             tvAddress.setText(transformToSimpleAddress(response.body().get("address")));
