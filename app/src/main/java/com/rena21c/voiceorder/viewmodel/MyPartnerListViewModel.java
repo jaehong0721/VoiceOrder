@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.activities.MyPartnerActivity;
 import com.rena21c.voiceorder.etc.TimeSortComparator;
 import com.rena21c.voiceorder.model.Partner;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
@@ -102,6 +103,7 @@ public class MyPartnerListViewModel implements View.OnAttachStateChangeListener,
 
     @Override public void onClickCall(String phoneNumber) {
         callDialogFragment.dismiss();
+        ((MyPartnerActivity)view.getContext()).moveToCallApp(phoneNumber);
     }
 }
 

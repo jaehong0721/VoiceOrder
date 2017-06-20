@@ -1,6 +1,7 @@
 package com.rena21c.voiceorder.activities;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -52,6 +53,15 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
 
     @Override public void onAddPartner() {
         Intent intent = new Intent(MyPartnerActivity.this, AddPartnerActivity.class);
+        startActivity(intent);
+    }
+
+    @SuppressWarnings("MissingPermission")
+    public void moveToCallApp(String phoneNumber) {
+        appPreferenceManager.setCallTime(phoneNumber, System.currentTimeMillis());
+
+        Intent intent = new Intent(Intent.ACTION_CALL);
+        intent.setData(Uri.parse("tel:" + phoneNumber));
         startActivity(intent);
     }
 }
