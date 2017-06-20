@@ -135,7 +135,7 @@ public class AppPreferenceManager {
         return callTimeMapContainer == null ? new HashMap<String,Long>() : callTimeMapContainer.getObject();
     }
 
-    public void setMyPartners(HashMap<String, String> checkedContactMap) {
+    public void setMyPartners(HashMap<String, String> myPartnerMap) {
 
         TypeToken<Container<HashMap<String,String>>> myPartnerMapTypeToken = new TypeToken<Container<HashMap<String,String>>>(){};
 
@@ -145,7 +145,7 @@ public class AppPreferenceManager {
             myPartnerMapContainer = new Container<>();
         }
 
-        myPartnerMapContainer.setObject(checkedContactMap);
+        myPartnerMapContainer.setObject(myPartnerMap);
         setMapContainer("myPartnerMapContainer", myPartnerMapContainer);
     }
 
