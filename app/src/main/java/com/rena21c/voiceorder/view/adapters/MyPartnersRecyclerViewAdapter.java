@@ -17,7 +17,7 @@ import java.util.ArrayList;
 public class MyPartnersRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public interface ItemClickListener {
-        void onItemClick(String phoneNumber);
+        void onItemClick(String phoneNumber, String name);
     }
 
     private ItemClickListener itemClickListener;
@@ -84,6 +84,6 @@ public class MyPartnersRecyclerViewAdapter extends RecyclerView.Adapter<Recycler
 
     public void itemClicked(int position) {
         if(position > numberOfMyPartners) position -= 1;
-        itemClickListener.onItemClick(partners.get(position).vendorPhoneNumber);
+        itemClickListener.onItemClick(partners.get(position).vendorPhoneNumber, partners.get(position).vendorName);
     }
 }

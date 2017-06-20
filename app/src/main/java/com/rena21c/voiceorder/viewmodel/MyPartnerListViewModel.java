@@ -2,11 +2,11 @@ package com.rena21c.voiceorder.viewmodel;
 
 
 import android.content.Context;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Toast;
 
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.TimeSortComparator;
@@ -14,13 +14,16 @@ import com.rena21c.voiceorder.model.Partner;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
 import com.rena21c.voiceorder.view.adapters.MyPartnersRecyclerViewAdapter;
 import com.rena21c.voiceorder.view.widgets.AddPartnerButton;
+import com.rena21c.voiceorder.view.widgets.CallDialogFragment;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MyPartnerListViewModel implements View.OnAttachStateChangeListener, MyPartnersRecyclerViewAdapter.ItemClickListener {
+public class MyPartnerListViewModel implements View.OnAttachStateChangeListener,
+                                                MyPartnersRecyclerViewAdapter.ItemClickListener,
+                                                CallDialogFragment.CallDialogClickListener {
 
     private View view;
 
@@ -32,6 +35,8 @@ public class MyPartnerListViewModel implements View.OnAttachStateChangeListener,
     private HashMap<String, String> calledVendors;
     private HashMap<String, String> myPartners;
     private final HashMap<String, Long> callTimeMap;
+
+    private CallDialogFragment callDialogFragment;
 
     public MyPartnerListViewModel(AddPartnerButton.AddPartnerListener addPartnerListener,
                                   HashMap<String, String> calledVendors,
@@ -89,8 +94,14 @@ public class MyPartnerListViewModel implements View.OnAttachStateChangeListener,
 
     @Override public void onViewDetachedFromWindow(View v) {}
 
-    @Override public void onItemClick(String phoneNumber) {
-        Toast.makeText(rvMyPartner.getContext(), "클릭됨", Toast.LENGTH_SHORT).show();
+    @Override public void onItemClick(String phoneNumber, String vendorName) {
+        callDialogFragment = CallDialogFragment.newInstance(phoneNumber, vendorName, null, null);
+        callDialogFragment.setCallDialogClickListener(this);
+        callDialogFragment.show(((FragmentActivity)view.getContext()).getSupportFragmentManager(), "dialog");
+    }
+
+    @Override public void onClickCall(String phoneNumber) {
+        callDialogFragment.dismiss();
     }
 }
 
