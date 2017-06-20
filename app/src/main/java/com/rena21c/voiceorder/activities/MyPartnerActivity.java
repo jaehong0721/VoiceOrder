@@ -9,6 +9,7 @@ import android.view.View;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
+import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.components.ReplaceableLayout;
 import com.rena21c.voiceorder.view.widgets.AddPartnerButton;
 import com.rena21c.voiceorder.viewmodel.MyPartnerGuideViewModel;
@@ -63,5 +64,9 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
         Intent intent = new Intent(Intent.ACTION_CALL);
         intent.setData(Uri.parse("tel:" + phoneNumber));
         startActivity(intent);
+    }
+
+    public void moveToVoiceOrderTab() {
+        super.moveTab(TabActionBar.Tab.VOICE_ORDER);
     }
 }

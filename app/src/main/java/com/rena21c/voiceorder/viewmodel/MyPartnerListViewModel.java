@@ -105,5 +105,10 @@ public class MyPartnerListViewModel implements View.OnAttachStateChangeListener,
         callDialogFragment.dismiss();
         ((MyPartnerActivity)view.getContext()).moveToCallApp(phoneNumber);
     }
+
+    @Override public void onClickVoiceOrder() {
+        callDialogFragment.dismiss();
+        ((MyPartnerActivity)view.getContext()).moveToVoiceOrderTab();
+    }
 }
 
