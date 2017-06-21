@@ -18,7 +18,6 @@ import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.viewmodel.AcceptedOrderPage;
 import com.rena21c.voiceorder.viewmodel.EmptyOrderPage;
-import com.rena21c.voiceorder.viewmodel.FailedOrderPage;
 import com.rena21c.voiceorder.viewmodel.OrderPage;
 
 import java.util.ArrayList;
@@ -118,6 +117,7 @@ public class OrderViewPagerAdapter extends PagerAdapter {
     public void remove(String timeStamp) {
         int position = getPosition(timeStamp);
         timeStampList.remove(position);
+        orderPageMap.remove(timeStamp);
 
         notifyDataSetChanged();
         itemCountChangedListener.itemCountChange(timeStampList.size());
@@ -135,16 +135,6 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         int position = getPosition(timeStamp);
 
         orderPageMap.put(timeStamp, new AcceptedOrderPage(timeStamp, newItemHashMap));
-
-        notifyDataSetChanged();
-        return position;
-    }
-
-    public int replaceToFailedOrder(String timeStamp) {
-
-        int position = getPosition(timeStamp);
-
-        orderPageMap.put(timeStamp, new FailedOrderPage(timeStamp));
 
         notifyDataSetChanged();
         return position;

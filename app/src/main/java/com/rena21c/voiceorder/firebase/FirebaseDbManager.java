@@ -53,13 +53,12 @@ public class FirebaseDbManager {
         return query;
     }
 
-    public void getAcceptedOrder(String phoneNumber, ValueEventListener listener) {
-        instance.getReference().child(ORDERS)
-                .child(RESTAURANTS)
-                .orderByKey()
-                .startAt(phoneNumber + "_00000000000000")
-                .endAt(phoneNumber + "_99999999999999")
-                .addListenerForSingleValueEvent(listener);
+    public void removeRecordedOrder(String phoneNumber, String key) {
+        instance.getReference().child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(RECORDED_ORDERS)
+                .child(key)
+                .removeValue();
     }
 
     public Query subscribeAcceptedOrder(String phoneNumber, ChildEventListener listener) {
@@ -72,6 +71,12 @@ public class FirebaseDbManager {
         return query;
     }
 
+    public void removeRemoveAcceptedOrder(String key) {
+        instance.getReference().child(ORDERS)
+                .child(RESTAURANTS)
+                .child(key)
+                .removeValue();
+    }
     public void getVendorInfo(String vendorPhoneNumber, ValueEventListener listener) {
         instance.getReference().child("vendors")
                 .child(vendorPhoneNumber)

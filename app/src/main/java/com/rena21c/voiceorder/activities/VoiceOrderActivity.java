@@ -82,7 +82,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
 
             @Override public void onChildRemoved(DataSnapshot dataSnapshot) {
                 Log.d("DB", "removed: " + dataSnapshot.toString());
-                voiceOrderView.replaceAcceptedOrder(dataSnapshot);
+                dbManager.removeRecordedOrder(appPreferenceManager.getPhoneNumber(), dataSnapshot.getKey());
             }
 
             @Override public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
