@@ -1,6 +1,7 @@
 package com.rena21c.voiceorder.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Geocoder;
@@ -12,6 +13,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -109,6 +111,9 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                     getSupportActionBar().hide();
                     ibClose.setVisibility(View.VISIBLE);
                 } else {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(actvSearch.getWindowToken(), 0);
+
                     getSupportActionBar().show();
                     ibClose.setVisibility(View.GONE);
                 }
