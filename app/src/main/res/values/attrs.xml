@@ -26,5 +26,6 @@
         <attr name="textSize" />
         <attr name="textColor" />
         <attr name="background" />
+        <attr name="stokeColor" format="color" />
     </declare-styleable>
 </resources>

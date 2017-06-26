@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.util.AttributeSet;
 import android.view.View;
@@ -20,11 +21,7 @@ public class InquireByCallButton extends android.support.v7.widget.AppCompatButt
     }
 
     public InquireByCallButton(Context context, AttributeSet attrs) {
-        super(context, attrs, 0);
-    }
-
-    public InquireByCallButton(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
+        super(context, attrs);
 
         TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.InquireByCallButton);
 
@@ -38,6 +35,8 @@ public class InquireByCallButton extends android.support.v7.widget.AppCompatButt
         setTextColor(textColor);
 
         Drawable background = typedArray.getDrawable(R.styleable.InquireByCallButton_background);
+        int strokeColor = typedArray.getColor(R.styleable.InquireByCallButton_stokeColor, -1);
+        ((GradientDrawable)background).setStroke(1,strokeColor);
         setBackground(background);
 
         typedArray.recycle();
