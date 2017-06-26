@@ -36,7 +36,7 @@ public class InquireByCallButton extends android.support.v7.widget.AppCompatButt
 
         Drawable background = typedArray.getDrawable(R.styleable.InquireByCallButton_background);
         int strokeColor = typedArray.getColor(R.styleable.InquireByCallButton_stokeColor, -1);
-        ((GradientDrawable)background).setStroke(1,strokeColor);
+        if(strokeColor != -1) ((GradientDrawable)background).setStroke(1,strokeColor);
         setBackground(background);
 
         typedArray.recycle();
