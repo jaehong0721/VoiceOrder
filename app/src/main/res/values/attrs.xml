@@ -21,4 +21,10 @@
         <attr name="background" />
     </declare-styleable>
 
+    <declare-styleable name="InquireByCallButton">
+        <attr name="text" />
+        <attr name="textSize" />
+        <attr name="textColor" />
+        <attr name="background" />
+    </declare-styleable>
 </resources>
