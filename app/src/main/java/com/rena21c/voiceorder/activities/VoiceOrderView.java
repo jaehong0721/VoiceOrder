@@ -16,6 +16,7 @@ import com.rena21c.voiceorder.view.adapters.OrderViewPagerAdapter;
 import com.rena21c.voiceorder.view.adapters.SimpleViewPagerSelectedListener;
 import com.rena21c.voiceorder.view.components.ReplaceableLayout;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
+import com.rena21c.voiceorder.view.widgets.InquireByCallButton;
 import com.rena21c.voiceorder.view.widgets.RecordAndStopButton;
 import com.rena21c.voiceorder.view.widgets.ViewPagerIndicator;
 
@@ -36,6 +37,8 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
     private ViewPager orderViewPager;
     private ViewPagerIndicator viewPagerIndicator;
     private View viewPager;
+
+    private InquireByCallButton callButton;
 
     public VoiceOrderView(VoiceOrderActivity activity) {
         this.activity = activity;
@@ -68,6 +71,8 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
                 viewPagerIndicator.selectDot(position);
             }
         });
+
+        callButton = (InquireByCallButton) activity.findViewById(R.id.btnInquire);
     }
 
     public void setView(boolean shouldShowGuide) {
@@ -86,15 +91,18 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
     private void setGuide() {
         recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_GUIDE_LAYOUT);
         View recordGuideLayout = activity.getLayoutInflater().inflate(R.layout.layout_component_record_guide, replaceableLayout, false);
+        callButton.setVisibility(View.VISIBLE);
         replaceableLayout.replaceChildView(recordGuideLayout);
     }
 
     private void setNormal() {
         recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_ORDER_LIST_LAYOUT);
+        callButton.setVisibility(View.GONE);
         replaceableLayout.replaceChildView(viewPager);
     }
 
     public void replaceViewToRecording() {
+        if(callButton.getVisibility() == View.VISIBLE) callButton.setVisibility(View.GONE);
         replaceableLayout.replaceChildView(recordingLayout);
         recordAndStopButton.setStopViewState();
     }

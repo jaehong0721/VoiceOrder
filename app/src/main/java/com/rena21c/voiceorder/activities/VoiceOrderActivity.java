@@ -139,7 +139,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         super.onStop();
         recordManager.cancel();
         voiceOrderView.clearKeepScreenOn();
-        voiceOrderView.replaceViewToUnRecording();
+        if(!appPreferenceManager.getUserFirstVisit()) voiceOrderView.replaceViewToUnRecording();
         unregisterReceiver(fileUploadSuccessReceiver);
     }
 
