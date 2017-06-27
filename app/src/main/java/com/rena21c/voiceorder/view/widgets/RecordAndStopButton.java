@@ -20,7 +20,7 @@ import com.rena21c.voiceorder.view.animation.ShowHeightChangeAnimation;
 
 public class RecordAndStopButton extends FrameLayout implements View.OnClickListener {
 
-    public final int HEIGHT_WITH_GUIDE_LAYOUT = DpToPxConverter.convertDpToPx(222,getResources().getDisplayMetrics());
+    public final int HEIGHT_WITH_GUIDE_LAYOUT = DpToPxConverter.convertDpToPx(250,getResources().getDisplayMetrics());
     public final int HEIGHT_WITH_ORDER_LIST_LAYOUT = DpToPxConverter.convertDpToPx(167,getResources().getDisplayMetrics());
 
     private final int HEIGHT_WITH_RECORDING_LAYOUT = DpToPxConverter.convertDpToPx(313,getResources().getDisplayMetrics());
