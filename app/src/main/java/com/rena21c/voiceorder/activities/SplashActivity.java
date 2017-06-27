@@ -23,6 +23,7 @@ import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.etc.PermissionManager;
 import com.rena21c.voiceorder.etc.PlayServiceManager;
+import com.rena21c.voiceorder.etc.RecordedFileManager;
 import com.rena21c.voiceorder.etc.VersionManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.SimpleAuthListener;
@@ -35,8 +36,6 @@ import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.util.GregorianCalendar;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -83,7 +82,8 @@ public class SplashActivity extends BaseActivity {
         Log.d("test", "file: " + fileName);
         }
 
-        deleteRecordedFile();
+        RecordedFileManager recordedFileManager = new RecordedFileManager(new File(getFilesDir().toString()));
+        recordedFileManager.deleteRecordedFile(System.currentTimeMillis());
     }
 
     @Override
@@ -95,27 +95,6 @@ public class SplashActivity extends BaseActivity {
                 checkPlayService();
             }
         });
-    }
-
-    private void deleteRecordedFile() {
-        File dir = new File(getFilesDir().toString());
-        File[] recordedFiles = dir.listFiles(new FilenameFilter() {
-                                                 @Override
-                                                 public boolean accept(File dir, String name) {
-                                                     return name.endsWith(".mp4");
-                                                 }
-                                             });
-
-        GregorianCalendar standardTime = new GregorianCalendar(2017, 3, 24);
-        long standardTimeInMillis = standardTime.getTimeInMillis();
-
-        for (File file : recordedFiles ) {
-            Long lastModified = file.lastModified();
-
-            if (lastModified < standardTimeInMillis) {
-                file.delete();
-            }
-        }
     }
 
     private void checkPlayService() {
