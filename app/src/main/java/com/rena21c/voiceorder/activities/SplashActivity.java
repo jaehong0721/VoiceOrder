@@ -89,9 +89,6 @@ public class SplashActivity extends BaseActivity {
                 Log.d("test recordedFiles", "file: " + fileName);
             }
         }
-
-        RecordedFileManager recordedFileManager = App.getApplication(getApplicationContext()).getRecordedFileManager();
-        recordedFileManager.deleteRecordedFile(System.currentTimeMillis());
     }
 
     @Override
@@ -100,6 +97,8 @@ public class SplashActivity extends BaseActivity {
         permissionManager.requestPermission(new PermissionManager.PermissionsPermittedListener() {
             @Override
             public void onAllPermissionsPermitted() {
+                RecordedFileManager recordedFileManager = App.getApplication(getApplicationContext()).getRecordedFileManager();
+                recordedFileManager.deleteRecordedFile(System.currentTimeMillis());
                 checkPlayService();
             }
         });

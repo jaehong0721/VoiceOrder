@@ -35,8 +35,8 @@ public class RecordedFileManager {
         return rootDir.getPath();
     }
 
-    public void saveRecordedFile(File source, String fileName) throws IOException{
-        File saveDest = new File(rootDir.getPath() + "/recordedFiles/" +  fileName + ".mp4");
+    public void saveRecordedFile(File source, String fileName) throws IOException {
+        File saveDest = new File(rootDir.getPath() + "/recordedFiles/" + fileName + ".mp4");
         copyFileUsingChannel(source, saveDest);
 
         File renameDest = new File(rootDir.getPath() + "/" + fileName + ".mp4");
@@ -46,9 +46,9 @@ public class RecordedFileManager {
     public void deleteRecordedFile(long currentTimeInMillis) {
         ArrayList<File> recordedFiles = getRecordedFiles();
 
-        if(recordedFiles.size() == 0) return;
+        if (recordedFiles == null) return;
 
-        for (File file : recordedFiles ) {
+        for (File file : recordedFiles) {
             Long lastModified = file.lastModified();
 
             if (lastModified + standardTimeInMillis < currentTimeInMillis) {
@@ -67,14 +67,14 @@ public class RecordedFileManager {
     }
 
     private ArrayList<File> getRecordedFiles() {
-        return new ArrayList<>(Arrays.asList(
-                saveDir.listFiles(new FilenameFilter() {
-                    @Override
-                    public boolean accept(File dir, String name) {
-                        return name.endsWith(".mp4");
-                    }
-                })
-        ));
+        File[] recordedFiles = saveDir.listFiles(new FilenameFilter() {
+            @Override
+            public boolean accept(File dir, String name) {
+                return name.endsWith(".mp4");
+            }
+        });
+
+        return recordedFiles != null ? new ArrayList<>(Arrays.asList(recordedFiles)) : null;
     }
 
     private void copyFileUsingChannel(File source, File dest) throws IOException {
@@ -84,7 +84,7 @@ public class RecordedFileManager {
             sourceChannel = new FileInputStream(source).getChannel();
             destChannel = new FileOutputStream(dest).getChannel();
             destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
-        } finally{
+        } finally {
             sourceChannel.close();
             destChannel.close();
         }
