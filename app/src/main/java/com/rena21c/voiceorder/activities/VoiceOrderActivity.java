@@ -5,6 +5,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -71,7 +72,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         recordedFileManager = App.getApplication(getApplicationContext()).getRecordedFileManager();
         dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
-        recordedFilePlayer = new RecordedFilePlayer();
+        recordedFilePlayer = new RecordedFilePlayer((AudioManager)getSystemService(Context.AUDIO_SERVICE));
 
         voiceOrderView = new VoiceOrderView(VoiceOrderActivity.this);
         voiceOrderView.initView(dbManager, recordedFileManager);
