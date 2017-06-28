@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
@@ -21,15 +22,18 @@ import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.services.FileUploadService;
+import com.rena21c.voiceorder.services.RecordedFilePlayer;
 import com.rena21c.voiceorder.services.VoiceRecorderManager;
 import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.util.MemorySizeChecker;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderManager.VoiceRecordCallback {
+public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderManager.VoiceRecordCallback,
+                                                                    RecordedFilePlayer.PlayRecordedFileListener {
 
     private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
 
@@ -38,6 +42,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
     private FirebaseDbManager dbManager;
     private MemorySizeChecker memorySizeChecker;
     private RecordedFileManager recordedFileManager;
+    private RecordedFilePlayer recordedFilePlayer;
 
     private ChildEventListener acceptedOrderChildEventListener;
 
@@ -66,6 +71,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         recordedFileManager = App.getApplication(getApplicationContext()).getRecordedFileManager();
         dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
+        recordedFilePlayer = new RecordedFilePlayer();
 
         voiceOrderView = new VoiceOrderView(VoiceOrderActivity.this);
         voiceOrderView.initView(dbManager, recordedFileManager);
@@ -126,16 +132,15 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
 
     }
 
-    @Override protected void onDestroy() {
-        super.onDestroy();
-        acceptedOrderQuery.removeEventListener(acceptedOrderChildEventListener);
-        recordListQuery.removeEventListener(recordListListener);
-    }
-
     @Override protected void onStart() {
         super.onStart();
         registerReceiver(fileUploadSuccessReceiver, new IntentFilter("com.rena21c.voiceorder.ACTION_UPLOAD"));
         voiceOrderView.setView(appPreferenceManager.getUserFirstVisit());
+    }
+
+    @Override protected void onPause() {
+        super.onPause();
+        recordedFilePlayer.stopRecordedFile();
     }
 
     @Override
@@ -147,8 +152,28 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         unregisterReceiver(fileUploadSuccessReceiver);
     }
 
+    @Override protected void onDestroy() {
+        super.onDestroy();
+        acceptedOrderQuery.removeEventListener(acceptedOrderChildEventListener);
+        recordListQuery.removeEventListener(recordListListener);
+    }
+
     @Override public void onStartRecord() {
+        recordedFilePlayer.stopRecordedFile();
         voiceOrderView.replaceViewToRecording();
+    }
+
+    @Override public void onPlayRecordedFile(String fileName) {
+        try {
+            String path = recordedFileManager.getRecordedFilePath(fileName);
+            recordedFilePlayer.playRecordedFile(path);
+        } catch (IOException e) {
+            Toast.makeText(this, "녹음파일 재생에 실패하였습니다\n잠시후 다시 시도해주세요", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override public void onStopRecordedFile() {
+        recordedFilePlayer.stopRecordedFile();
     }
 
     public void onStartedRecording() {
@@ -184,7 +209,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
     }
 
     private List<String> getFileNameListFrom(Iterator<DataSnapshot> dataSnapshotIterator) {
-        List<String> fileNameList = new ArrayList();
+        List<String> fileNameList = new ArrayList<>();
         if (dataSnapshotIterator != null) {
             while (dataSnapshotIterator.hasNext()) {
                 fileNameList.add(dataSnapshotIterator.next().getKey());
@@ -192,5 +217,4 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         }
         return fileNameList;
     }
-
 }

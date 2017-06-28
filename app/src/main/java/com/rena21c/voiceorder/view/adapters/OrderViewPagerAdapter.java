@@ -109,7 +109,7 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         if (orderPageMap.containsKey(timeStamp)) {
             // Do Nothing
         } else {
-            orderPageMap.put(timeStamp, new EmptyOrderPage(timeStamp, recordedFileManager.isStored(fileName)));
+            orderPageMap.put(timeStamp, new EmptyOrderPage(timeStamp, fileName, recordedFileManager.isStored(fileName)));
         }
         notifyDataSetChanged();
         itemCountChangedListener.itemCountChange(timeStampList.size());

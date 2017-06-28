@@ -62,6 +62,10 @@ public class RecordedFileManager {
         return file.exists();
     }
 
+    public String getRecordedFilePath(String fileName) {
+        return saveDir.getPath() + "/" + fileName + ".mp4";
+    }
+
     private ArrayList<File> getRecordedFiles() {
         return new ArrayList<>(Arrays.asList(
                 saveDir.listFiles(new FilenameFilter() {
