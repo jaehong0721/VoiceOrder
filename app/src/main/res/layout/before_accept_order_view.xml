@@ -50,22 +50,24 @@
         android:layout_marginTop="27dp">
 
         <ImageView
-            android:id="@+id/ivListen"
+            android:id="@+id/ivPlay"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:clickable="true"
             android:foreground="?android:attr/selectableItemBackground"
-            android:src="@drawable/listen"/>
+            android:src="@drawable/listen"
+            android:visibility="gone"/>
 
         <ImageView
             android:id="@+id/ivStop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"
-            android:layout_toRightOf="@+id/ivListen"
+            android:layout_toRightOf="@+id/ivPlay"
             android:clickable="true"
             android:foreground="?android:attr/selectableItemBackground"
-            android:src="@drawable/stop"/>
+            android:src="@drawable/stop"
+            android:visibility="gone"/>
     </RelativeLayout>
 
 </RelativeLayout>
