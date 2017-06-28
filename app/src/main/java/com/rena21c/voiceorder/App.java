@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
+import com.rena21c.voiceorder.etc.RecordedFileManager;
 import com.rena21c.voiceorder.network.ConnectivityIntercepter;
 
 import okhttp3.OkHttpClient;
@@ -20,6 +21,8 @@ public class App extends Application {
     }
 
     private AppPreferenceManager appPreferenceManager;
+
+    private RecordedFileManager recordedFileManager;
 
     @Override
     public void onCreate() {
@@ -45,6 +48,8 @@ public class App extends Application {
                 .baseUrl(url)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
+
+        recordedFileManager = new RecordedFileManager(getFilesDir());
     }
 
     public AppPreferenceManager getPreferenceManager() {
@@ -54,4 +59,6 @@ public class App extends Application {
     public Retrofit getRetrofit() {
         return retrofit;
     }
+
+    public RecordedFileManager getRecordedFileManager() { return recordedFileManager; }
 }

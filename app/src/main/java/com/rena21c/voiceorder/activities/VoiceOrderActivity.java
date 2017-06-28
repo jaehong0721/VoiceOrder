@@ -16,6 +16,7 @@ import com.google.firebase.database.Query;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
+import com.rena21c.voiceorder.etc.RecordedFileManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.network.NetworkUtil;
@@ -36,6 +37,8 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
     private VoiceRecorderManager recordManager;
     private FirebaseDbManager dbManager;
     private MemorySizeChecker memorySizeChecker;
+    private RecordedFileManager recordedFileManager;
+
     private ChildEventListener acceptedOrderChildEventListener;
 
     private VoiceOrderView voiceOrderView;
@@ -60,13 +63,14 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
             }
         };
 
-        voiceOrderView = new VoiceOrderView(VoiceOrderActivity.this);
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
+        recordedFileManager = App.getApplication(getApplicationContext()).getRecordedFileManager();
         dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
 
+        voiceOrderView = new VoiceOrderView(VoiceOrderActivity.this);
         voiceOrderView.initView(dbManager);
 
-        recordManager = new VoiceRecorderManager(getFilesDir().getPath(), this);
+        recordManager = new VoiceRecorderManager(recordedFileManager, this);
         memorySizeChecker = new MemorySizeChecker(REQUIRED_SPACE);
 
         acceptedOrderChildEventListener = new ChildEventListener() {

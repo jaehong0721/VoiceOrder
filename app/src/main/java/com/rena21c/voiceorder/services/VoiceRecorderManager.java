@@ -3,6 +3,8 @@ package com.rena21c.voiceorder.services;
 
 import android.media.MediaRecorder;
 
+import com.rena21c.voiceorder.etc.RecordedFileManager;
+
 import java.io.File;
 import java.io.IOException;
 
@@ -15,11 +17,14 @@ public class VoiceRecorderManager {
     }
 
     private final VoiceRecordCallback callback;
+    private final RecordedFileManager recordedFileManager;
+
     private final String path;
 
-    public VoiceRecorderManager(String path, VoiceRecordCallback callback) {
+    public VoiceRecorderManager(RecordedFileManager recordedFileManager, VoiceRecordCallback callback) {
         this.callback = callback;
-        this.path = path;
+        this.recordedFileManager = recordedFileManager;
+        this.path = recordedFileManager.getRootDir();
     }
 
     private MediaRecorder recorder;
@@ -44,8 +49,15 @@ public class VoiceRecorderManager {
             recorder.release();
             recorder = null;
         }
-        File dest = new File(path + "/" + fileName + ".mp4");
-        new File(path + "/temp").renameTo(dest);
+
+        recordedFileManager.createSaveDir();
+
+        try {
+            recordedFileManager.saveRecordedFile(new File(path + "/temp"), fileName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
         return fileName;
     }
 
@@ -55,7 +67,7 @@ public class VoiceRecorderManager {
             recorder.release();
             recorder = null;
         }
-        File dest = new File(path + "/" + fileName + ".mp4");
+
         new File(path + "/temp").delete();
     }
 
@@ -68,5 +80,4 @@ public class VoiceRecorderManager {
         recorder.setAudioEncodingBitRate(128000);
         recorder.setOutputFile(path + "/temp");
     }
-
 }

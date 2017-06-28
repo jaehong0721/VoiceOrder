@@ -79,10 +79,18 @@ public class SplashActivity extends BaseActivity {
 
         //식당 녹음 파일 삭제 테스트용 로그 - 지우지 말 것
         for(String fileName: getFilesDir().list()){
-        Log.d("test", "file: " + fileName);
+        Log.d("test root", "file: " + fileName);
         }
 
-        RecordedFileManager recordedFileManager = new RecordedFileManager(new File(getFilesDir().toString()));
+        //식당 녹음 파일 삭제 테스트용 로그 - 지우지 말 것
+        File file = new File(getFilesDir().getPath() + "/recordedFiles");
+        if(file.list() != null) {
+            for (String fileName : file.list()) {
+                Log.d("test recordedFiles", "file: " + fileName);
+            }
+        }
+
+        RecordedFileManager recordedFileManager = App.getApplication(getApplicationContext()).getRecordedFileManager();
         recordedFileManager.deleteRecordedFile(System.currentTimeMillis());
     }
 
