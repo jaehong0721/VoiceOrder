@@ -9,6 +9,7 @@ import android.view.WindowManager;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.etc.RecordedFileManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.model.VoiceRecord;
 import com.rena21c.voiceorder.util.FileNameUtil;
@@ -50,7 +51,7 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
         recordAndStopButton.setListener(this);
     }
 
-    public void initView(FirebaseDbManager dbManager) {
+    public void initView(FirebaseDbManager dbManager, RecordedFileManager recordedFileManager) {
 
         LayoutInflater layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         viewPager = layoutInflater.inflate(R.layout.layout_component_order_view_pager, replaceableLayout, false);
@@ -58,7 +59,7 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
         viewPagerIndicator = (ViewPagerIndicator) viewPager.findViewById(R.id.viewPagerIndicator);
         orderViewPager = (ViewPager) viewPager.findViewById(R.id.viewPager);
 
-        orderViewPagerAdapter = new OrderViewPagerAdapter(activity, dbManager, new OrderViewPagerAdapter.ItemCountChangedListener() {
+        orderViewPagerAdapter = new OrderViewPagerAdapter(activity, dbManager, recordedFileManager, new OrderViewPagerAdapter.ItemCountChangedListener() {
             @Override public void itemCountChange(int count) {
                 viewPagerIndicator.changeDot(count);
                 if (count == 1) viewPagerIndicator.selectDot(0);
@@ -84,8 +85,7 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
     }
 
     public void addTimeStamp(String fileName) {
-        String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
-        orderViewPagerAdapter.addTimeStamp(timeStamp);
+        orderViewPagerAdapter.addTimeStamp(fileName);
     }
 
     private void setGuide() {
@@ -124,8 +124,8 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
         }
     }
 
-    public void addEmptyOrderToViewPager(String timeStamp) {
-        orderViewPagerAdapter.addTimeStamp(timeStamp);
+    public void addEmptyOrderToViewPager(String fileName) {
+        orderViewPagerAdapter.addTimeStamp(fileName);
         orderViewPager.setCurrentItem(0);
     }
 

@@ -13,9 +13,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.rena21c.voiceorder.activities.OrderDetailActivity;
+import com.rena21c.voiceorder.etc.RecordedFileManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.model.VoiceRecord;
+import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.viewmodel.AcceptedOrderPage;
 import com.rena21c.voiceorder.viewmodel.EmptyOrderPage;
 import com.rena21c.voiceorder.viewmodel.OrderPage;
@@ -28,6 +30,8 @@ import java.util.Map;
 public class OrderViewPagerAdapter extends PagerAdapter {
 
     private final FirebaseDbManager dbManager;
+    private final RecordedFileManager recordedFileManager;
+
     private Context context;
     private LayoutInflater layoutInflater;
 
@@ -42,13 +46,22 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         void itemCountChange(int count);
     }
 
-    public OrderViewPagerAdapter(final Context context, FirebaseDbManager dbManager, ItemCountChangedListener itemCountChangedListener) {
+    public OrderViewPagerAdapter(final Context context,
+                                 FirebaseDbManager dbManager,
+                                 RecordedFileManager recordedFileManager,
+                                 ItemCountChangedListener itemCountChangedListener) {
+
+        layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
         this.context = context;
         this.timeStampList = new ArrayList<>();
         this.orderPageMap = new HashMap<>();
-        layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
         this.dbManager = dbManager;
+        this.recordedFileManager = recordedFileManager;
+
         this.itemCountChangedListener = itemCountChangedListener;
+
         onClickDetailsOrderPageListener = new OrderPage.OnClickDetailsOrderPageListener() {
             @Override public void onClickDetailsOrderPage(String timeStamp, HashMap<String, VoiceRecord> itemHashMap) {
                 Intent intent = new Intent(context, OrderDetailActivity.class);
@@ -89,13 +102,14 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         return POSITION_NONE;
     }
 
-    public void addTimeStamp(String timeStamp) {
+    public void addTimeStamp(String fileName) {
+        String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
         timeStampList.add(timeStamp);
         Collections.sort(timeStampList, Collections.<String>reverseOrder());
         if (orderPageMap.containsKey(timeStamp)) {
             // Do Nothing
         } else {
-            orderPageMap.put(timeStamp, new EmptyOrderPage(timeStamp));
+            orderPageMap.put(timeStamp, new EmptyOrderPage(timeStamp, recordedFileManager.isStored(fileName)));
         }
         notifyDataSetChanged();
         itemCountChangedListener.itemCountChange(timeStampList.size());

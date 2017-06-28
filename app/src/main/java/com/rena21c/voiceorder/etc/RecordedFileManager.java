@@ -57,14 +57,19 @@ public class RecordedFileManager {
         }
     }
 
-    public ArrayList<File> getRecordedFiles() {
+    public boolean isStored(String fileName) {
+        File file = new File(saveDir.getPath() + "/" + fileName + ".mp4");
+        return file.exists();
+    }
+
+    private ArrayList<File> getRecordedFiles() {
         return new ArrayList<>(Arrays.asList(
                 saveDir.listFiles(new FilenameFilter() {
                     @Override
                     public boolean accept(File dir, String name) {
                         return name.endsWith(".mp4");
                     }
-            })
+                })
         ));
     }
 

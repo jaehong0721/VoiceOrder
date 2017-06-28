@@ -68,7 +68,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
 
         voiceOrderView = new VoiceOrderView(VoiceOrderActivity.this);
-        voiceOrderView.initView(dbManager);
+        voiceOrderView.initView(dbManager, recordedFileManager);
 
         recordManager = new VoiceRecorderManager(recordedFileManager, this);
         memorySizeChecker = new MemorySizeChecker(REQUIRED_SPACE);
@@ -163,7 +163,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
     public void onStoppedRecording() {
         final String fileName = recordManager.stop();
         voiceOrderView.clearKeepScreenOn();
-        voiceOrderView.addEmptyOrderToViewPager(FileNameUtil.getTimeFromFileName(fileName));
+        voiceOrderView.addEmptyOrderToViewPager(fileName);
         voiceOrderView.replaceViewToUnRecording();
         Intent intent = new Intent(this, FileUploadService.class);
         startService(intent);
