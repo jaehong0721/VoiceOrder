@@ -131,6 +131,8 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                 bodyMap.put("longitude", longitude);
                 bodyMap.put("keyWord", s.toString());
                 requestVendor(bodyMap);
+
+                rvVendors.scrollToPosition(0);
             }
 
             @Override public void afterTextChanged(Editable s) {
