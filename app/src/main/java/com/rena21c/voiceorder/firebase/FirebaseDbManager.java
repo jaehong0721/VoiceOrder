@@ -2,6 +2,7 @@ package com.rena21c.voiceorder.firebase;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
@@ -71,12 +72,6 @@ public class FirebaseDbManager {
         return query;
     }
 
-    public void removeRemoveAcceptedOrder(String key) {
-        instance.getReference().child(ORDERS)
-                .child(RESTAURANTS)
-                .child(key)
-                .removeValue();
-    }
     public void getVendorInfo(String vendorPhoneNumber, ValueEventListener listener) {
         instance.getReference().child("vendors")
                 .child(vendorPhoneNumber)
@@ -93,4 +88,26 @@ public class FirebaseDbManager {
                 .addOnCompleteListener(listener);
     }
 
+    public void hasMyPartner(String phoneNumber, ToastErrorHandlingListener listener) {
+        instance.getReference()
+                .child(RESTAURANTS)
+                .child(phoneNumber)
+                .addListenerForSingleValueEvent(listener);
+    }
+    public DatabaseReference subscribeMyPartner(String phoneNumber, ValueEventListener listener) {
+        DatabaseReference reference = instance.getReference()
+                                        .child(RESTAURANTS)
+                                        .child(phoneNumber)
+                                        .child("vendors");
+        reference.addValueEventListener(listener);
+        return reference;
+    }
+
+    public void cancelSubscriptionMyPartner(String phoneNumber, ToastErrorHandlingListener dbListener) {
+        instance.getReference()
+                .child(RESTAURANTS)
+                .child(phoneNumber)
+                .child("vendors")
+                .removeEventListener(dbListener);
+    }
 }
