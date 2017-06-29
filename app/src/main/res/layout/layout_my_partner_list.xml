@@ -25,7 +25,7 @@
             android:layout_height="50dp"
             android:layout_centerHorizontal="true"
             app:background="@drawable/shape_colorful_border"
-            app:text="내 연락처에서 추가"
+            app:text="내 연락처에서 추가/삭제"
             app:textColor="@color/primaryBrown"
             app:textSize="16"/>
 
