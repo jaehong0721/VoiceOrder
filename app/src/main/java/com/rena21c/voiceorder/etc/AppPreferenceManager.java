@@ -14,8 +14,9 @@ import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
 
-public class AppPreferenceManager {
+public class AppPreferenceManager extends Observable {
 
     private final Context context;
     private final SharedPreferences sharedPreference;
@@ -112,6 +113,8 @@ public class AppPreferenceManager {
 
         callTimeMapContainer.getObject().put(vendorPhoneNumber, callTime);
         setMapContainer("callTimeMapContainer", callTimeMapContainer);
+        setChanged();
+        notifyObservers("callTimes");
     }
 
     public long getCallTime(String vendorPhoneNumber) {
@@ -168,6 +171,8 @@ public class AppPreferenceManager {
 
         calledVendorsMapContainer.setObject(calledVendorsMap);
         setMapContainer("calledVendorsMapContainer", calledVendorsMapContainer);
+        setChanged();
+        notifyObservers("calledVendors");
     }
 
     public HashMap<String,String> getCalledVendors() {
