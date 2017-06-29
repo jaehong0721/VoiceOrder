@@ -6,23 +6,30 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.FirebaseDatabase;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
+import com.rena21c.voiceorder.firebase.FirebaseDbManager;
+import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.components.ReplaceableLayout;
 import com.rena21c.voiceorder.view.widgets.AddPartnerButton;
 import com.rena21c.voiceorder.viewmodel.MyPartnerGuideViewModel;
 import com.rena21c.voiceorder.viewmodel.MyPartnerListViewModel;
 
-import java.util.HashMap;
 
-
-public class MyPartnerActivity extends HasTabActivity implements AddPartnerButton.AddPartnerListener{
+public class MyPartnerActivity extends HasTabActivity implements AddPartnerButton.AddPartnerListener,
+                                                                 MyPartnerListViewModel.DataSetSizeChangedListener {
 
     private AppPreferenceManager appPreferenceManager;
+    private FirebaseDbManager dbManager;
 
     private ReplaceableLayout replaceableLayout;
+
+    private View myPartnerListView;
+    private View myPartnerGuideView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,23 +40,28 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
 
         appPreferenceManager= App.getApplication(getApplicationContext()).getPreferenceManager();
 
-    }
-    
-    @Override protected void onResume() {
-        super.onResume();
-        HashMap<String,String> calledVendors = appPreferenceManager.getCalledVendors();
-        HashMap<String,String> myPartners =  appPreferenceManager.getMyPartners();
-        HashMap<String, Long> allCallTime = appPreferenceManager.getAllCallTime();
+        dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
 
-        if(calledVendors.size() != 0 || myPartners.size() != 0) {
-            MyPartnerListViewModel myPartnerListViewModel= new MyPartnerListViewModel(this,calledVendors, myPartners, allCallTime);
-            View myPartnerListView = myPartnerListViewModel.getView(this);
-            replaceableLayout.replaceChildView(myPartnerListView);
-        } else {
-            MyPartnerGuideViewModel guideViewModel = new MyPartnerGuideViewModel(this);
-            View myPartnerGuideView = guideViewModel.getView(LayoutInflater.from(this));
-            replaceableLayout.replaceChildView(myPartnerGuideView);
-        }
+        MyPartnerListViewModel myPartnerListViewModel = new MyPartnerListViewModel (this,
+                                                                                    this,
+                                                                                    appPreferenceManager,
+                                                                                    dbManager);
+        myPartnerListView = myPartnerListViewModel.getView(this);
+
+        MyPartnerGuideViewModel guideViewModel = new MyPartnerGuideViewModel(this);
+        myPartnerGuideView = guideViewModel.getView(LayoutInflater.from(this));
+
+        final boolean hasCalledVendors = appPreferenceManager.getCalledVendors().size() != 0;
+
+        dbManager.hasMyPartner(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
+            @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.hasChild("vendors") || hasCalledVendors) {
+                    showMyPartnerList();
+                } else {
+                    showGuide();
+                }
+            }
+        });
     }
 
     @Override public void onAddPartner() {
@@ -57,10 +69,12 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
         startActivity(intent);
     }
 
+    @Override public void onDataSetSizeChanged(int size) {
+        if(size == 0) showGuide();
+    }
+
     @SuppressWarnings("MissingPermission")
     public void moveToCallApp(String phoneNumber) {
-        appPreferenceManager.setCallTime(phoneNumber, System.currentTimeMillis());
-
         Intent intent = new Intent(Intent.ACTION_CALL);
         intent.setData(Uri.parse("tel:" + phoneNumber));
         startActivity(intent);
@@ -68,5 +82,13 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
 
     public void moveToVoiceOrderTab() {
         super.moveTab(TabActionBar.Tab.VOICE_ORDER);
+    }
+
+    private void showMyPartnerList() {
+        replaceableLayout.replaceChildView(myPartnerListView);
+    }
+
+    private void showGuide() {
+        replaceableLayout.replaceChildView(myPartnerGuideView);
     }
 }

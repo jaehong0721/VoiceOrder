@@ -258,9 +258,9 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
     @Override public void onClickPositiveButton() {
         beforeCallDialog.dismiss();
 
+        appPreferenceManager.setCallTime(vendorPhoneNumber, System.currentTimeMillis());
         calledVendors.put(vendorPhoneNumber, vendorName);
         appPreferenceManager.setCalledVendors(calledVendors);
-        appPreferenceManager.setCallTime(vendorPhoneNumber, System.currentTimeMillis());
 
         Intent intent = new Intent(Intent.ACTION_CALL);
         intent.setData(Uri.parse("tel:" + vendorPhoneNumber));

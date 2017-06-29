@@ -17,16 +17,16 @@ import java.util.ArrayList;
 public class MyPartnersRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     public interface ItemClickListener {
-        void onItemClick(String phoneNumber, String name);
+        void onItemClick(int position, String phoneNumber, String name);
     }
 
     private ItemClickListener itemClickListener;
+
     private ArrayList<Partner> partners;
 
     private int numberOfMyPartners;
 
-    public MyPartnersRecyclerViewAdapter(int numberOfMyPartners) {
-        this.numberOfMyPartners = numberOfMyPartners;
+    public MyPartnersRecyclerViewAdapter() {
         this.partners = new ArrayList<>();
     }
 
@@ -54,7 +54,7 @@ public class MyPartnersRecyclerViewAdapter extends RecyclerView.Adapter<Recycler
                 long callTimeMillis = partners.get(position).callTime;
 
                 String elapsedTime = callTimeMillis != 0 ? TimeConverter.convert(System.currentTimeMillis(), callTimeMillis) : "";
-                String vendorName = partners.get(position).vendorName;
+                String vendorName = partners.get(position).name;
 
                 ((SimpleVendorInfoViewHolder)holder).bind(vendorName, elapsedTime);
                 break;
@@ -73,6 +73,10 @@ public class MyPartnersRecyclerViewAdapter extends RecyclerView.Adapter<Recycler
         return position == numberOfMyPartners ? 1 : 0;
     }
 
+    public void setNumberOfMyPartners(int numberOfMyPartners) {
+        this.numberOfMyPartners = numberOfMyPartners;
+    }
+
     public void setPartners(ArrayList<Partner> partners) {
         this.partners = partners;
         notifyDataSetChanged();
@@ -84,6 +88,6 @@ public class MyPartnersRecyclerViewAdapter extends RecyclerView.Adapter<Recycler
 
     public void itemClicked(int position) {
         if(position > numberOfMyPartners) position -= 1;
-        itemClickListener.onItemClick(partners.get(position).vendorPhoneNumber, partners.get(position).vendorName);
+        itemClickListener.onItemClick(position, partners.get(position).phoneNumber, partners.get(position).name);
     }
 }

@@ -7,6 +7,13 @@ public class Vendor {
     public String address;
     public String items;
 
+    public Vendor() {}
+
+    public Vendor(String name, String phoneNumber) {
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+    }
+
     @Override public String toString() {
         return "Vendor{" +
                 "name='" + name + '\'' +

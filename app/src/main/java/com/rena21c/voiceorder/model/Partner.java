@@ -1,14 +1,15 @@
 package com.rena21c.voiceorder.model;
 
 
-public class Partner {
-    public String vendorName;
-    public String vendorPhoneNumber;
+import com.rena21c.voiceorder.pojo.Vendor;
+
+public class Partner extends Vendor {
     public long callTime;
 
-    public Partner(String vendorPhoneNumber, String vendorName, long callTime) {
-        this.vendorPhoneNumber = vendorPhoneNumber;
-        this.vendorName = vendorName;
+    public Partner() {}
+
+    public Partner(String name, String phoneNumber, long callTime) {
+        super(name, phoneNumber);
         this.callTime = callTime;
     }
 }
