@@ -35,7 +35,6 @@ import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.pojo.MyPartner;
 import com.rena21c.voiceorder.util.ContactsLoader;
 import com.rena21c.voiceorder.util.DpToPxConverter;
-import com.rena21c.voiceorder.util.StringUtil;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
 import com.rena21c.voiceorder.view.actionbar.NavigateBackActionBar;
 import com.rena21c.voiceorder.view.adapters.ContactsRecyclerViewAdapter;
@@ -166,11 +165,7 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
         if(myPartnerMap.size() != 0) {
 
             for (Contact contact : contacts) {
-                String phoneNumber = StringUtil.removeSpecialLetter(contact.phoneNumber);
-                
-                if(phoneNumber.equals("")) phoneNumber = "01000000000";
-
-                if (myPartnerMap.containsKey(phoneNumber)) contact.isChecked = true;
+                if (myPartnerMap.containsKey(contact.phoneNumber)) contact.isChecked = true;
             }
 
             IsCheckedComparator isCheckedComparator = new IsCheckedComparator();
@@ -183,20 +178,17 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
     @Override public void onCheck(Contact contact) {
         contact.isChecked = !contact.isChecked;
 
-        String phoneNumber = StringUtil.removeSpecialLetter(contact.phoneNumber);
-        if(phoneNumber.equals("")) phoneNumber = "01000000000";
-
         if(contact.isChecked) {
-            if(removedMyPartnerMap.containsKey(phoneNumber)) {
-                MyPartner restoredMyPartner = removedMyPartnerMap.get(phoneNumber);
+            if(removedMyPartnerMap.containsKey(contact.phoneNumber)) {
+                MyPartner restoredMyPartner = removedMyPartnerMap.get(contact.phoneNumber);
                 restoredMyPartner.name = contact.name;
-                myPartnerMap.put(phoneNumber, restoredMyPartner);
+                myPartnerMap.put(contact.phoneNumber, restoredMyPartner);
             } else {
-                myPartnerMap.put(phoneNumber, new MyPartner(contact.name));
+                myPartnerMap.put(contact.phoneNumber, new MyPartner(contact.name));
             }
         } else {
-            MyPartner removedMyPartner = myPartnerMap.remove(phoneNumber);
-            removedMyPartnerMap.put(phoneNumber, removedMyPartner);
+            MyPartner removedMyPartner = myPartnerMap.remove(contact.phoneNumber);
+            removedMyPartnerMap.put(contact.phoneNumber, removedMyPartner);
         }
 
         showBtnRegister();

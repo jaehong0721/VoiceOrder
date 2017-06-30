@@ -99,7 +99,8 @@ public class ContactsLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 
         for(Map.Entry entry : phoneNumberMap.entrySet()) {
             String name = nameMap.get(entry.getKey());
-            String phoneNumber = (String) entry.getValue();
+            String phoneNumber = StringUtil.removeSpecialLetter((String) entry.getValue());
+            if(phoneNumber.equals("")) phoneNumber = "01000000000";
 
             if(name != null && phoneNumber != null)
                 contacts.add(new Contact(phoneNumber, name));
