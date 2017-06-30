@@ -6,6 +6,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.rena21c.voiceorder.pojo.MyPartner;
+
+import java.util.HashMap;
 
 public class FirebaseDbManager {
 
@@ -103,5 +106,22 @@ public class FirebaseDbManager {
                 .child(phoneNumber)
                 .child("vendors")
                 .removeEventListener(dbListener);
+    }
+
+    public void getMyPartnersOnce(String phoneNumber, ToastErrorHandlingListener listener) {
+        instance.getReference()
+                .child(RESTAURANTS)
+                .child(phoneNumber)
+                .child("vendors")
+                .addListenerForSingleValueEvent(listener);
+    }
+
+    public void uploadMyPartner(String phoneNumber, HashMap<String, MyPartner> myPartnerMap, OnCompleteListener listener) {
+        instance.getReference()
+                .child(RESTAURANTS)
+                .child(phoneNumber)
+                .child("vendors")
+                .setValue(myPartnerMap)
+                .addOnCompleteListener(listener);
     }
 }

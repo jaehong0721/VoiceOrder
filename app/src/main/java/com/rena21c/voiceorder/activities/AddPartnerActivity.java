@@ -2,6 +2,7 @@ package com.rena21c.voiceorder.activities;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -12,12 +13,21 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.etc.IsCheckedComparator;
+import com.rena21c.voiceorder.firebase.FirebaseDbManager;
+import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.model.Contact;
+import com.rena21c.voiceorder.pojo.MyPartner;
 import com.rena21c.voiceorder.util.ContactsLoader;
 import com.rena21c.voiceorder.util.DpToPxConverter;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
@@ -32,17 +42,20 @@ import java.util.HashMap;
 
 
 public class AddPartnerActivity extends BaseActivity implements ContactInfoViewHolder.CheckContactListener,
-                                                                ContactsLoader.LoadFinishedListener {
+                                                                ContactsLoader.LoadFinishedListener,
+                                                                OnCompleteListener{
 
     private ContactsLoader contactsLoader;
 
     private AppPreferenceManager appPreferenceManager;
 
-    private HashMap<String, String> myPartnerMap;
+    private FirebaseDbManager dbManager;
+
+    private HashMap<String,MyPartner> myPartnerMap;
+    private HashMap<String,MyPartner> removedMyPartnerMap;
 
     private ContactsRecyclerViewAdapter contactsAdapter;
 
-    private RecyclerView rvContacts;
     private Button btnRegister;
     private AutoCompleteTextView actvSearch;
     private ImageView ivDelete;
@@ -63,15 +76,17 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
                 })
                 .setTitle("거래처 등록");
 
+        myPartnerMap = new HashMap<>();
+        removedMyPartnerMap = new HashMap<>();
+
         contactsLoader = new ContactsLoader(getLoaderManager(), getApplicationContext());
         contactsLoader.setLoadFinishedListener(this);
 
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
 
-        myPartnerMap = appPreferenceManager.getMyPartners();
-        isInitialAdd = myPartnerMap.size() == 0;
+        dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
 
-        rvContacts = (RecyclerView) findViewById(R.id.rvContacts);
+        RecyclerView rvContacts = (RecyclerView) findViewById(R.id.rvContacts);
         contactsAdapter = new ContactsRecyclerViewAdapter(this);
 
         rvContacts.setLayoutManager(new LinearLayoutManager(this));
@@ -81,8 +96,7 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
         btnRegister = (Button) findViewById(R.id.btnRegister);
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                appPreferenceManager.setMyPartners(myPartnerMap);
-                finish();
+                dbManager.uploadMyPartner(appPreferenceManager.getPhoneNumber(), myPartnerMap, AddPartnerActivity.this);
             }
         });
 
@@ -123,7 +137,18 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
 
     @Override protected void onStart() {
         super.onStart();
-        contactsLoader.startToLoadContacts();
+
+        dbManager.getMyPartnersOnce(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
+
+            @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    GenericTypeIndicator partnerMapType = new GenericTypeIndicator<HashMap<String, MyPartner>>() {};
+                    myPartnerMap = (HashMap)dataSnapshot.getValue(partnerMapType);
+                }
+                isInitialAdd = myPartnerMap.size() == 0;
+                contactsLoader.startToLoadContacts();
+            }
+        });
     }
 
     @Override public void onLoadFinished(ArrayList<Contact> contacts) {
@@ -135,23 +160,33 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
 
             IsCheckedComparator isCheckedComparator = new IsCheckedComparator();
             Collections.sort(contacts, isCheckedComparator);
-
-            contactsAdapter.setOriginContacts(contacts);
-        } else {
-            contactsAdapter.setOriginContacts(contacts);
         }
+
+        contactsAdapter.setOriginContacts(contacts);
     }
 
     @Override public void onCheck(Contact contact) {
         contact.isChecked = !contact.isChecked;
 
         if(contact.isChecked) {
-            myPartnerMap.put(contact.phoneNumber, contact.name);
+            if(removedMyPartnerMap.containsKey(contact.phoneNumber)) {
+                MyPartner restoredMyPartner = removedMyPartnerMap.get(contact.phoneNumber);
+                restoredMyPartner.name = contact.name;
+                myPartnerMap.put(contact.phoneNumber, restoredMyPartner);
+            } else {
+                myPartnerMap.put(contact.phoneNumber, new MyPartner(contact.name));
+            }
         } else {
-            myPartnerMap.remove(contact.phoneNumber);
+            MyPartner removedMyPartner = myPartnerMap.remove(contact.phoneNumber);
+            removedMyPartnerMap.put(contact.phoneNumber, removedMyPartner);
         }
 
         showBtnRegister();
+    }
+
+    @Override public void onComplete(@NonNull Task task) {
+        if(!task.isSuccessful()) Toast.makeText(this, "거래처 등록에 실패하였습니다", Toast.LENGTH_SHORT).show();
+        finish();
     }
 
     private void showBtnRegister() {
