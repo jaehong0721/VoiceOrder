@@ -6,5 +6,10 @@ public class VendorInfo {
     public String vendorName;
     public String ownerName;
     public String phoneNumber;
+
     public VendorInfo() {}
+
+    public VendorInfo(String vendorName) {
+        this.vendorName = vendorName;
+    }
 }

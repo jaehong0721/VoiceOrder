@@ -137,29 +137,7 @@ public class AppPreferenceManager extends Observable {
         Container<HashMap<String,Long>> callTimeMapContainer = getMapContainer("callTimeMapContainer", callTimeMapTypeToken);
         return callTimeMapContainer == null ? new HashMap<String,Long>() : callTimeMapContainer.getObject();
     }
-
-    public void setMyPartners(HashMap<String, String> myPartnerMap) {
-
-        TypeToken<Container<HashMap<String,String>>> myPartnerMapTypeToken = new TypeToken<Container<HashMap<String,String>>>(){};
-
-        Container<HashMap<String,String>> myPartnerMapContainer = getMapContainer("myPartnerMapContainer", myPartnerMapTypeToken);
-
-        if(myPartnerMapContainer == null) {
-            myPartnerMapContainer = new Container<>();
-        }
-
-        myPartnerMapContainer.setObject(myPartnerMap);
-        setMapContainer("myPartnerMapContainer", myPartnerMapContainer);
-    }
-
-    public HashMap<String,String> getMyPartners() {
-        TypeToken<Container<HashMap<String,String>>> myPartnerMapTypeToken = new TypeToken<Container<HashMap<String,String>>>(){};
-
-        Container<HashMap<String,String>> myPartnerMapContainer = getMapContainer("myPartnerMapContainer", myPartnerMapTypeToken);
-
-        return myPartnerMapContainer == null ? new HashMap<String,String>() : myPartnerMapContainer.getObject();
-    }
-
+    
     public void setCalledVendors(HashMap<String, String> calledVendorsMap) {
         TypeToken<Container<HashMap<String,String>>> calledVendorsMapTypeToken = new TypeToken<Container<HashMap<String,String>>>(){};
 
