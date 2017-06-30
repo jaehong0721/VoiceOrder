@@ -170,9 +170,11 @@ public class MyPartnerListViewModel implements  View.OnAttachStateChangeListener
                     HashMap<String, Partner> partnerMap = (HashMap)dataSnapshot.getValue(partnerMapType);
 
                     for(Map.Entry<String,Partner> entry : partnerMap.entrySet() ) {
+
                         String phoneNumber = entry.getKey();
 
                         entry.getValue().callTime = (callTimeMap.get(phoneNumber) != null) ? callTimeMap.get(phoneNumber) : 0;
+                        entry.getValue().phoneNumber = phoneNumber;
 
                         myPartners.add(entry.getValue());
                     }
