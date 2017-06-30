@@ -16,7 +16,7 @@ import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.etc.TimeSortComparator;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
-import com.rena21c.voiceorder.model.Partner;
+import com.rena21c.voiceorder.model.DisplayedMyPartner;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
 import com.rena21c.voiceorder.view.adapters.MyPartnersRecyclerViewAdapter;
 import com.rena21c.voiceorder.view.widgets.AddPartnerButton;
@@ -53,7 +53,7 @@ public class MyPartnerListViewModel implements  View.OnAttachStateChangeListener
 
     private HashMap<String, String> calledVendorMap;
     private HashMap<String, Long> callTimeMap;
-    private ArrayList<Partner> partners;
+    private ArrayList<DisplayedMyPartner> displayedMyPartners;
 
     private Observer callTimeMapObserver;
     private  Observer calledVendorMapObserver;
@@ -79,7 +79,7 @@ public class MyPartnerListViewModel implements  View.OnAttachStateChangeListener
     }
 
     private void initDataSet(AppPreferenceManager appPreferenceManager) {
-        this.partners = new ArrayList<>();
+        this.displayedMyPartners = new ArrayList<>();
         this.callTimeMap = appPreferenceManager.getAllCallTime();
         this.calledVendorMap = appPreferenceManager.getCalledVendors();
 
@@ -87,9 +87,9 @@ public class MyPartnerListViewModel implements  View.OnAttachStateChangeListener
 
         for(Map.Entry<String,String> entry : calledVendorMap.entrySet()) {
             long callTime = callTimeMap.get(entry.getKey()) != null ? callTimeMap.get(entry.getKey()) : 0;
-            partners.add(new Partner(entry.getValue(), entry.getKey(), callTime));
+            displayedMyPartners.add(new DisplayedMyPartner(entry.getValue(), entry.getKey(), callTime));
         }
-        Collections.sort(partners, timeSortComparator);
+        Collections.sort(displayedMyPartners, timeSortComparator);
     }
 
     public View getView(Context context) {
@@ -101,7 +101,7 @@ public class MyPartnerListViewModel implements  View.OnAttachStateChangeListener
         RecyclerView rvMyPartner = (RecyclerView) view.findViewById(R.id.rvMyPartner);
 
         myPartnersRecyclerViewAdapter = new MyPartnersRecyclerViewAdapter();
-        myPartnersRecyclerViewAdapter.setPartners(partners);
+        myPartnersRecyclerViewAdapter.setDisplayedMyPartners(displayedMyPartners);
         myPartnersRecyclerViewAdapter.setItemClickListener(this);
 
         rvMyPartner.setLayoutManager(new LinearLayoutManager(context));
@@ -127,27 +127,27 @@ public class MyPartnerListViewModel implements  View.OnAttachStateChangeListener
             @Override public void update(Observable o, Object arg) {
                 if(!(arg.equals("calledVendors"))) return;
 
-                if(partners.size() != 0){
-                    for(int i = partners.size()-1; i>=numberOfMyPartners; i--) {
-                        partners.remove(i);
+                if(displayedMyPartners.size() != 0){
+                    for(int i = displayedMyPartners.size()-1; i>=numberOfMyPartners; i--) {
+                        displayedMyPartners.remove(i);
                     }
                 }
 
                 calledVendorMap = ((AppPreferenceManager)o).getCalledVendors();
 
                 if(calledVendorMap.size() != 0) {
-                    ArrayList<Partner> calledVendorsOnRecommend = new ArrayList<>();
+                    ArrayList<DisplayedMyPartner> calledVendorsOnRecommend = new ArrayList<>();
 
                     for(Map.Entry<String,String> entry : calledVendorMap.entrySet()) {
                         long callTime = callTimeMap.get(entry.getKey()) != null ? callTimeMap.get(entry.getKey()) : 0;
-                        calledVendorsOnRecommend.add(new Partner(entry.getValue(), entry.getKey(), callTime));
+                        calledVendorsOnRecommend.add(new DisplayedMyPartner(entry.getValue(), entry.getKey(), callTime));
                     }
 
                     Collections.sort(calledVendorsOnRecommend, timeSortComparator);
-                    partners.addAll(numberOfMyPartners, calledVendorsOnRecommend);
+                    displayedMyPartners.addAll(numberOfMyPartners, calledVendorsOnRecommend);
                 }
-                myPartnersRecyclerViewAdapter.setPartners(partners);
-                dataSetSizeChangedListener.onDataSetSizeChanged(partners.size());
+                myPartnersRecyclerViewAdapter.setDisplayedMyPartners(displayedMyPartners);
+                dataSetSizeChangedListener.onDataSetSizeChanged(displayedMyPartners.size());
             }
         };
 
@@ -156,7 +156,7 @@ public class MyPartnerListViewModel implements  View.OnAttachStateChangeListener
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
                 if(numberOfMyPartners != 0) {
                     for(int i = numberOfMyPartners-1; i>=0; i--) {
-                        partners.remove(i);
+                        displayedMyPartners.remove(i);
                     }
                     numberOfMyPartners = 0;
                 }
@@ -164,26 +164,27 @@ public class MyPartnerListViewModel implements  View.OnAttachStateChangeListener
                 if(dataSnapshot.exists()) {
                     numberOfMyPartners = (int)dataSnapshot.getChildrenCount();
 
-                    ArrayList<Partner> myPartners = new ArrayList<>();
+                    ArrayList<DisplayedMyPartner> alreadyStoredMyPartners = new ArrayList<>();
 
-                    GenericTypeIndicator partnerMapType = new GenericTypeIndicator<HashMap<String, Partner>>() {};
-                    HashMap<String, Partner> partnerMap = (HashMap)dataSnapshot.getValue(partnerMapType);
+                    GenericTypeIndicator partnerMapType = new GenericTypeIndicator<HashMap<String, DisplayedMyPartner>>() {};
+                    HashMap<String, DisplayedMyPartner> partnerMap = (HashMap)dataSnapshot.getValue(partnerMapType);
 
-                    for(Map.Entry<String,Partner> entry : partnerMap.entrySet() ) {
+
+                    for(Map.Entry<String,DisplayedMyPartner> entry : partnerMap.entrySet() ) {
 
                         String phoneNumber = entry.getKey();
 
                         entry.getValue().callTime = (callTimeMap.get(phoneNumber) != null) ? callTimeMap.get(phoneNumber) : 0;
                         entry.getValue().phoneNumber = phoneNumber;
 
-                        myPartners.add(entry.getValue());
+                        alreadyStoredMyPartners.add(entry.getValue());
                     }
-                    Collections.sort(partners, timeSortComparator);
-                    partners.addAll(0,myPartners);
+                    Collections.sort(displayedMyPartners, timeSortComparator);
+                    displayedMyPartners.addAll(0, alreadyStoredMyPartners);
                 }
                 myPartnersRecyclerViewAdapter.setNumberOfMyPartners(numberOfMyPartners);
-                myPartnersRecyclerViewAdapter.setPartners(partners);
-                dataSetSizeChangedListener.onDataSetSizeChanged(partners.size());
+                myPartnersRecyclerViewAdapter.setDisplayedMyPartners(displayedMyPartners);
+                dataSetSizeChangedListener.onDataSetSizeChanged(displayedMyPartners.size());
             }
         };
 
@@ -214,20 +215,20 @@ public class MyPartnerListViewModel implements  View.OnAttachStateChangeListener
         appPreferenceManager.setCallTime(phoneNumber, currentTimeMillis);
 
         if(clickedItemPosition == 0 || clickedItemPosition == numberOfMyPartners) {
-            partners.get(clickedItemPosition).callTime = currentTimeMillis;
+            displayedMyPartners.get(clickedItemPosition).callTime = currentTimeMillis;
             int changePosition = clickedItemPosition < numberOfMyPartners ? clickedItemPosition : clickedItemPosition+1;
             myPartnersRecyclerViewAdapter.notifyItemChanged(changePosition);
             ((MyPartnerActivity)view.getContext()).moveToCallApp(phoneNumber);
             return;
         }
 
-        Partner partner = partners.remove(clickedItemPosition);
+        DisplayedMyPartner displayedMyPartner = displayedMyPartners.remove(clickedItemPosition);
         int removePosition = clickedItemPosition < numberOfMyPartners ? clickedItemPosition : clickedItemPosition+1;
         myPartnersRecyclerViewAdapter.notifyItemRemoved(removePosition);
 
         int newPosition = clickedItemPosition < numberOfMyPartners ? 0 : numberOfMyPartners;
-        partner.callTime = currentTimeMillis;
-        partners.add(newPosition, partner);
+        displayedMyPartner.callTime = currentTimeMillis;
+        displayedMyPartners.add(newPosition, displayedMyPartner);
         myPartnersRecyclerViewAdapter.notifyItemInserted(newPosition);
 
         ((MyPartnerActivity)view.getContext()).moveToCallApp(phoneNumber);

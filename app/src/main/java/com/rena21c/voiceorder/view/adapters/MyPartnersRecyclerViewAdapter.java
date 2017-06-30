@@ -7,7 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.rena21c.voiceorder.R;
-import com.rena21c.voiceorder.model.Partner;
+import com.rena21c.voiceorder.model.DisplayedMyPartner;
 import com.rena21c.voiceorder.util.TimeConverter;
 import com.rena21c.voiceorder.viewholder.ItemOfListDividerTextViewHolder;
 import com.rena21c.voiceorder.viewholder.SimpleVendorInfoViewHolder;
@@ -22,12 +22,12 @@ public class MyPartnersRecyclerViewAdapter extends RecyclerView.Adapter<Recycler
 
     private ItemClickListener itemClickListener;
 
-    private ArrayList<Partner> partners;
+    private ArrayList<DisplayedMyPartner> displayedMyPartners;
 
     private int numberOfMyPartners;
 
     public MyPartnersRecyclerViewAdapter() {
-        this.partners = new ArrayList<>();
+        this.displayedMyPartners = new ArrayList<>();
     }
 
     @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -51,10 +51,10 @@ public class MyPartnersRecyclerViewAdapter extends RecyclerView.Adapter<Recycler
             case 0:
                 if(position >= numberOfMyPartners) position -= 1;
 
-                long callTimeMillis = partners.get(position).callTime;
+                long callTimeMillis = displayedMyPartners.get(position).callTime;
 
                 String elapsedTime = callTimeMillis != 0 ? TimeConverter.convert(System.currentTimeMillis(), callTimeMillis) : "";
-                String vendorName = partners.get(position).name;
+                String vendorName = displayedMyPartners.get(position).name;
 
                 ((SimpleVendorInfoViewHolder)holder).bind(vendorName, elapsedTime);
                 break;
@@ -66,7 +66,7 @@ public class MyPartnersRecyclerViewAdapter extends RecyclerView.Adapter<Recycler
     }
 
     @Override public int getItemCount() {
-        return partners.size()+1;
+        return displayedMyPartners.size()+1;
     }
 
     @Override public int getItemViewType(int position) {
@@ -77,8 +77,8 @@ public class MyPartnersRecyclerViewAdapter extends RecyclerView.Adapter<Recycler
         this.numberOfMyPartners = numberOfMyPartners;
     }
 
-    public void setPartners(ArrayList<Partner> partners) {
-        this.partners = partners;
+    public void setDisplayedMyPartners(ArrayList<DisplayedMyPartner> displayedMyPartners) {
+        this.displayedMyPartners = displayedMyPartners;
         notifyDataSetChanged();
     }
 
@@ -88,6 +88,6 @@ public class MyPartnersRecyclerViewAdapter extends RecyclerView.Adapter<Recycler
 
     public void itemClicked(int position) {
         if(position > numberOfMyPartners) position -= 1;
-        itemClickListener.onItemClick(position, partners.get(position).phoneNumber, partners.get(position).name);
+        itemClickListener.onItemClick(position, displayedMyPartners.get(position).phoneNumber, displayedMyPartners.get(position).name);
     }
 }
