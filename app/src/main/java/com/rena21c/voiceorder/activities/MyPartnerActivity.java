@@ -5,16 +5,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.RelativeLayout;
 
-import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
-import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
-import com.rena21c.voiceorder.view.components.ReplaceableLayout;
 import com.rena21c.voiceorder.view.widgets.AddPartnerButton;
 import com.rena21c.voiceorder.viewmodel.MyPartnerGuideViewModel;
 import com.rena21c.voiceorder.viewmodel.MyPartnerListViewModel;
@@ -23,45 +21,35 @@ import com.rena21c.voiceorder.viewmodel.MyPartnerListViewModel;
 public class MyPartnerActivity extends HasTabActivity implements AddPartnerButton.AddPartnerListener,
                                                                  MyPartnerListViewModel.DataSetSizeChangedListener {
 
-    private AppPreferenceManager appPreferenceManager;
-    private FirebaseDbManager dbManager;
-
-    private ReplaceableLayout replaceableLayout;
-
     private View myPartnerListView;
     private View myPartnerGuideView;
+
+    private View showingView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_partner);
 
-        replaceableLayout = (ReplaceableLayout)findViewById(R.id.replaceableLayout);
+        RelativeLayout rootView = (RelativeLayout) findViewById(R.id.rootView);
 
-        appPreferenceManager= App.getApplication(getApplicationContext()).getPreferenceManager();
+        AppPreferenceManager appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
 
-        dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
+        FirebaseDbManager dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
 
         MyPartnerListViewModel myPartnerListViewModel = new MyPartnerListViewModel (this,
                                                                                     this,
-                                                                                    appPreferenceManager,
-                                                                                    dbManager);
+                appPreferenceManager,
+                dbManager);
         myPartnerListView = myPartnerListViewModel.getView(this);
+        myPartnerListView.setVisibility(View.GONE);
 
         MyPartnerGuideViewModel guideViewModel = new MyPartnerGuideViewModel(this);
         myPartnerGuideView = guideViewModel.getView(LayoutInflater.from(this));
+        myPartnerGuideView.setVisibility(View.GONE);
 
-        final boolean hasCalledVendors = appPreferenceManager.getCalledVendors().size() != 0;
-
-        dbManager.hasMyPartner(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
-            @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.hasChild("vendors") || hasCalledVendors) {
-                    showMyPartnerList();
-                } else {
-                    showGuide();
-                }
-            }
-        });
+        rootView.addView(myPartnerListView);
+        rootView.addView(myPartnerGuideView);
     }
 
     @Override public void onAddPartner() {
@@ -70,7 +58,11 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
     }
 
     @Override public void onDataSetSizeChanged(int size) {
-        if(size == 0) showGuide();
+        if(size == 0) {
+            showGuide();
+        } else {
+            showMyPartnerList();
+        }
     }
 
     @SuppressWarnings("MissingPermission")
@@ -85,10 +77,20 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
     }
 
     private void showMyPartnerList() {
-        replaceableLayout.replaceChildView(myPartnerListView);
+        if(showingView == myPartnerListView) return;
+
+        showingView = myPartnerListView;
+
+        myPartnerGuideView.setVisibility(View.GONE);
+        myPartnerListView.setVisibility(View.VISIBLE);
     }
 
     private void showGuide() {
-        replaceableLayout.replaceChildView(myPartnerGuideView);
+        if(showingView == myPartnerGuideView) return;
+
+        showingView = myPartnerGuideView;
+
+        myPartnerListView.setVisibility(View.GONE);
+        myPartnerGuideView.setVisibility(View.VISIBLE);
     }
 }

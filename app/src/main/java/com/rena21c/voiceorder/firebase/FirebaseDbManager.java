@@ -88,12 +88,6 @@ public class FirebaseDbManager {
                 .addOnCompleteListener(listener);
     }
 
-    public void hasMyPartner(String phoneNumber, ToastErrorHandlingListener listener) {
-        instance.getReference()
-                .child(RESTAURANTS)
-                .child(phoneNumber)
-                .addListenerForSingleValueEvent(listener);
-    }
     public DatabaseReference subscribeMyPartner(String phoneNumber, ValueEventListener listener) {
         DatabaseReference reference = instance.getReference()
                                         .child(RESTAURANTS)
