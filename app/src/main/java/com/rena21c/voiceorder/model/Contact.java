@@ -6,4 +6,9 @@ public class Contact {
     public String name;
 
     public boolean isChecked;
+
+    public Contact(String phoneNumber, String name) {
+        this.phoneNumber = phoneNumber;
+        this.name = name;
+    }
 }

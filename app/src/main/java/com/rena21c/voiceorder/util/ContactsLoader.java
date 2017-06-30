@@ -10,9 +10,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
 
+import com.rena21c.voiceorder.etc.NameAscComparator;
 import com.rena21c.voiceorder.model.Contact;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ContactsLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -64,7 +68,7 @@ public class ContactsLoader implements LoaderManager.LoaderCallbacks<Cursor> {
                 projection,
                 selection,
                 null,
-                ContactsContract.Contacts.SORT_KEY_PRIMARY + " ASC");
+                null);
     }
 
     @Override public void onLoadFinished(Loader loader, Cursor cursor) {
@@ -73,30 +77,37 @@ public class ContactsLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 
         ArrayList<Contact> contacts = new ArrayList<>();
 
-        String id = null;
+        HashMap<String, String> nameMap = new HashMap<>();
+        HashMap<String, String> phoneNumberMap = new HashMap<>();
 
         do{
-            int lastIndex = contacts.size() - 1;
+            String id;
+            String name;
+            String phoneNumber;
+
+            id = cursor.getString(0);
 
             if(cursor.getString(1).equals(ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)) {
-
-                if(contacts.size() != 0 && contacts.get(lastIndex).phoneNumber == null)
-                    contacts.remove(lastIndex);
-
-                id = cursor.getString(0);
-
-                Contact contact = new Contact();
-                contact.name = cursor.getString(2);
-                contacts.add(contact);
-            }
-
-            if(cursor.getString(1).equals(ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE)) {
-
-                if(cursor.getString(0).equals(id))
-                    contacts.get(lastIndex).phoneNumber = cursor.getString(2);
+                name = cursor.getString(2);
+                nameMap.put(id, name);
+            } else {
+                phoneNumber = cursor.getString(2);
+                phoneNumberMap.put(id, phoneNumber);
             }
 
         } while(cursor.moveToNext());
+
+        for(Map.Entry entry : phoneNumberMap.entrySet()) {
+            String name = nameMap.get(entry.getKey());
+            String phoneNumber = (String) entry.getValue();
+
+            if(name != null && phoneNumber != null)
+                contacts.add(new Contact(phoneNumber, name));
+        }
+
+        NameAscComparator nameAscComparator = new NameAscComparator();
+
+        Collections.sort(contacts, nameAscComparator);
 
         if(listener != null) {
             listener.onLoadFinished(contacts);
