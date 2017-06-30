@@ -179,7 +179,7 @@ public class MyPartnerListViewModel implements  View.OnAttachStateChangeListener
 
                         alreadyStoredMyPartners.add(entry.getValue());
                     }
-                    Collections.sort(displayedMyPartners, timeSortComparator);
+                    Collections.sort(alreadyStoredMyPartners, timeSortComparator);
                     displayedMyPartners.addAll(0, alreadyStoredMyPartners);
                 }
                 myPartnersRecyclerViewAdapter.setNumberOfMyPartners(numberOfMyPartners);
