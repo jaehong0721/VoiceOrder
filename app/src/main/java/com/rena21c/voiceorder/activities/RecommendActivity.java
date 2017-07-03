@@ -26,7 +26,6 @@ import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.network.ApiService;
 import com.rena21c.voiceorder.pojo.Vendor;
 import com.rena21c.voiceorder.services.LocationManager;
-import com.rena21c.voiceorder.util.StringUtil;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.adapters.VendorsRecyclerViewAdapter;
@@ -130,7 +129,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                 HashMap<String, Object> bodyMap = new HashMap<>();
                 bodyMap.put("latitude", latitude);
                 bodyMap.put("longitude", longitude);
-                bodyMap.put("keyWord", StringUtil.removeSpecialLetter(s.toString()));
+                bodyMap.put("keyWord", s.toString());
                 requestVendor(bodyMap);
 
                 rvVendors.scrollToPosition(0);
