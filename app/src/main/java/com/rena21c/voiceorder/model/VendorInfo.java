@@ -9,7 +9,8 @@ public class VendorInfo {
 
     public VendorInfo() {}
 
-    public VendorInfo(String vendorName) {
+    public VendorInfo(String vendorName, String phoneNumber) {
         this.vendorName = vendorName;
+        this.phoneNumber = phoneNumber;
     }
 }

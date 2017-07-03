@@ -217,7 +217,10 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
                 for(Map.Entry entry : myPartnerMap.entrySet()) {
                     String phoneNumber = (String)entry.getKey();
                     String vendorName = ((MyPartner)entry.getValue()).name;
-                    VendorInfo vendorInfo = new VendorInfo(vendorName);
+
+                    if(phoneNumber.length() != 10 && phoneNumber.length() != 11) continue;
+
+                    VendorInfo vendorInfo = new VendorInfo(vendorName, phoneNumber);
                     uploadPathMap.put("/"  + phoneNumber + "/" + "info", vendorInfo);
                 }
 
