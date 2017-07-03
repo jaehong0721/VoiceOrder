@@ -129,24 +129,24 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
         orderViewPager.setCurrentItem(0);
     }
 
-    public void addOrder(DataSnapshot dataSnapshot) {
+    public void addOrder(String phoeNumber, DataSnapshot dataSnapshot) {
         GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, VoiceRecord>>() {};
         HashMap<String, VoiceRecord> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
         String key = dataSnapshot.getKey();
         String timeStamp = FileNameUtil.getTimeFromFileName(key);
-        int position = orderViewPagerAdapter.addOrder(timeStamp, objectMap);
+        int position = orderViewPagerAdapter.addOrder(phoeNumber, timeStamp, objectMap);
         if (position != -1) {
             orderViewPager.setCurrentItem(position, false);
         }
     }
 
-    public void replaceAcceptedOrder(DataSnapshot dataSnapshot) {
+    public void replaceAcceptedOrder(String phoneNumber, DataSnapshot dataSnapshot) {
         GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, VoiceRecord>>() {};
         HashMap<String, VoiceRecord> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
         String key = dataSnapshot.getKey();
         if (orderViewPagerAdapter != null) {
             String timeStamp = FileNameUtil.getTimeFromFileName(key);
-            int position = orderViewPagerAdapter.replaceToAcceptedOrder(timeStamp, objectMap);
+            int position = orderViewPagerAdapter.replaceToAcceptedOrder(phoneNumber,timeStamp, objectMap);
             orderViewPager.setCurrentItem(position, false);
         }
     }

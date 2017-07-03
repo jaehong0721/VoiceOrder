@@ -83,12 +83,12 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         acceptedOrderChildEventListener = new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
                 Log.d("DB", "added: " + dataSnapshot.toString());
-                voiceOrderView.addOrder(dataSnapshot);
+                voiceOrderView.addOrder(appPreferenceManager.getPhoneNumber(),dataSnapshot);
             }
 
             @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {
                 Log.d("DB", "changed: " + dataSnapshot.toString());
-                voiceOrderView.replaceAcceptedOrder(dataSnapshot);
+                voiceOrderView.replaceAcceptedOrder(appPreferenceManager.getPhoneNumber(),dataSnapshot);
             }
 
             @Override public void onChildRemoved(DataSnapshot dataSnapshot) {

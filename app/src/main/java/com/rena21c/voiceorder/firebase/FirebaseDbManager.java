@@ -77,10 +77,13 @@ public class FirebaseDbManager {
         return query;
     }
 
-    public void getVendorInfo(String vendorPhoneNumber, ValueEventListener listener) {
-        instance.getReference().child("vendors")
+    public void getVendorName(String restaurantPhoneNumber, String vendorPhoneNumber, ValueEventListener listener) {
+        instance.getReference()
+                .child(RESTAURANTS)
+                .child(restaurantPhoneNumber)
+                .child(VENDORS)
                 .child(vendorPhoneNumber)
-                .child("info")
+                .child("name")
                 .addListenerForSingleValueEvent(listener);
     }
 
