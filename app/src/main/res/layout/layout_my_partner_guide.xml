@@ -13,7 +13,7 @@
         android:layout_marginTop="120dp"
         android:gravity="center_horizontal"
         android:lineSpacingExtra="11sp"
-        android:text="사장님이 거래하시던\n거래처를 등록해주세요!"
+        android:text="@string/my_partner_guide_main_instruction"
         android:textColor="@color/dark_maroon"
         android:textSize="29sp"
         android:textStyle="bold"/>
@@ -27,7 +27,7 @@
         android:layout_marginTop="7dp"
         android:gravity="center_horizontal"
         android:lineSpacingExtra="8sp"
-        android:text="거래처만 모아 볼 수도 있고, 음성주문시 배송\n관리도 쉽고 편리해집니다"
+        android:text="@string/my_partner_guide_sub_instruction"
         android:textColor="@color/dark_maroon"
         android:textSize="15sp"/>
 
