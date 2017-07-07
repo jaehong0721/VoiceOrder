@@ -15,6 +15,7 @@ public class AnalyticsEventManager {
     private static final String CALL_MY_PARTNER_EVENT = "call_my_partner_event";
     private static final String VOICE_ORDER_EVENT = "voice_order_event";
     private static final String REPLAY_ORDER_EVENT = "replay_order_event";
+    private static final String ADD_MY_PARTNER_EVENT = "add_my_partner_event";
 
 
     private final FirebaseAnalytics instance;
@@ -59,5 +60,12 @@ public class AnalyticsEventManager {
         bundle.putString(USER_ID, userPhoneNumber);
 
         instance.logEvent(REPLAY_ORDER_EVENT, bundle);
+    }
+
+    public void setAddMyPartnerEvent() {
+        Bundle bundle = new Bundle();
+        bundle.putString(USER_ID, userPhoneNumber);
+
+        instance.logEvent(ADD_MY_PARTNER_EVENT, bundle);
     }
 }

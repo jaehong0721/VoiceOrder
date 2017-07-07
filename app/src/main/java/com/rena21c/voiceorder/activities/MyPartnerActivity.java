@@ -57,6 +57,8 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
     }
 
     @Override public void onAddPartner() {
+        eventManager.setAddMyPartnerEvent();
+
         Intent intent = new Intent(MyPartnerActivity.this, AddPartnerActivity.class);
         startActivity(intent);
     }
