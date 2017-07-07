@@ -19,10 +19,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
+import com.rena21c.voiceorder.firebase.AnalyticsEventManager;
 import com.rena21c.voiceorder.network.ApiService;
 import com.rena21c.voiceorder.pojo.Vendor;
 import com.rena21c.voiceorder.services.LocationManager;
@@ -58,6 +60,8 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
     private ApiService apiService;
     private AppPreferenceManager appPreferenceManager;
 
+    private AnalyticsEventManager eventManager;
+
     private VendorsRecyclerViewAdapter rvAdapter;
     private RecyclerViewEmptySupport rvVendors;
 
@@ -81,6 +85,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         setContentView(R.layout.activity_recommend);
 
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
+        eventManager = new AnalyticsEventManager(FirebaseAnalytics.getInstance(this), appPreferenceManager.getPhoneNumber());
 
         calledVendors = appPreferenceManager.getCalledVendors();
         rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorInfoViewHolder.CallButtonClickListener() {
@@ -142,6 +147,8 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
         ibClose.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
+                eventManager.setSearchEvent(actvSearch.getText().toString());
+
                 llSearch.requestFocus();
                 HashMap<String, Object> bodyMap = new HashMap<>();
                 bodyMap.put("latitude", latitude);
