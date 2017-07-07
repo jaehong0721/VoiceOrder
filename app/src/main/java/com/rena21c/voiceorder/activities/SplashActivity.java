@@ -42,7 +42,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+
+
 
 public class SplashActivity extends BaseActivity {
 
@@ -221,7 +222,7 @@ public class SplashActivity extends BaseActivity {
 
     private void restartApp(Context context) {
         Intent intent = new Intent(context, SplashActivity.class);
-        intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
         if (context instanceof Activity) {
             ((Activity) context).finish();
