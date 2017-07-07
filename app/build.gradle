@@ -76,5 +76,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:10.0.1'
 
     compile 'me.grantland:autofittextview:0.2.+'
+
+    compile 'com.facebook.android:facebook-android-sdk:[4,5)'
 }
 apply plugin: 'com.google.gms.google-services'
