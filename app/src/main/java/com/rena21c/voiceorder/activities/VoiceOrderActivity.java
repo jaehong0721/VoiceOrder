@@ -170,6 +170,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
 
     @Override public void onPlayRecordedFile(String fileName) {
         try {
+            eventManager.setRePlayOrderEvent();
             String path = recordedFileManager.getRecordedFilePath(fileName);
             recordedFilePlayer.playRecordedFile(path);
         } catch (IOException e) {
