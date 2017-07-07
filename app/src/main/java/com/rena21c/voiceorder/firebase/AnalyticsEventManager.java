@@ -9,11 +9,12 @@ public class AnalyticsEventManager {
 
     private static final String USER_ID = "user_id";
     private static final String KEYWORD = "keyword";
+
     private static final String SEARCH_EVENT = "search_event";
-    private static final String CALL_RECOMMENDED_VENDOR = "call_recommended_vendor";
-    private static final String CALL_MY_PARTNER = "call_my_partner";
-    private static final String VOICE_ORDER = "voice_order";
-    private static final String REPLAY_ORDER = "replay_order";
+    private static final String CALL_RECOMMENDED_VENDOR_EVENT = "call_recommended_vendor_event";
+    private static final String CALL_MY_PARTNER_EVENT = "call_my_partner_event";
+    private static final String VOICE_ORDER_EVENT = "voice_order_event";
+    private static final String REPLAY_ORDER_EVENT = "replay_order_event";
 
 
     private final FirebaseAnalytics instance;
@@ -36,27 +37,27 @@ public class AnalyticsEventManager {
         Bundle bundle = new Bundle();
         bundle.putString(USER_ID, userPhoneNumber);
 
-        instance.logEvent(CALL_RECOMMENDED_VENDOR, bundle);
+        instance.logEvent(CALL_RECOMMENDED_VENDOR_EVENT, bundle);
     }
 
     public void setCallMyPartnerEvent() {
         Bundle bundle = new Bundle();
         bundle.putString(USER_ID, userPhoneNumber);
 
-        instance.logEvent(CALL_MY_PARTNER, bundle);
+        instance.logEvent(CALL_MY_PARTNER_EVENT, bundle);
     }
 
     public void setVoiceOrderEvent() {
         Bundle bundle = new Bundle();
         bundle.putString(USER_ID, userPhoneNumber);
 
-        instance.logEvent(VOICE_ORDER, bundle);
+        instance.logEvent(VOICE_ORDER_EVENT, bundle);
     }
 
     public void setRePlayOrderEvent() {
         Bundle bundle = new Bundle();
         bundle.putString(USER_ID, userPhoneNumber);
 
-        instance.logEvent(REPLAY_ORDER, bundle);
+        instance.logEvent(REPLAY_ORDER_EVENT, bundle);
     }
 }

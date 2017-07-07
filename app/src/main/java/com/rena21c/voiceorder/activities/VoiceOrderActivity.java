@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -19,6 +20,7 @@ import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.etc.RecordedFileManager;
+import com.rena21c.voiceorder.firebase.AnalyticsEventManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.network.NetworkUtil;
@@ -39,6 +41,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
     private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
 
     private AppPreferenceManager appPreferenceManager;
+    private AnalyticsEventManager eventManager;
     private VoiceRecorderManager recordManager;
     private FirebaseDbManager dbManager;
     private MemorySizeChecker memorySizeChecker;
@@ -70,6 +73,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         };
 
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
+        eventManager = new AnalyticsEventManager(FirebaseAnalytics.getInstance(this), appPreferenceManager.getPhoneNumber());
         recordedFileManager = App.getApplication(getApplicationContext()).getRecordedFileManager();
         dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
         recordedFilePlayer = new RecordedFilePlayer((AudioManager)getSystemService(Context.AUDIO_SERVICE));
@@ -181,6 +185,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         if (memorySizeChecker.isEnough()) {
             voiceOrderView.showDialog(VoiceOrderView.NO_INTERNAL_MEMORY);
         } else {
+            eventManager.setVoiceOrderEvent();
             voiceOrderView.setKeepScreenOn();
             startRecording();
         }
