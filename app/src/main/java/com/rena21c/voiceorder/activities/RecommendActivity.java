@@ -58,8 +58,8 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
     private Retrofit retrofit;
     private ApiService apiService;
-    private AppPreferenceManager appPreferenceManager;
 
+    private AppPreferenceManager appPreferenceManager;
     private AnalyticsEventManager eventManager;
 
     private VendorsRecyclerViewAdapter rvAdapter;
@@ -263,6 +263,8 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
     }
 
     @Override public void onClickPositiveButton() {
+        eventManager.setCallRecommendedVendorEvent();
+
         beforeCallDialog.dismiss();
 
         appPreferenceManager.setCallTime(vendorPhoneNumber, System.currentTimeMillis());
@@ -275,5 +277,4 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
         rvAdapter.notifyItemChanged(position);
     }
-
 }
