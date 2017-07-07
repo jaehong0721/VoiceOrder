@@ -7,10 +7,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
+import com.rena21c.voiceorder.firebase.AnalyticsEventManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.widgets.AddPartnerButton;
@@ -20,6 +22,7 @@ import com.rena21c.voiceorder.viewmodel.MyPartnerListViewModel;
 
 public class MyPartnerActivity extends HasTabActivity implements AddPartnerButton.AddPartnerListener,
                                                                  MyPartnerListViewModel.DataSetSizeChangedListener {
+    private AnalyticsEventManager eventManager;
 
     private View myPartnerListView;
     private View myPartnerGuideView;
@@ -34,6 +37,7 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
         RelativeLayout rootView = (RelativeLayout) findViewById(R.id.rootView);
 
         AppPreferenceManager appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
+        eventManager = new AnalyticsEventManager(FirebaseAnalytics.getInstance(this), appPreferenceManager.getPhoneNumber());
 
         FirebaseDbManager dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
 
@@ -67,6 +71,8 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
 
     @SuppressWarnings("MissingPermission")
     public void moveToCallApp(String phoneNumber) {
+        eventManager.setCallMyPartnerEvent();
+
         Intent intent = new Intent(Intent.ACTION_CALL);
         intent.setData(Uri.parse("tel:" + phoneNumber));
         startActivity(intent);
