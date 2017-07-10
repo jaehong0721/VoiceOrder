@@ -4,17 +4,23 @@ import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
+import com.google.firebase.analytics.FirebaseAnalytics;
+import com.rena21c.voiceorder.App;
+import com.rena21c.voiceorder.firebase.AnalyticsEventManager;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 
 public class HasTabActivity extends AppCompatActivity {
 
     private TabActionBar tabActionBar;
+    private AnalyticsEventManager eventManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        String phoneNumber = App.getApplication(getApplicationContext()).getPreferenceManager().getPhoneNumber();
+        eventManager = new AnalyticsEventManager(FirebaseAnalytics.getInstance(this), phoneNumber);
 
         String tab = getIntent().getStringExtra("tab");
 
@@ -36,16 +42,17 @@ public class HasTabActivity extends AppCompatActivity {
 
                 switch (tab) {
                     case RECOMMEND:
-                        Log.d("HasTabActivity", "추천탭");
+                        eventManager.setRecommendTabClickEvent();
                         intent.setComponent(new ComponentName(HasTabActivity.this, RecommendActivity.class));
                         break;
 
                     case VOICE_ORDER:
-                        Log.d("HasTabActivity", "주문탭");
+                        eventManager.setVoiceOrderTabClickEvent();
                         intent.setComponent(new ComponentName(HasTabActivity.this, VoiceOrderActivity.class));
                         break;
 
                     case MY_PARTNER:
+                        eventManager.setMyPartnerTabClickEvent();
                         intent.setComponent(new ComponentName(HasTabActivity.this, MyPartnerActivity.class));
                         break;
                 }

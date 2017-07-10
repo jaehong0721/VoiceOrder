@@ -16,6 +16,9 @@ public class AnalyticsEventManager {
     private static final String VOICE_ORDER_EVENT = "voice_order_event";
     private static final String REPLAY_ORDER_EVENT = "replay_order_event";
     private static final String ADD_MY_PARTNER_EVENT = "add_my_partner_event";
+    private static final String CLICK_RECOMMEND_TAB = "click_recommend_tab";
+    private static final String CLICK_VOICE_ORDER_TAB = "click_voice_order_tab";
+    private static final String CLICK_MY_PARTNER_TAB = "click_my_partner_tab";
 
 
     private final FirebaseAnalytics instance;
@@ -24,13 +27,13 @@ public class AnalyticsEventManager {
     public AnalyticsEventManager(FirebaseAnalytics instance, String userPhoneNumber) {
         this.instance = instance;
         this.userPhoneNumber = userPhoneNumber;
+        instance.setUserId(userPhoneNumber);
     }
 
     public void setSearchEvent(String keyword) {
         Bundle bundle = new Bundle();
         bundle.putString(USER_ID, userPhoneNumber);
         bundle.putString(KEYWORD, keyword);
-
         instance.logEvent(SEARCH_EVENT, bundle);
     }
 
@@ -67,5 +70,26 @@ public class AnalyticsEventManager {
         bundle.putString(USER_ID, userPhoneNumber);
 
         instance.logEvent(ADD_MY_PARTNER_EVENT, bundle);
+    }
+
+    public void setRecommendTabClickEvent() {
+        Bundle bundle = new Bundle();
+        bundle.putString(USER_ID, userPhoneNumber);
+
+        instance.logEvent(CLICK_RECOMMEND_TAB, bundle);
+    }
+
+    public void setVoiceOrderTabClickEvent() {
+        Bundle bundle = new Bundle();
+        bundle.putString(USER_ID, userPhoneNumber);
+
+        instance.logEvent(CLICK_VOICE_ORDER_TAB, bundle);
+    }
+
+    public void setMyPartnerTabClickEvent() {
+        Bundle bundle = new Bundle();
+        bundle.putString(USER_ID, userPhoneNumber);
+
+        instance.logEvent(CLICK_MY_PARTNER_TAB, bundle);
     }
 }
