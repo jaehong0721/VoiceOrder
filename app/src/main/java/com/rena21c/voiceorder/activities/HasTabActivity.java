@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.firebase.AnalyticsEventManager;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
@@ -20,7 +19,7 @@ public class HasTabActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         String phoneNumber = App.getApplication(getApplicationContext()).getPreferenceManager().getPhoneNumber();
-        eventManager = new AnalyticsEventManager(FirebaseAnalytics.getInstance(this), phoneNumber);
+        eventManager = App.getApplication(getApplicationContext()).getEventManager();
 
         String tab = getIntent().getStringExtra("tab");
 

@@ -10,7 +10,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -73,7 +72,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         };
 
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
-        eventManager = new AnalyticsEventManager(FirebaseAnalytics.getInstance(this), appPreferenceManager.getPhoneNumber());
+        eventManager = App.getApplication(getApplicationContext()).getEventManager();
         recordedFileManager = App.getApplication(getApplicationContext()).getRecordedFileManager();
         dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
         recordedFilePlayer = new RecordedFilePlayer((AudioManager)getSystemService(Context.AUDIO_SERVICE));

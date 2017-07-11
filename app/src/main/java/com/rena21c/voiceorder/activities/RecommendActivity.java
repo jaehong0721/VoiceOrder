@@ -19,7 +19,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crash.FirebaseCrash;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
@@ -85,7 +84,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         setContentView(R.layout.activity_recommend);
 
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
-        eventManager = new AnalyticsEventManager(FirebaseAnalytics.getInstance(this), appPreferenceManager.getPhoneNumber());
+        eventManager = App.getApplication(getApplicationContext()).getEventManager();
 
         calledVendors = appPreferenceManager.getCalledVendors();
         rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorInfoViewHolder.CallButtonClickListener() {

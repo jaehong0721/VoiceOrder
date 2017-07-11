@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
 
-import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
@@ -37,7 +36,7 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
         RelativeLayout rootView = (RelativeLayout) findViewById(R.id.rootView);
 
         AppPreferenceManager appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
-        eventManager = new AnalyticsEventManager(FirebaseAnalytics.getInstance(this), appPreferenceManager.getPhoneNumber());
+        eventManager = App.getApplication(getApplicationContext()).getEventManager();
 
         FirebaseDbManager dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
 
