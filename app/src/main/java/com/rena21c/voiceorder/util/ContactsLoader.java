@@ -9,14 +9,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.ContactsContract;
+import android.util.Log;
 
-import com.rena21c.voiceorder.etc.NameAscComparator;
 import com.rena21c.voiceorder.model.Contact;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ContactsLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 
@@ -47,28 +44,17 @@ public class ContactsLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 
     @Override public Loader onCreateLoader(int id, Bundle args) {
 
-        contactUri = Uri.withAppendedPath(
-                ContactsContract.Contacts.CONTENT_URI,
-                ContactsContract.Contacts.Entity.CONTENT_DIRECTORY);
+        contactUri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
 
-        String[] projection =
-                {
-                        ContactsContract.Contacts.Entity.RAW_CONTACT_ID,
-                        ContactsContract.Contacts.Entity.MIMETYPE,
-                        ContactsContract.Contacts.Entity.DATA1
-                };
-
-        String selection = "(" + ContactsContract.Contacts.Entity.MIMETYPE + " = " + "'" + ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE + "'" + " OR "
-                + ContactsContract.Contacts.Entity.MIMETYPE + " = " + "'" + ContactsContract.CommonDataKinds.Phone.CONTENT_ITEM_TYPE + "')" + " AND "
-                + ContactsContract.Contacts.Entity.DATA1 + " NOT NULL";
+        String[] projection = {ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME};
 
         return new CursorLoader(
                 context,
                 contactUri,
                 projection,
-                selection,
                 null,
-                null);
+                null,
+                ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME + " ASC");
     }
 
     @Override public void onLoadFinished(Loader loader, Cursor cursor) {
@@ -77,38 +63,19 @@ public class ContactsLoader implements LoaderManager.LoaderCallbacks<Cursor> {
 
         ArrayList<Contact> contacts = new ArrayList<>();
 
-        HashMap<String, String> nameMap = new HashMap<>();
-        HashMap<String, String> phoneNumberMap = new HashMap<>();
+        do {
+            int column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
+            String number = StringUtil.removeSpecialLetter(cursor.getString(column).trim());
+            Log.d("test", "phoneNumber = " + number);
 
-        do{
-            String id;
-            String name;
-            String phoneNumber;
+            if(number.equals("")) continue;
 
-            id = cursor.getString(0);
+            int column_name = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME);
+            String name = cursor.getString(column_name);
+            Log.d("test", "name = " + name);
 
-            if(cursor.getString(1).equals(ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE)) {
-                name = cursor.getString(2);
-                nameMap.put(id, name);
-            } else {
-                phoneNumber = cursor.getString(2);
-                phoneNumberMap.put(id, phoneNumber);
-            }
-
-        } while(cursor.moveToNext());
-
-        for(Map.Entry entry : phoneNumberMap.entrySet()) {
-            String name = nameMap.get(entry.getKey());
-            String phoneNumber = StringUtil.removeSpecialLetter((String) entry.getValue());
-            if(phoneNumber.equals("")) phoneNumber = "01000000000";
-
-            if(name != null && phoneNumber != null)
-                contacts.add(new Contact(phoneNumber, name));
-        }
-
-        NameAscComparator nameAscComparator = new NameAscComparator();
-
-        Collections.sort(contacts, nameAscComparator);
+            contacts.add(new Contact(number, name));
+        } while (cursor.moveToNext());
 
         if(listener != null) {
             listener.onLoadFinished(contacts);
