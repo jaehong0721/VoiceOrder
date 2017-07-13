@@ -94,7 +94,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                 vendorPhoneNumber = phoneNumber;
                 vendorName = name;
 
-                beforeCallDialog = TwoButtonDialogFragment.newInstance("‘거상앱으로 전화드립니다’라고 꼭 말씀해주세요", "취소", "통화");
+                beforeCallDialog = TwoButtonDialogFragment.newInstance("‘거상앱으로 전화드립니다’\n라고 꼭 말씀해주세요", "취소", "통화");
                 beforeCallDialog.show(getSupportFragmentManager(), "dialog");
             }
         });
