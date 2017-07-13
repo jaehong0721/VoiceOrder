@@ -3,13 +3,12 @@ package com.rena21c.voiceorder.activities;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.firebase.AnalyticsEventManager;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 
-public class HasTabActivity extends AppCompatActivity {
+public class HasTabActivity extends BaseActivity {
 
     private TabActionBar tabActionBar;
     private AnalyticsEventManager eventManager;
