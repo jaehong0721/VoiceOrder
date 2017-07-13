@@ -18,7 +18,6 @@ public class HasTabActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String phoneNumber = App.getApplication(getApplicationContext()).getPreferenceManager().getPhoneNumber();
         eventManager = App.getApplication(getApplicationContext()).getEventManager();
 
         String tab = getIntent().getStringExtra("tab");
@@ -48,6 +47,10 @@ public class HasTabActivity extends AppCompatActivity {
                     case VOICE_ORDER:
                         eventManager.setVoiceOrderTabClickEvent();
                         intent.setComponent(new ComponentName(HasTabActivity.this, VoiceOrderActivity.class));
+                        break;
+
+                    case REQUEST_ESTIMATE:
+                        intent.setComponent(new ComponentName(HasTabActivity.this, RequestEstimateActivity.class));
                         break;
 
                     case MY_PARTNER:

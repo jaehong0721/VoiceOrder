@@ -210,6 +210,9 @@ public class SplashActivity extends BaseActivity {
                 intent.setComponent(new ComponentName(SplashActivity.this, VoiceOrderActivity.class));
                 break;
 
+            case REQUEST_ESTIMATE:
+                intent.setComponent(new ComponentName(SplashActivity.this, RequestEstimateActivity.class));
+                break;
             case MY_PARTNER:
                 intent.setComponent(new ComponentName(SplashActivity.this, MyPartnerActivity.class));
                 break;

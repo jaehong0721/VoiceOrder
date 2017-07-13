@@ -29,6 +29,17 @@
         app:unselectedImage="@drawable/play"/>
 
     <com.rena21c.voiceorder.view.widgets.UnderLineButton
+        android:id="@+id/btnRequestEstimate"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        app:selectedColor="@color/primaryBrown"
+        app:selectedImage="@drawable/play_selected"
+        app:text="견적요청"
+        app:unselectedColor="@color/unselectedColor"
+        app:unselectedImage="@drawable/play"/>
+
+    <com.rena21c.voiceorder.view.widgets.UnderLineButton
         android:id="@+id/btnMyPartner"
         android:layout_width="0dp"
         android:layout_height="wrap_content"

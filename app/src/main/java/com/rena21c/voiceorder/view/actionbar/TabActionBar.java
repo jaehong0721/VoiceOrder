@@ -14,6 +14,7 @@ public class TabActionBar implements ActionBarInterface, View.OnClickListener {
     public enum Tab {
         RECOMMEND(R.id.btnRecommend),
         VOICE_ORDER(R.id.btnVoiceOrder),
+        REQUEST_ESTIMATE(R.id.btnRequestEstimate),
         MY_PARTNER(R.id.btnMyPartner);
 
         public int viewIdOfTab;
@@ -33,6 +34,7 @@ public class TabActionBar implements ActionBarInterface, View.OnClickListener {
     private UnderLineButton btnRecommend;
     private UnderLineButton btnVoiceOrder;
     private UnderLineButton btnMyPartner;
+    private UnderLineButton btnRequestEstimate;
 
     public interface TabClickListener {
         void onTabClicked(Tab tab);
@@ -49,14 +51,17 @@ public class TabActionBar implements ActionBarInterface, View.OnClickListener {
 
         btnRecommend = (UnderLineButton) tabView.findViewById(R.id.btnRecommend);
         btnVoiceOrder = (UnderLineButton) tabView.findViewById(R.id.btnVoiceOrder);
+        btnRequestEstimate = (UnderLineButton) tabView.findViewById(R.id.btnRequestEstimate);
         btnMyPartner = (UnderLineButton) tabView.findViewById(R.id.btnMyPartner);
 
         btnRecommend.setSelected(false);
         btnVoiceOrder.setSelected(false);
+        btnRequestEstimate.setSelected(false);
         btnMyPartner.setSelected(false);
 
         btnRecommend.setOnClickListener(this);
         btnVoiceOrder.setOnClickListener(this);
+        btnRequestEstimate.setOnClickListener(this);
         btnMyPartner.setOnClickListener(this);
     }
 
@@ -100,9 +105,15 @@ public class TabActionBar implements ActionBarInterface, View.OnClickListener {
                 listener.onTabClicked(Tab.VOICE_ORDER);
                 break;
 
+            case R.id.btnRequestEstimate:
+                App.getApplication(context).getPreferenceManager().setClickedTab(Tab.REQUEST_ESTIMATE.toString());
+                listener.onTabClicked(Tab.REQUEST_ESTIMATE);
+                break;
+
             case R.id.btnMyPartner:
                 App.getApplication(context).getPreferenceManager().setClickedTab(Tab.MY_PARTNER.toString());
                 listener.onTabClicked(Tab.MY_PARTNER);
+                break;
         }
     }
 }
