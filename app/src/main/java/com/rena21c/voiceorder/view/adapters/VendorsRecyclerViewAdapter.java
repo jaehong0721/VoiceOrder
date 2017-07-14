@@ -70,7 +70,8 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
     public void clearVendors() {
         vendors.clear();
     }
-
+    
+    // TODO: 2017. 7. 14. Exception java.lang.ArrayIndexOutOfBoundsException: length=1; index=1
     private String transformToSimpleAddress(String fullAddress) {
         String[] array = fullAddress.split(" ");
 
