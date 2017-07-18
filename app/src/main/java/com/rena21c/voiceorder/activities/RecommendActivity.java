@@ -226,7 +226,10 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
     @Override protected void onPause() {
         Log.d("test:", "onPause");
-        locationManager.stopLocationUpdates();
+        try {
+            locationManager.stopLocationUpdates();
+        } catch (IllegalStateException e) { FirebaseCrash.report(e); }
+
         super.onPause();
     }
 
