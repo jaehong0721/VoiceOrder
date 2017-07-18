@@ -28,6 +28,20 @@ public class AppPreferenceManager extends Observable {
         sharedPreference = PreferenceManager.getDefaultSharedPreferences(context);
     }
 
+    public void setUserFirstVisit() {
+        if(!getUserFirstVisit()) return;
+
+        sharedPreference
+                .edit()
+                .putBoolean("isFirstVisit", false)
+                .apply();
+    }
+
+    public boolean getUserFirstVisit() {
+        return sharedPreference
+                .getBoolean("isFirstVisit", true);
+    }
+
     public void setUserFirstRecord() {
         sharedPreference
                 .edit()
