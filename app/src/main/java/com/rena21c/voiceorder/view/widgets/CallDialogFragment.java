@@ -138,6 +138,7 @@ public class CallDialogFragment extends DialogFragment {
                 });
     }
 
+    // TODO: 2017. 7. 18.
     private String transformToSimpleAddress(String fullAddress) {
         String[] array = fullAddress.split(" ");
 
