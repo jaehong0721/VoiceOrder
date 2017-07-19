@@ -15,6 +15,7 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.network.ApiService;
+import com.rena21c.voiceorder.util.AddressUtil;
 
 import java.util.HashMap;
 
@@ -123,7 +124,9 @@ public class CallDialogFragment extends DialogFragment {
 
                         if(response.body().get("address") != null) {
                             tvAddress.setVisibility(View.VISIBLE);
-                            tvAddress.setText(transformToSimpleAddress(response.body().get("address")));
+
+                            String simpleAddress = AddressUtil.convertToSimpleAddress(response.body().get("address"));
+                            tvAddress.setText(simpleAddress);
                         }
 
                         if(response.body().get("items") != null) {
@@ -136,16 +139,5 @@ public class CallDialogFragment extends DialogFragment {
                         FirebaseCrash.logcat(Log.WARN, "Retrofit", "납품업체 정보 얻기 통신 실패");
                     }
                 });
-    }
-
-    private String transformToSimpleAddress(String fullAddress) {
-        String[] array = fullAddress.split(" ");
-
-        String state = array[0];
-        String locality = array[1];
-
-        state = state.substring(0,2);
-
-        return state + " " + locality;
     }
 }
