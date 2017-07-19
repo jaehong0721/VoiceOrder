@@ -70,16 +70,12 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
     public void clearVendors() {
         vendors.clear();
     }
+    
 
     private String transformToSimpleAddress(String fullAddress) {
         String[] array = fullAddress.split(" ");
 
-        String state = array[0];
-        String locality = array[1];
-
-        state = state.substring(0,2);
-
-        return state + " " + locality;
+        return array.length < 2 ? array[0].substring(0,2) : array[0].substring(0,2) + " " + array[1];
     }
     
     private String removeAddressAndNameInContent(String content, String name, String address) {

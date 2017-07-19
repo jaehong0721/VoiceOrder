@@ -29,13 +29,27 @@ public class AppPreferenceManager extends Observable {
     }
 
     public void setUserFirstVisit() {
+        if(!getUserFirstVisit()) return;
+
+        sharedPreference
+                .edit()
+                .putBoolean("isFirstVisit", false)
+                .apply();
+    }
+
+    public boolean getUserFirstVisit() {
+        return sharedPreference
+                .getBoolean("isFirstVisit", true);
+    }
+
+    public void setUserFirstRecord() {
         sharedPreference
                 .edit()
                 .putBoolean("isFirst", false)
                 .apply();
     }
 
-    public boolean getUserFirstVisit() {
+    public boolean getUserFirstRecord() {
         return sharedPreference
                 .getBoolean("isFirst", true);
     }

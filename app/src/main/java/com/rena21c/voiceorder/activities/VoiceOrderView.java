@@ -85,7 +85,8 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
     }
 
     public void addTimeStamp(String fileName) {
-        orderViewPagerAdapter.addTimeStamp(fileName);
+        int position = orderViewPagerAdapter.addTimeStamp(fileName);
+        orderViewPager.setCurrentItem(position);
     }
 
     private void setGuide() {
@@ -124,11 +125,6 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
         }
     }
 
-    public void addEmptyOrderToViewPager(String fileName) {
-        orderViewPagerAdapter.addTimeStamp(fileName);
-        orderViewPager.setCurrentItem(0);
-    }
-
     public void addOrder(String phoeNumber, DataSnapshot dataSnapshot) {
         GenericTypeIndicator objectMapType = new GenericTypeIndicator<HashMap<String, VoiceRecord>>() {};
         HashMap<String, VoiceRecord> objectMap = (HashMap) dataSnapshot.getValue(objectMapType);
@@ -151,8 +147,14 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
         }
     }
 
-    public void remove(String timeStamp) {
-        orderViewPagerAdapter.remove(timeStamp);
+
+    public void removeOrder(DataSnapshot dataSnapshot) {
+        String timeStamp = FileNameUtil.getTimeFromFileName(dataSnapshot.getKey());
+        orderViewPagerAdapter.removeOrder(timeStamp);
+    }
+
+    public void removeTimeStamp(String timeStamp) {
+        orderViewPagerAdapter.removeTimeStamp(timeStamp);
     }
 
     public void setKeepScreenOn() {
@@ -172,5 +174,4 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
     public void onStopRecording() {
         activity.onStoppedRecording();
     }
-
 }

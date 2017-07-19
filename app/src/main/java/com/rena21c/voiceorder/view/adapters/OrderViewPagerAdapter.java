@@ -99,10 +99,11 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         return POSITION_NONE;
     }
 
-    public void addTimeStamp(String fileName) {
+    public int addTimeStamp(String fileName) {
         String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
-        timeStampList.add(timeStamp);
+        timeStampList.add(0,timeStamp);
         Collections.sort(timeStampList, Collections.<String>reverseOrder());
+
         if (orderPageMap.containsKey(timeStamp)) {
             // Do Nothing
         } else {
@@ -110,30 +111,32 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         }
         notifyDataSetChanged();
         itemCountChangedListener.itemCountChange(timeStampList.size());
+        return timeStampList.indexOf(fileName);
     }
 
 
-    public int addOrder(String phoeNumber, String timeStamp, HashMap<String, VoiceRecord> newItemHashMap) {
+    public int addOrder(String phoneNumber, String timeStamp, HashMap<String, VoiceRecord> newItemHashMap) {
         int position = timeStampList.indexOf(timeStamp);
-        replaceNumberKeyToVendorNameKey(phoeNumber,newItemHashMap);
+        replaceNumberKeyToVendorNameKey(phoneNumber,newItemHashMap);
         orderPageMap.put(timeStamp, new AcceptedOrderPage(timeStamp, newItemHashMap));
 
         Log.d("", "orderMap: " + newItemHashMap);
 
         notifyDataSetChanged();
-        itemCountChangedListener.itemCountChange(timeStampList.size());
         return position;
     }
 
-    public void remove(String timeStamp) {
+    public void removeTimeStamp(String timeStamp) {
         int position = timeStampList.indexOf(timeStamp);
         timeStampList.remove(position);
-        orderPageMap.remove(timeStamp);
 
         notifyDataSetChanged();
         itemCountChangedListener.itemCountChange(timeStampList.size());
     }
 
+    public void removeOrder(String timeStamp) {
+        orderPageMap.remove(timeStamp);
+    }
 
     public View getView(int position) {
         String timeStamp = timeStampList.get(position);

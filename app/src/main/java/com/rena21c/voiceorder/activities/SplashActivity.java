@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -13,12 +14,14 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.youtube.player.YouTubeStandalonePlayer;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rena21c.voiceorder.App;
+import com.rena21c.voiceorder.BuildConfig;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.etc.PermissionManager;
@@ -36,23 +39,23 @@ import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 
 import java.io.File;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-
-
-
 public class SplashActivity extends BaseActivity {
+
+    private static final int REQ_PLAY_TUTORIAL_VIDEO = 0;
 
     private PermissionManager permissionManager;
 
     private FirebaseDbManager dbManager;
 
     private FirebaseAuth firebaseAuth;
-    private Retrofit retrofit;
+    private Retrofit  retrofit;
     private ApiService apiService;
     private AppPreferenceManager appPreferenceManager;
 
@@ -79,15 +82,16 @@ public class SplashActivity extends BaseActivity {
         }
 
         //식당 녹음 파일 삭제 테스트용 로그 - 지우지 말 것
-        for(String fileName: getFilesDir().list()){
-        Log.d("test root", "file: " + fileName);
-        }
+        if(BuildConfig.DEBUG) {
+            for(String fileName: getFilesDir().list()){
+                Log.d("test root", "file: " + fileName);
+            }
 
-        //식당 녹음 파일 삭제 테스트용 로그 - 지우지 말 것
-        File file = new File(getFilesDir().getPath() + "/recordedFiles");
-        if(file.list() != null) {
-            for (String fileName : file.list()) {
-                Log.d("test recordedFiles", "file: " + fileName);
+            File file = new File(getFilesDir().getPath() + "/recordedFiles");
+            if(file.list() != null) {
+                for (String fileName : file.list()) {
+                    Log.d("test recordedFiles", "file: " + fileName);
+                }
             }
         }
     }
@@ -103,6 +107,24 @@ public class SplashActivity extends BaseActivity {
                 checkPlayService();
             }
         });
+    }
+
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQ_PLAY_TUTORIAL_VIDEO) {
+
+            switch (YouTubeStandalonePlayer.getReturnedInitializationResult(data)) {
+
+                case SUCCESS:
+                    goToMain();
+                    break;
+
+                default:
+                    String error = YouTubeStandalonePlayer.getReturnedInitializationResult(data).toString();
+                    FirebaseCrash.log("Can not play tutorial video : " + error);
+                    goToMain();
+                    break;
+            }
+        }
     }
 
     private void checkPlayService() {
@@ -186,13 +208,36 @@ public class SplashActivity extends BaseActivity {
     private void storeFcmToken() {
         dbManager.getFcmToken(appPreferenceManager.getPhoneNumber(), appPreferenceManager.getFcmToken(), new SimpleAuthListener(this) {
             @Override public void onSuccess(Object o) {
-                goToMain();
+                if(appPreferenceManager.getUserFirstVisit()) {
+                    playTutorialVideo();
+                } else {
+                    goToMain();
+                }
             }
         });
     }
 
+    private void playTutorialVideo() {
+        String developerKey = getResources().getString(R.string.google_api_key);
+        String videoId = getResources().getString(R.string.tutorial_video_id);
+        Intent intent = YouTubeStandalonePlayer.createVideoIntent(SplashActivity.this, developerKey, videoId, 0, false, true);
+
+        if (canResolveIntent(intent)) {
+            startActivityForResult(intent, REQ_PLAY_TUTORIAL_VIDEO);
+        } else {
+            goToMain();
+        }
+    }
+
+    private boolean canResolveIntent(Intent intent) {
+        List<ResolveInfo> resolveInfo = getPackageManager().queryIntentActivities(intent, 0);
+        return resolveInfo != null && !resolveInfo.isEmpty();
+    }
 
     private void goToMain() {
+
+        appPreferenceManager.setUserFirstVisit();
+
         String clickedTab = appPreferenceManager.getClickedTab();
 
         TabActionBar.Tab tab = TabActionBar.Tab.valueOf(clickedTab);

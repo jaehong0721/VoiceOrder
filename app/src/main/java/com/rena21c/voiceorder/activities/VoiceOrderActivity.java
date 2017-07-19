@@ -7,9 +7,13 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -21,7 +25,6 @@ import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.etc.RecordedFileManager;
 import com.rena21c.voiceorder.firebase.AnalyticsEventManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
-import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.services.FileUploadService;
 import com.rena21c.voiceorder.services.RecordedFilePlayer;
@@ -30,9 +33,6 @@ import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.util.MemorySizeChecker;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderManager.VoiceRecordCallback,
                                                                     RecordedFilePlayer.PlayRecordedFileListener {
@@ -83,48 +83,17 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         recordManager = new VoiceRecorderManager(recordedFileManager, this);
         memorySizeChecker = new MemorySizeChecker(REQUIRED_SPACE);
 
-        acceptedOrderChildEventListener = new ChildEventListener() {
-            @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Log.d("DB", "added: " + dataSnapshot.toString());
-                voiceOrderView.addOrder(appPreferenceManager.getPhoneNumber(),dataSnapshot);
-            }
-
-            @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-                Log.d("DB", "changed: " + dataSnapshot.toString());
-                voiceOrderView.replaceAcceptedOrder(appPreferenceManager.getPhoneNumber(),dataSnapshot);
-            }
-
-            @Override public void onChildRemoved(DataSnapshot dataSnapshot) {
-                Log.d("DB", "removed: " + dataSnapshot.toString());
-                dbManager.removeRecordedOrder(appPreferenceManager.getPhoneNumber(), dataSnapshot.getKey());
-            }
-
-            @Override public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
-
-            @Override public void onCancelled(DatabaseError databaseError) {}
-        };
-
-
-        acceptedOrderQuery = dbManager.subscribeAcceptedOrder(appPreferenceManager.getPhoneNumber(), acceptedOrderChildEventListener);
-
-        // TODO: 구독방식으로 리팩토링
-        dbManager.getRecordedOrder(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
-            @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                List<String> fileNameList = getFileNameListFrom(dataSnapshot.getChildren().iterator());
-                for (String fileName : fileNameList) {
-                    voiceOrderView.addTimeStamp(fileName);
-                }
-            }
-        });
-
         recordListListener = new ChildEventListener() {
-            @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) { }
+            @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                String fileName = dataSnapshot.getKey();
+                voiceOrderView.addTimeStamp(fileName);
+            }
 
             @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) { }
 
             @Override public void onChildRemoved(DataSnapshot dataSnapshot) {
                 String timeStamp = FileNameUtil.getTimeFromFileName(dataSnapshot.getKey());
-                voiceOrderView.remove(timeStamp);
+                voiceOrderView.removeTimeStamp(timeStamp);
             }
 
             @Override public void onChildMoved(DataSnapshot dataSnapshot, String s) { }
@@ -134,12 +103,51 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
 
         recordListQuery = dbManager.subscribeRecordedOrder(appPreferenceManager.getPhoneNumber(), recordListListener);
 
+        acceptedOrderChildEventListener = new ChildEventListener() {
+            String removedDataSnapshotKey = "";
+
+            @Override public void onChildAdded(final DataSnapshot dataSnapshot, String s) {
+                Log.d("DB", "added: " + dataSnapshot.toString());
+                //하나의 품목만 들어간 주문을 수정하면, removed-added 로 수정이 되므로 삭제된 파일이름 정보를 다시 저장해줘야함
+                if(removedDataSnapshotKey.equals(dataSnapshot.getKey())) {
+                    dbManager.addFileName(appPreferenceManager.getPhoneNumber(), dataSnapshot.getKey(), new OnCompleteListener() {
+                        @Override public void onComplete(@NonNull Task task) {
+                            if (!task.isSuccessful()) {
+                                FirebaseCrash.report(task.getException());
+                            } else {
+                                voiceOrderView.addOrder(appPreferenceManager.getPhoneNumber(),dataSnapshot);
+                            }
+                        }
+                    });
+                } else {
+                    voiceOrderView.addOrder(appPreferenceManager.getPhoneNumber(),dataSnapshot);
+                }
+            }
+
+            @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+                Log.d("DB", "changed: " + dataSnapshot.toString());
+                voiceOrderView.replaceAcceptedOrder(appPreferenceManager.getPhoneNumber(),dataSnapshot);
+            }
+
+            @Override public void onChildRemoved(DataSnapshot dataSnapshot) {
+                Log.d("DB", "removed: " + dataSnapshot.toString());
+                removedDataSnapshotKey = dataSnapshot.getKey();
+                dbManager.removeRecordedOrder(appPreferenceManager.getPhoneNumber(), removedDataSnapshotKey);
+                voiceOrderView.removeOrder(dataSnapshot);
+            }
+
+            @Override public void onChildMoved(DataSnapshot dataSnapshot, String s) {}
+
+            @Override public void onCancelled(DatabaseError databaseError) {}
+        };
+
+        acceptedOrderQuery = dbManager.subscribeAcceptedOrder(appPreferenceManager.getPhoneNumber(), acceptedOrderChildEventListener);
     }
 
     @Override protected void onStart() {
         super.onStart();
         registerReceiver(fileUploadSuccessReceiver, new IntentFilter("com.rena21c.voiceorder.ACTION_UPLOAD"));
-        voiceOrderView.setView(appPreferenceManager.getUserFirstVisit());
+        voiceOrderView.setView(appPreferenceManager.getUserFirstRecord());
     }
 
     @Override protected void onPause() {
@@ -152,7 +160,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         super.onStop();
         recordManager.cancel();
         voiceOrderView.clearKeepScreenOn();
-        if(!appPreferenceManager.getUserFirstVisit()) voiceOrderView.replaceViewToUnRecording();
+        if(!appPreferenceManager.getUserFirstRecord()) voiceOrderView.replaceViewToUnRecording();
         unregisterReceiver(fileUploadSuccessReceiver);
     }
 
@@ -192,9 +200,8 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
     }
 
     public void onStoppedRecording() {
-        final String fileName = recordManager.stop();
+        recordManager.stop();
         voiceOrderView.clearKeepScreenOn();
-        voiceOrderView.addEmptyOrderToViewPager(fileName);
         voiceOrderView.replaceViewToUnRecording();
         Intent intent = new Intent(this, FileUploadService.class);
         startService(intent);
@@ -205,22 +212,12 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
             voiceOrderView.showDialog(VoiceOrderView.NO_INTERNET_CONNECT);
         } else {
-            if (appPreferenceManager.getUserFirstVisit()) {
-                appPreferenceManager.setUserFirstVisit();
+            if (appPreferenceManager.getUserFirstRecord()) {
+                appPreferenceManager.setUserFirstRecord();
             }
             String fileName = FileNameUtil.makeFileName(appPreferenceManager.getPhoneNumber(), System.currentTimeMillis());
             recordManager.start(fileName);
         }
 
-    }
-
-    private List<String> getFileNameListFrom(Iterator<DataSnapshot> dataSnapshotIterator) {
-        List<String> fileNameList = new ArrayList<>();
-        if (dataSnapshotIterator != null) {
-            while (dataSnapshotIterator.hasNext()) {
-                fileNameList.add(dataSnapshotIterator.next().getKey());
-            }
-        }
-        return fileNameList;
     }
 }
