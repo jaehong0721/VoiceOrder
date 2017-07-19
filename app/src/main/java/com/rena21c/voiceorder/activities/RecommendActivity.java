@@ -61,8 +61,8 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
     private AppPreferenceManager appPreferenceManager;
     private AnalyticsEventManager eventManager;
 
-    private VendorsRecyclerViewAdapter rvAdapter;
     private RecyclerViewEmptySupport rvVendors;
+    private VendorsRecyclerViewAdapter rvAdapter;
 
     private TextView tvCurrentLocation;
     private AppCompatAutoCompleteTextView actvSearch;
@@ -78,6 +78,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
     private LinearLayout llSearch;
     private View ibClose;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,15 +90,15 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         calledVendors = appPreferenceManager.getCalledVendors();
         rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorInfoViewHolder.CallButtonClickListener() {
 
-            @Override public void onCallButtonClick(String phoneNumber, String name, int itemPosition) {
-                position = itemPosition;
-                vendorPhoneNumber = phoneNumber;
-                vendorName = name;
+             @Override public void onCallButtonClick(String phoneNumber, String name, int itemPosition) {
+                 position = itemPosition;
+                 vendorPhoneNumber = phoneNumber;
+                 vendorName = name;
 
-                beforeCallDialog = TwoButtonDialogFragment.newInstance("‘거상앱으로 전화드립니다’\n라고 꼭 말씀해주세요", "취소", "통화");
-                beforeCallDialog.show(getSupportFragmentManager(), "dialog");
-            }
-        });
+                 beforeCallDialog = TwoButtonDialogFragment.newInstance("‘거상앱으로 전화드립니다’\n라고 꼭 말씀해주세요", "취소", "통화");
+                 beforeCallDialog.show(getSupportFragmentManager(), "dialog");
+             }
+         });
 
         rvVendors = (RecyclerViewEmptySupport) findViewById(R.id.rvVendors);
         tvCurrentLocation = (TextView) findViewById(R.id.tvCurrentLocation);
@@ -130,6 +131,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!located) return;
+                Log.d("test", "onTextChanged");
                 HashMap<String, Object> bodyMap = new HashMap<>();
                 bodyMap.put("latitude", latitude);
                 bodyMap.put("longitude", longitude);
@@ -153,7 +155,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                 bodyMap.put("latitude", latitude);
                 bodyMap.put("longitude", longitude);
                 requestVendor(bodyMap);
-                actvSearch.setText("");
+                actvSearch.getText().clear();
             }
         });
 
@@ -200,6 +202,11 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                 .enqueue(new Callback<List<Vendor>>() {
                     @Override public void onResponse(Call<List<Vendor>> call, Response<List<Vendor>> response) {
                         if (response.body() != null) {
+                            int i = 0;
+                            for(Vendor vendor : response.body()) {
+                                Log.d("test", i++ + vendor.name);
+                            }
+
                             rvAdapter.setVendors(response.body());
                         } else {
                             rvAdapter.clearVendors();
@@ -220,7 +227,9 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
     @Override protected void onResume() {
         Log.d("test:", "onResume");
-        locationManager.startLocationUpdates();
+        try {
+            locationManager.startLocationUpdates();
+        } catch (IllegalStateException e) { FirebaseCrash.report(e); }
         super.onResume();
     }
 
