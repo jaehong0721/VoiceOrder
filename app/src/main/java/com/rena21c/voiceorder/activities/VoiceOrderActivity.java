@@ -147,7 +147,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
     @Override protected void onStart() {
         super.onStart();
         registerReceiver(fileUploadSuccessReceiver, new IntentFilter("com.rena21c.voiceorder.ACTION_UPLOAD"));
-        voiceOrderView.setView(appPreferenceManager.getUserFirstVisit());
+        voiceOrderView.setView(appPreferenceManager.getUserFirstRecord());
     }
 
     @Override protected void onPause() {
@@ -160,7 +160,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         super.onStop();
         recordManager.cancel();
         voiceOrderView.clearKeepScreenOn();
-        if(!appPreferenceManager.getUserFirstVisit()) voiceOrderView.replaceViewToUnRecording();
+        if(!appPreferenceManager.getUserFirstRecord()) voiceOrderView.replaceViewToUnRecording();
         unregisterReceiver(fileUploadSuccessReceiver);
     }
 
@@ -212,8 +212,8 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
             voiceOrderView.showDialog(VoiceOrderView.NO_INTERNET_CONNECT);
         } else {
-            if (appPreferenceManager.getUserFirstVisit()) {
-                appPreferenceManager.setUserFirstVisit();
+            if (appPreferenceManager.getUserFirstRecord()) {
+                appPreferenceManager.setUserFirstRecord();
             }
             String fileName = FileNameUtil.makeFileName(appPreferenceManager.getPhoneNumber(), System.currentTimeMillis());
             recordManager.start(fileName);

@@ -34,10 +34,10 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         app:selectedColor="@color/primaryBrown"
-        app:selectedImage="@drawable/play_selected"
+        app:selectedImage="@drawable/estimate_selected"
         app:text="견적요청"
         app:unselectedColor="@color/unselectedColor"
-        app:unselectedImage="@drawable/play"/>
+        app:unselectedImage="@drawable/estimate"/>
 
     <com.rena21c.voiceorder.view.widgets.UnderLineButton
         android:id="@+id/btnMyPartner"
