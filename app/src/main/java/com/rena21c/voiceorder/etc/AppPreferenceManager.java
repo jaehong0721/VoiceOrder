@@ -72,7 +72,8 @@ public class AppPreferenceManager extends Observable {
             phoneNumber = "01000000000";
             FirebaseCrash.logcat(Log.WARN, "PhoneNumber", "전화번호가 없는 기기에서 앱을 실행함");
         }
-        if (phoneNumber.substring(0, 3).equals("+82")) {
+
+        if (phoneNumber.startsWith("+82")) {
             phoneNumber = phoneNumber.replace("+82", "0");
         }
         sharedPreference
