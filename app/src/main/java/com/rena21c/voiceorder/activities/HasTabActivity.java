@@ -3,18 +3,21 @@ package com.rena21c.voiceorder.activities;
 import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 
+import com.rena21c.voiceorder.App;
+import com.rena21c.voiceorder.firebase.AnalyticsEventManager;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 
-public class HasTabActivity extends AppCompatActivity {
+public class HasTabActivity extends BaseActivity {
 
     private TabActionBar tabActionBar;
+    private AnalyticsEventManager eventManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        eventManager = App.getApplication(getApplicationContext()).getEventManager();
 
         String tab = getIntent().getStringExtra("tab");
 
@@ -26,7 +29,7 @@ public class HasTabActivity extends AppCompatActivity {
         super.onStart();
 
         tabActionBar.setTabClickListener(new TabActionBar.TabClickListener() {
-            @Override public void OnTabClicked(TabActionBar.Tab tab) {
+            @Override public void onTabClicked(TabActionBar.Tab tab) {
 
                 Intent intent = new Intent();
                 intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -36,13 +39,22 @@ public class HasTabActivity extends AppCompatActivity {
 
                 switch (tab) {
                     case RECOMMEND:
-                        Log.d("HasTabActivity", "추천탭");
+                        eventManager.setRecommendTabClickEvent();
                         intent.setComponent(new ComponentName(HasTabActivity.this, RecommendActivity.class));
                         break;
 
                     case VOICE_ORDER:
-                        Log.d("HasTabActivity", "주문탭");
+                        eventManager.setVoiceOrderTabClickEvent();
                         intent.setComponent(new ComponentName(HasTabActivity.this, VoiceOrderActivity.class));
+                        break;
+
+                    case REQUEST_ESTIMATE:
+                        intent.setComponent(new ComponentName(HasTabActivity.this, RequestEstimateActivity.class));
+                        break;
+
+                    case MY_PARTNER:
+                        eventManager.setMyPartnerTabClickEvent();
+                        intent.setComponent(new ComponentName(HasTabActivity.this, MyPartnerActivity.class));
                         break;
                 }
 

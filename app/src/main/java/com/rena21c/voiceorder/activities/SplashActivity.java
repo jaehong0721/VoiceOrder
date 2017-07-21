@@ -6,6 +6,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -13,16 +14,19 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.youtube.player.YouTubeStandalonePlayer;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rena21c.voiceorder.App;
+import com.rena21c.voiceorder.BuildConfig;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.etc.PermissionManager;
 import com.rena21c.voiceorder.etc.PlayServiceManager;
+import com.rena21c.voiceorder.etc.RecordedFileManager;
 import com.rena21c.voiceorder.etc.VersionManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.SimpleAuthListener;
@@ -35,24 +39,23 @@ import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 
 import java.io.File;
-import java.io.FilenameFilter;
-import java.util.GregorianCalendar;
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
-
 public class SplashActivity extends BaseActivity {
+
+    private static final int REQ_PLAY_TUTORIAL_VIDEO = 0;
 
     private PermissionManager permissionManager;
 
     private FirebaseDbManager dbManager;
 
     private FirebaseAuth firebaseAuth;
-    private Retrofit retrofit;
+    private Retrofit  retrofit;
     private ApiService apiService;
     private AppPreferenceManager appPreferenceManager;
 
@@ -79,11 +82,18 @@ public class SplashActivity extends BaseActivity {
         }
 
         //식당 녹음 파일 삭제 테스트용 로그 - 지우지 말 것
-        for(String fileName: getFilesDir().list()){
-        Log.d("test", "file: " + fileName);
-        }
+        if(BuildConfig.DEBUG) {
+            for(String fileName: getFilesDir().list()){
+                Log.d("test root", "file: " + fileName);
+            }
 
-        deleteRecordedFile();
+            File file = new File(getFilesDir().getPath() + "/recordedFiles");
+            if(file.list() != null) {
+                for (String fileName : file.list()) {
+                    Log.d("test recordedFiles", "file: " + fileName);
+                }
+            }
+        }
     }
 
     @Override
@@ -92,28 +102,27 @@ public class SplashActivity extends BaseActivity {
         permissionManager.requestPermission(new PermissionManager.PermissionsPermittedListener() {
             @Override
             public void onAllPermissionsPermitted() {
+                RecordedFileManager recordedFileManager = App.getApplication(getApplicationContext()).getRecordedFileManager();
+                recordedFileManager.deleteRecordedFile(System.currentTimeMillis());
                 checkPlayService();
             }
         });
     }
 
-    private void deleteRecordedFile() {
-        File dir = new File(getFilesDir().toString());
-        File[] recordedFiles = dir.listFiles(new FilenameFilter() {
-                                                 @Override
-                                                 public boolean accept(File dir, String name) {
-                                                     return name.endsWith(".mp4");
-                                                 }
-                                             });
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == REQ_PLAY_TUTORIAL_VIDEO) {
 
-        GregorianCalendar standardTime = new GregorianCalendar(2017, 3, 24);
-        long standardTimeInMillis = standardTime.getTimeInMillis();
+            switch (YouTubeStandalonePlayer.getReturnedInitializationResult(data)) {
 
-        for (File file : recordedFiles ) {
-            Long lastModified = file.lastModified();
+                case SUCCESS:
+                    goToMain();
+                    break;
 
-            if (lastModified < standardTimeInMillis) {
-                file.delete();
+                default:
+                    String error = YouTubeStandalonePlayer.getReturnedInitializationResult(data).toString();
+                    FirebaseCrash.log("Can not play tutorial video : " + error);
+                    goToMain();
+                    break;
             }
         }
     }
@@ -199,13 +208,36 @@ public class SplashActivity extends BaseActivity {
     private void storeFcmToken() {
         dbManager.getFcmToken(appPreferenceManager.getPhoneNumber(), appPreferenceManager.getFcmToken(), new SimpleAuthListener(this) {
             @Override public void onSuccess(Object o) {
-                goToMain();
+                if(appPreferenceManager.getUserFirstVisit()) {
+                    playTutorialVideo();
+                } else {
+                    goToMain();
+                }
             }
         });
     }
 
+    private void playTutorialVideo() {
+        String developerKey = getResources().getString(R.string.google_api_key);
+        String videoId = getResources().getString(R.string.tutorial_video_id);
+        Intent intent = YouTubeStandalonePlayer.createVideoIntent(SplashActivity.this, developerKey, videoId, 0, false, true);
+
+        if (canResolveIntent(intent)) {
+            startActivityForResult(intent, REQ_PLAY_TUTORIAL_VIDEO);
+        } else {
+            goToMain();
+        }
+    }
+
+    private boolean canResolveIntent(Intent intent) {
+        List<ResolveInfo> resolveInfo = getPackageManager().queryIntentActivities(intent, 0);
+        return resolveInfo != null && !resolveInfo.isEmpty();
+    }
 
     private void goToMain() {
+
+        appPreferenceManager.setUserFirstVisit();
+
         String clickedTab = appPreferenceManager.getClickedTab();
 
         TabActionBar.Tab tab = TabActionBar.Tab.valueOf(clickedTab);
@@ -222,6 +254,13 @@ public class SplashActivity extends BaseActivity {
             case VOICE_ORDER:
                 intent.setComponent(new ComponentName(SplashActivity.this, VoiceOrderActivity.class));
                 break;
+
+            case REQUEST_ESTIMATE:
+                intent.setComponent(new ComponentName(SplashActivity.this, RequestEstimateActivity.class));
+                break;
+            case MY_PARTNER:
+                intent.setComponent(new ComponentName(SplashActivity.this, MyPartnerActivity.class));
+                break;
         }
 
         startActivity(intent);
@@ -231,7 +270,7 @@ public class SplashActivity extends BaseActivity {
 
     private void restartApp(Context context) {
         Intent intent = new Intent(context, SplashActivity.class);
-        intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
         if (context instanceof Activity) {
             ((Activity) context).finish();

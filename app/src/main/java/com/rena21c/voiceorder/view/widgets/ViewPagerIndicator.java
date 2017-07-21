@@ -2,11 +2,11 @@ package com.rena21c.voiceorder.view.widgets;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.util.DpToPxConverter;
 
 import java.util.ArrayList;
 
@@ -15,8 +15,8 @@ public class ViewPagerIndicator extends RelativeLayout {
     private Context context;
     private ArrayList<View> dots;
 
-    private final int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics());
-    private final int height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 6, getResources().getDisplayMetrics());
+    private final int width = DpToPxConverter.convertDpToPx(6,getResources().getDisplayMetrics());
+    private final int height = DpToPxConverter.convertDpToPx(6,getResources().getDisplayMetrics());
 
     public ViewPagerIndicator(Context context, AttributeSet attrs) {
         super(context, attrs);

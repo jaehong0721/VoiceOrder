@@ -3,7 +3,6 @@ package com.rena21c.voiceorder.view.widgets;
 
 import android.content.Context;
 import android.util.AttributeSet;
-import android.util.TypedValue;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -11,31 +10,25 @@ import android.view.animation.AnimationSet;
 import android.view.animation.BounceInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
-import android.view.animation.Transformation;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.util.DpToPxConverter;
+import com.rena21c.voiceorder.view.animation.ShowHeightChangeAnimation;
 
 public class RecordAndStopButton extends FrameLayout implements View.OnClickListener {
 
-    public final int HEIGHT_WITH_GUIDE_LAYOUT = 222;
-    public final int HEIGHT_WITH_ORDER_LIST_LAYOUT = 167;
-    private final int HEIGHT_WITH_RECORDING_LAYOUT = 313;
+    public final int HEIGHT_WITH_GUIDE_LAYOUT = DpToPxConverter.convertDpToPx(250,getResources().getDisplayMetrics());
+    public final int HEIGHT_WITH_ORDER_LIST_LAYOUT = DpToPxConverter.convertDpToPx(167,getResources().getDisplayMetrics());
+
+    private final int HEIGHT_WITH_RECORDING_LAYOUT = DpToPxConverter.convertDpToPx(313,getResources().getDisplayMetrics());
 
     private final float BACKGROUND_SCALE_RECORD_X = 1.0F;
     private final float BACKGROUND_SCALE_RECORD_Y = 1.0F;
     private final float BACKGROUND_SCALE_STOP_X = 1.1F;
     private final float BACKGROUND_SCALE_STOP_Y = 1.1F;
-
-    private final float FROM_ALPHA = 0.5F;
-    private final float TO_ALPHA = 0;
-
-    private final float PULSE_SCALE_RECORD_X = 1.3F;
-    private final float PULSE_SCALE_RECORD_Y = 1.3F;
-    private final float PULSE_SCALE_STOP_X = 1.4F;
-    private final float PULSE_SCALE_STOP_Y = 1.4F;
 
     private final int PULSE_CYCLE = 700;
 
@@ -79,7 +72,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
     public void setInitHeight(int height) {
         FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) buttonLayout.getLayoutParams();
-        params.height = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, height, getResources().getDisplayMetrics());
+        params.height = height;
         buttonLayout.setLayoutParams(params);
     }
 
@@ -91,9 +84,15 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         set.setStartOffset(400);
         set.setInterpolator(new LinearInterpolator());
 
+        float FROM_ALPHA = 0.5F;
+        float TO_ALPHA = 0;
+
         AlphaAnimation alphaAnimation = new AlphaAnimation(FROM_ALPHA, TO_ALPHA);
         alphaAnimation.setRepeatCount(-1);
         set.addAnimation(alphaAnimation);
+
+        float PULSE_SCALE_RECORD_X = 1.3F;
+        float PULSE_SCALE_RECORD_Y = 1.3F;
 
         ScaleAnimation scaleAnimation = new ScaleAnimation(BACKGROUND_SCALE_RECORD_X, PULSE_SCALE_RECORD_X,
                 BACKGROUND_SCALE_RECORD_Y, PULSE_SCALE_RECORD_Y,
@@ -103,7 +102,6 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         set.addAnimation(scaleAnimation);
 
         ivAnimation.startAnimation(set);
-
     }
 
     private void startPulseAnimationStopBtn() {
@@ -117,6 +115,9 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         AlphaAnimation alphaAnimation = new AlphaAnimation(0.5F, 0);
         alphaAnimation.setRepeatCount(-1);
         set.addAnimation(alphaAnimation);
+
+        float PULSE_SCALE_STOP_X = 1.4F;
+        float PULSE_SCALE_STOP_Y = 1.4F;
 
         ScaleAnimation scaleAnimation = new ScaleAnimation(BACKGROUND_SCALE_STOP_X, PULSE_SCALE_STOP_X,
                 BACKGROUND_SCALE_STOP_Y, PULSE_SCALE_STOP_Y,
@@ -141,7 +142,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
     public void setRecordViewState() {
         isRecording = false;
-        Animation shortHeightAni = new showHeightChangeAnimation(buttonLayout, HEIGHT_WITH_ORDER_LIST_LAYOUT);
+        Animation shortHeightAni = new ShowHeightChangeAnimation(buttonLayout, HEIGHT_WITH_ORDER_LIST_LAYOUT);
         shortHeightAni.setDuration(200);
         buttonLayout.startAnimation(shortHeightAni);
 
@@ -155,7 +156,7 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
 
     public void setStopViewState() {
         isRecording = true;
-        Animation longHeightAni = new showHeightChangeAnimation(buttonLayout, HEIGHT_WITH_RECORDING_LAYOUT);
+        Animation longHeightAni = new ShowHeightChangeAnimation(buttonLayout, HEIGHT_WITH_RECORDING_LAYOUT);
         longHeightAni.setDuration(200);
         buttonLayout.startAnimation(longHeightAni);
 
@@ -166,35 +167,4 @@ public class RecordAndStopButton extends FrameLayout implements View.OnClickList
         ivRecord.setVisibility(View.INVISIBLE);
         ivStop.setVisibility(View.VISIBLE);
     }
-
-    public class showHeightChangeAnimation extends Animation {
-        int startHeight;
-        int targetHeight;
-        View view;
-
-        public showHeightChangeAnimation(View view, int targetHeight) {
-            this.view = view;
-            this.startHeight = view.getHeight();
-            this.targetHeight = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, targetHeight, getResources().getDisplayMetrics());
-        }
-
-        @Override
-        protected void applyTransformation(float interpolatedTime, Transformation t) {
-
-            int newHeight = (int) (startHeight + (targetHeight - startHeight) * interpolatedTime);
-            view.getLayoutParams().height = newHeight;
-            view.requestLayout();
-        }
-
-        @Override
-        public void initialize(int width, int height, int parentWidth, int parentHeight) {
-            super.initialize(width, height, parentWidth, parentHeight);
-        }
-
-        @Override
-        public boolean willChangeBounds() {
-            return true;
-        }
-    }
-
 }

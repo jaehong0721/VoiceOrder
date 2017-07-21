@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/primaryYellow">
+
+    <TextView
+        android:id="@+id/main_instruction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="85dp"
+        android:gravity="center_horizontal"
+        android:lineSpacingExtra="9sp"
+        android:text="@string/request_estimate_main_instruction"
+        android:textSize="31sp"/>
+
+    <TextView
+        android:id="@+id/sub_instruction"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/main_instruction"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
+        android:lineSpacingExtra="10sp"
+        android:text="@string/request_estimate_sub_instruction"
+        android:textSize="16sp"/>
+
+    <ImageView
+        android:id="@+id/ivCallToRequestEstimate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sub_instruction"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="40dp"
+        android:src="@drawable/request_estimate_call"/>
+
+    <TextView
+        android:id="@+id/call_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ivCallToRequestEstimate"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:lineSpacingExtra="7sp"
+        android:text="거상에 견적 요청"
+        android:textSize="16sp"/>
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:scaleType="fitXY"
+        android:src="@drawable/illustration2"/>
+</RelativeLayout>

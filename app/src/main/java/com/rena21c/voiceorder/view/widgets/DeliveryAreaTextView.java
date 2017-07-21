@@ -2,10 +2,10 @@ package com.rena21c.voiceorder.view.widgets;
 
 
 import android.content.Context;
-import android.util.TypedValue;
 import android.view.Gravity;
 
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.util.DpToPxConverter;
 
 public class DeliveryAreaTextView extends android.support.v7.widget.AppCompatTextView {
 
@@ -14,10 +14,11 @@ public class DeliveryAreaTextView extends android.support.v7.widget.AppCompatTex
 
         setTextSize(12);
 
-        setPadding((int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
-                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
-                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()),
-                (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 5, getResources().getDisplayMetrics()));
+        int paddingDimension = DpToPxConverter.convertDpToPx(5,getResources().getDisplayMetrics());
+        setPadding(paddingDimension,
+                    paddingDimension,
+                    paddingDimension,
+                    paddingDimension);
 
         setGravity(Gravity.CENTER);
 

@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.pojo.Vendor;
+import com.rena21c.voiceorder.util.AddressUtil;
 import com.rena21c.voiceorder.util.TimeConverter;
 import com.rena21c.voiceorder.viewholder.VendorInfoViewHolder;
 
@@ -40,8 +41,8 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
 
         final String phoneNumber = vendor.phoneNumber;
 
-        String vendorName = vendor.name;
-        String address = transformToSimpleAddress(vendor.address);
+        final String vendorName = vendor.name;
+        String address = AddressUtil.convertToSimpleAddress(vendor.address);
         String businessContent = removeAddressAndNameInContent(vendor.items,  vendorName, address);
 
         long callTime = appPreferenceManager.getCallTime(phoneNumber);
@@ -53,7 +54,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
                 .bindElapsedTimeFromCall(elapsedTime)
                 .setCallButtonClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
-                        callButtonClickListener.onCallButtonClick(phoneNumber, position);
+                        callButtonClickListener.onCallButtonClick(phoneNumber, vendorName, position);
                     }
                 });
     }
@@ -63,7 +64,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
     }
 
     public void setVendors(List<Vendor> vendors) {
-        this.vendors = vendors;
+        this.vendors= vendors;
         notifyDataSetChanged();
     }
 
@@ -71,17 +72,6 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
         vendors.clear();
     }
 
-    private String transformToSimpleAddress(String fullAddress) {
-        String[] array = fullAddress.split(" ");
-
-        String state = array[0];
-        String locality = array[1];
-
-        state = state.substring(0,2);
-
-        return state + " " + locality;
-    }
-    
     private String removeAddressAndNameInContent(String content, String name, String address) {
         return content.replaceAll(name, "").replaceAll(address, "");
     }

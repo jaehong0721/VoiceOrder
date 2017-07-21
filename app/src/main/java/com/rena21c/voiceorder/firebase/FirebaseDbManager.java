@@ -2,9 +2,14 @@ package com.rena21c.voiceorder.firebase;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.rena21c.voiceorder.pojo.MyPartner;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class FirebaseDbManager {
 
@@ -13,6 +18,7 @@ public class FirebaseDbManager {
     private static final String RECORDED_ORDERS = "recordedOrders";
     private static final String ORDERS = "orders";
     private static final String RESTAURANTS = "restaurants";
+    private static final String VENDORS = "vendors";
 
     private final FirebaseDatabase instance;
 
@@ -53,13 +59,12 @@ public class FirebaseDbManager {
         return query;
     }
 
-    public void getAcceptedOrder(String phoneNumber, ValueEventListener listener) {
-        instance.getReference().child(ORDERS)
-                .child(RESTAURANTS)
-                .orderByKey()
-                .startAt(phoneNumber + "_00000000000000")
-                .endAt(phoneNumber + "_99999999999999")
-                .addListenerForSingleValueEvent(listener);
+    public void removeRecordedOrder(String phoneNumber, String key) {
+        instance.getReference().child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(RECORDED_ORDERS)
+                .child(key)
+                .removeValue();
     }
 
     public Query subscribeAcceptedOrder(String phoneNumber, ChildEventListener listener) {
@@ -72,10 +77,13 @@ public class FirebaseDbManager {
         return query;
     }
 
-    public void getVendorInfo(String vendorPhoneNumber, ValueEventListener listener) {
-        instance.getReference().child("vendors")
+    public void getVendorName(String restaurantPhoneNumber, String vendorPhoneNumber, ValueEventListener listener) {
+        instance.getReference()
+                .child(RESTAURANTS)
+                .child(restaurantPhoneNumber)
+                .child(VENDORS)
                 .child(vendorPhoneNumber)
-                .child("info")
+                .child("name")
                 .addListenerForSingleValueEvent(listener);
     }
 
@@ -88,4 +96,49 @@ public class FirebaseDbManager {
                 .addOnCompleteListener(listener);
     }
 
+    public DatabaseReference subscribeMyPartner(String phoneNumber, ValueEventListener listener) {
+        DatabaseReference reference = instance.getReference()
+                                        .child(RESTAURANTS)
+                                        .child(phoneNumber)
+                                        .child(VENDORS);
+        reference.addValueEventListener(listener);
+        return reference;
+    }
+
+    public void cancelSubscriptionMyPartner(String phoneNumber, ToastErrorHandlingListener dbListener) {
+        instance.getReference()
+                .child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(VENDORS)
+                .removeEventListener(dbListener);
+    }
+
+    public void getMyPartnersOnce(String phoneNumber, ToastErrorHandlingListener listener) {
+        instance.getReference()
+                .child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(VENDORS)
+                .addListenerForSingleValueEvent(listener);
+    }
+
+    public void uploadMyPartner(String phoneNumber, HashMap<String, MyPartner> myPartnerMap, OnCompleteListener listener) {
+        instance.getReference()
+                .child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(VENDORS)
+                .setValue(myPartnerMap)
+                .addOnCompleteListener(listener);
+    }
+
+    public void getAllVendors(ToastErrorHandlingListener listener) {
+        instance.getReference()
+                .child(VENDORS)
+                .addListenerForSingleValueEvent(listener);
+    }
+
+    public void updateVendors(Map<String, Object> uploadPathMap, DatabaseReference.CompletionListener listener) {
+        instance.getReference()
+                .child(VENDORS)
+                .updateChildren(uploadPathMap, listener);
+    }
 }

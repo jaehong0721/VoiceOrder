@@ -7,18 +7,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 import com.rena21c.voiceorder.activities.OrderDetailActivity;
+import com.rena21c.voiceorder.etc.RecordedFileManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
-import com.rena21c.voiceorder.model.VendorInfo;
+import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.model.VoiceRecord;
+import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.viewmodel.AcceptedOrderPage;
 import com.rena21c.voiceorder.viewmodel.EmptyOrderPage;
-import com.rena21c.voiceorder.viewmodel.FailedOrderPage;
 import com.rena21c.voiceorder.viewmodel.OrderPage;
 
 import java.util.ArrayList;
@@ -29,6 +27,8 @@ import java.util.Map;
 public class OrderViewPagerAdapter extends PagerAdapter {
 
     private final FirebaseDbManager dbManager;
+    private final RecordedFileManager recordedFileManager;
+
     private Context context;
     private LayoutInflater layoutInflater;
 
@@ -43,13 +43,22 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         void itemCountChange(int count);
     }
 
-    public OrderViewPagerAdapter(final Context context, FirebaseDbManager dbManager, ItemCountChangedListener itemCountChangedListener) {
+    public OrderViewPagerAdapter(final Context context,
+                                 FirebaseDbManager dbManager,
+                                 RecordedFileManager recordedFileManager,
+                                 ItemCountChangedListener itemCountChangedListener) {
+
+        layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
         this.context = context;
         this.timeStampList = new ArrayList<>();
         this.orderPageMap = new HashMap<>();
-        layoutInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
         this.dbManager = dbManager;
+        this.recordedFileManager = recordedFileManager;
+
         this.itemCountChangedListener = itemCountChangedListener;
+
         onClickDetailsOrderPageListener = new OrderPage.OnClickDetailsOrderPageListener() {
             @Override public void onClickDetailsOrderPage(String timeStamp, HashMap<String, VoiceRecord> itemHashMap) {
                 Intent intent = new Intent(context, OrderDetailActivity.class);
@@ -90,49 +99,54 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         return POSITION_NONE;
     }
 
-    public void addTimeStamp(String timeStamp) {
-        timeStampList.add(timeStamp);
+    public int addTimeStamp(String fileName) {
+        String timeStamp = FileNameUtil.getTimeFromFileName(fileName);
+        timeStampList.add(0,timeStamp);
         Collections.sort(timeStampList, Collections.<String>reverseOrder());
+
         if (orderPageMap.containsKey(timeStamp)) {
             // Do Nothing
         } else {
-            orderPageMap.put(timeStamp, new EmptyOrderPage(timeStamp));
+            orderPageMap.put(timeStamp, new EmptyOrderPage(timeStamp, fileName, recordedFileManager.isStored(fileName)));
         }
         notifyDataSetChanged();
         itemCountChangedListener.itemCountChange(timeStampList.size());
+        return timeStampList.indexOf(fileName);
     }
 
 
-    public int addOrder(String timeStamp, HashMap<String, VoiceRecord> newItemHashMap) {
-        int position = getPosition(timeStamp);
-        replaceNumberKeyToVendorNameKey(newItemHashMap);
+    public int addOrder(String phoneNumber, String timeStamp, HashMap<String, VoiceRecord> newItemHashMap) {
+        int position = timeStampList.indexOf(timeStamp);
+        replaceNumberKeyToVendorNameKey(phoneNumber,newItemHashMap);
         orderPageMap.put(timeStamp, new AcceptedOrderPage(timeStamp, newItemHashMap));
 
         Log.d("", "orderMap: " + newItemHashMap);
 
         notifyDataSetChanged();
-        itemCountChangedListener.itemCountChange(timeStampList.size());
         return position;
     }
 
-    public void remove(String timeStamp) {
-        int position = getPosition(timeStamp);
+    public void removeTimeStamp(String timeStamp) {
+        int position = timeStampList.indexOf(timeStamp);
         timeStampList.remove(position);
 
         notifyDataSetChanged();
         itemCountChangedListener.itemCountChange(timeStampList.size());
     }
 
+    public void removeOrder(String timeStamp) {
+        orderPageMap.remove(timeStamp);
+    }
 
     public View getView(int position) {
         String timeStamp = timeStampList.get(position);
         return orderPageMap.get(timeStamp).getView(layoutInflater, onClickDetailsOrderPageListener);
     }
 
-    public int replaceToAcceptedOrder(String timeStamp, HashMap<String, VoiceRecord> newItemHashMap) {
-        replaceNumberKeyToVendorNameKey(newItemHashMap);
+    public int replaceToAcceptedOrder(String phoneNumber, String timeStamp, HashMap<String, VoiceRecord> newItemHashMap) {
+        replaceNumberKeyToVendorNameKey(phoneNumber,newItemHashMap);
 
-        int position = getPosition(timeStamp);
+        int position = timeStampList.indexOf(timeStamp);
 
         orderPageMap.put(timeStamp, new AcceptedOrderPage(timeStamp, newItemHashMap));
 
@@ -140,38 +154,15 @@ public class OrderViewPagerAdapter extends PagerAdapter {
         return position;
     }
 
-    public int replaceToFailedOrder(String timeStamp) {
-
-        int position = getPosition(timeStamp);
-
-        orderPageMap.put(timeStamp, new FailedOrderPage(timeStamp));
-
-        notifyDataSetChanged();
-        return position;
-    }
-
-    private void replaceNumberKeyToVendorNameKey(final HashMap<String, VoiceRecord> itemHashMap) {
+    private void replaceNumberKeyToVendorNameKey(String restaurantPhoneNumber, final HashMap<String, VoiceRecord> itemHashMap) {
         for (final String vendorPhoneNumber : itemHashMap.keySet()) {
-            dbManager.getVendorInfo(vendorPhoneNumber, new ValueEventListener() {
+            dbManager.getVendorName(restaurantPhoneNumber, vendorPhoneNumber, new ToastErrorHandlingListener(context) {
                 @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                    VendorInfo vendorInfo = dataSnapshot.getValue(VendorInfo.class);
-                    itemHashMap.put(vendorInfo.vendorName, itemHashMap.remove(vendorPhoneNumber));
+                    String vendorName = (String)dataSnapshot.getValue();
+                    itemHashMap.put(vendorName, itemHashMap.remove(vendorPhoneNumber));
                     notifyDataSetChanged();
-                }
-
-                @Override public void onCancelled(DatabaseError databaseError) {
-                    Toast.makeText(context, databaseError.toString(), Toast.LENGTH_SHORT).show();
                 }
             });
         }
-    }
-
-    private int getPosition(String timeStamp) {
-        for (int i = 0; i < timeStampList.size(); i++) {
-            if (timeStampList.get(i).equals(timeStamp)) {
-                return i;
-            }
-        }
-        return -1;
     }
 }

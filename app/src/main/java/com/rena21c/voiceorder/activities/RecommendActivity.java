@@ -1,6 +1,7 @@
 package com.rena21c.voiceorder.activities;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.location.Geocoder;
@@ -12,6 +13,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -21,6 +23,7 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
+import com.rena21c.voiceorder.firebase.AnalyticsEventManager;
 import com.rena21c.voiceorder.network.ApiService;
 import com.rena21c.voiceorder.pojo.Vendor;
 import com.rena21c.voiceorder.services.LocationManager;
@@ -54,20 +57,27 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
     private Retrofit retrofit;
     private ApiService apiService;
-    private AppPreferenceManager appPreferenceManager;
 
-    private VendorsRecyclerViewAdapter rvAdapter;
+    private AppPreferenceManager appPreferenceManager;
+    private AnalyticsEventManager eventManager;
+
     private RecyclerViewEmptySupport rvVendors;
+    private VendorsRecyclerViewAdapter rvAdapter;
 
     private TextView tvCurrentLocation;
     private AppCompatAutoCompleteTextView actvSearch;
 
     private TwoButtonDialogFragment beforeCallDialog;
 
+    private HashMap<String, String> calledVendors;
+
     private String vendorPhoneNumber;
+    private String vendorName;
     private int position;
+
     private LinearLayout llSearch;
     private View ibClose;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,17 +85,20 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         setContentView(R.layout.activity_recommend);
 
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
+        eventManager = App.getApplication(getApplicationContext()).getEventManager();
 
+        calledVendors = appPreferenceManager.getCalledVendors();
         rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorInfoViewHolder.CallButtonClickListener() {
 
-            @Override public void onCallButtonClick(String phoneNumber, int itemPosition) {
-                position = itemPosition;
-                vendorPhoneNumber = phoneNumber;
+             @Override public void onCallButtonClick(String phoneNumber, String name, int itemPosition) {
+                 position = itemPosition;
+                 vendorPhoneNumber = phoneNumber;
+                 vendorName = name;
 
-                beforeCallDialog = TwoButtonDialogFragment.newInstance("‘거상앱으로 전화드립니다’라고 꼭 말씀해주세요", "취소", "통화");
-                beforeCallDialog.show(getSupportFragmentManager(), "dialog");
-            }
-        });
+                 beforeCallDialog = TwoButtonDialogFragment.newInstance("‘거상앱으로 전화드립니다’\n라고 꼭 말씀해주세요", "취소", "통화");
+                 beforeCallDialog.show(getSupportFragmentManager(), "dialog");
+             }
+         });
 
         rvVendors = (RecyclerViewEmptySupport) findViewById(R.id.rvVendors);
         tvCurrentLocation = (TextView) findViewById(R.id.tvCurrentLocation);
@@ -103,6 +116,9 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                     getSupportActionBar().hide();
                     ibClose.setVisibility(View.VISIBLE);
                 } else {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(actvSearch.getWindowToken(), 0);
+
                     getSupportActionBar().show();
                     ibClose.setVisibility(View.GONE);
                 }
@@ -115,11 +131,14 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
             @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!located) return;
+                Log.d("test", "onTextChanged");
                 HashMap<String, Object> bodyMap = new HashMap<>();
                 bodyMap.put("latitude", latitude);
                 bodyMap.put("longitude", longitude);
                 bodyMap.put("keyWord", s.toString());
                 requestVendor(bodyMap);
+
+                rvVendors.scrollToPosition(0);
             }
 
             @Override public void afterTextChanged(Editable s) {
@@ -129,12 +148,14 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
         ibClose.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
+                eventManager.setSearchEvent(actvSearch.getText().toString());
+
                 llSearch.requestFocus();
                 HashMap<String, Object> bodyMap = new HashMap<>();
                 bodyMap.put("latitude", latitude);
                 bodyMap.put("longitude", longitude);
                 requestVendor(bodyMap);
-                actvSearch.setText("");
+                actvSearch.getText().clear();
             }
         });
 
@@ -181,6 +202,11 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                 .enqueue(new Callback<List<Vendor>>() {
                     @Override public void onResponse(Call<List<Vendor>> call, Response<List<Vendor>> response) {
                         if (response.body() != null) {
+                            int i = 0;
+                            for(Vendor vendor : response.body()) {
+                                Log.d("test", i++ + vendor.name);
+                            }
+
                             rvAdapter.setVendors(response.body());
                         } else {
                             rvAdapter.clearVendors();
@@ -201,13 +227,18 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
     @Override protected void onResume() {
         Log.d("test:", "onResume");
-        locationManager.startLocationUpdates();
+        try {
+            locationManager.startLocationUpdates();
+        } catch (IllegalStateException e) { FirebaseCrash.report(e); }
         super.onResume();
     }
 
     @Override protected void onPause() {
         Log.d("test:", "onPause");
-        locationManager.stopLocationUpdates();
+        try {
+            locationManager.stopLocationUpdates();
+        } catch (IllegalStateException e) { FirebaseCrash.report(e); }
+
         super.onPause();
     }
 
@@ -243,15 +274,18 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
     }
 
     @Override public void onClickPositiveButton() {
+        eventManager.setCallRecommendedVendorEvent();
+
         beforeCallDialog.dismiss();
 
         appPreferenceManager.setCallTime(vendorPhoneNumber, System.currentTimeMillis());
+        calledVendors.put(vendorPhoneNumber, vendorName);
+        appPreferenceManager.setCalledVendors(calledVendors);
 
         Intent intent = new Intent(Intent.ACTION_CALL);
         intent.setData(Uri.parse("tel:" + vendorPhoneNumber));
         startActivity(intent);
 
-        ((VendorInfoViewHolder) rvVendors.findViewHolderForAdapterPosition(position)).bindElapsedTimeFromCall("방금전 통화");
+        rvAdapter.notifyItemChanged(position);
     }
-
 }

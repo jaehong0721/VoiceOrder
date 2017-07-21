@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
     <RelativeLayout
+        android:id="@+id/container1"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="27dp"
         android:layout_marginTop="75dp">
 
@@ -13,12 +14,12 @@
             android:id="@+id/tvTimeStamp"
             android:layout_width="wrap_content"
             android:layout_height="19dp"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
             android:background="@drawable/timestamp_button_shape"
             android:gravity="center"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
             android:text="21:28  03.23"
-            android:textColor="#ffffff" />
+            android:textColor="#ffffff"/>
 
         <TextView
             android:id="@+id/tvFinish1"
@@ -28,7 +29,7 @@
             android:layout_marginTop="11dp"
             android:lineSpacingExtra="5dp"
             android:text="고객님의 주문이\n성공적으로 저장되었습니다"
-            android:textSize="27sp" />
+            android:textSize="27sp"/>
 
         <TextView
             android:id="@+id/tvFinish2"
@@ -37,7 +38,38 @@
             android:layout_below="@id/tvFinish1"
             android:layout_marginTop="8dp"
             android:text="새 주문 감사합니다. 신속히 처리해 드리겠습니다"
-            android:textSize="14sp" />
+            android:textSize="14sp"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/container2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/container1"
+        android:layout_marginLeft="27dp"
+        android:layout_marginTop="27dp">
+
+        <ImageView
+            android:id="@+id/ivPlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:clickable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:src="@drawable/listen"
+            android:visibility="gone"/>
+
+        <ImageView
+            android:id="@+id/ivStop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:layout_marginLeft="15dp"
+            android:layout_toRightOf="@+id/ivPlay"
+            android:clickable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:src="@drawable/stop"
+            android:visibility="gone"/>
     </RelativeLayout>
 
 </RelativeLayout>
