@@ -53,7 +53,7 @@ public class MyPartnersRecyclerViewAdapter extends RecyclerView.Adapter<Recycler
 
                 long callTimeMillis = displayedMyPartners.get(position).callTime;
 
-                String elapsedTime = callTimeMillis != 0 ? TimeConverter.convert(System.currentTimeMillis(), callTimeMillis) : "";
+                String elapsedTime = callTimeMillis != 0 ? TimeConverter.convertMillisToElapsedTime(System.currentTimeMillis(), callTimeMillis) : "";
                 String vendorName = displayedMyPartners.get(position).name;
 
                 ((SimpleVendorInfoViewHolder)holder).bind(vendorName, elapsedTime);

@@ -10,7 +10,7 @@ public class TimeConverter {
     private static final long HOUR = 60 * MIN;
     private static final long DAY = 24 * HOUR;
 
-    public static String convert(long current, long target) {
+    public static String convertMillisToElapsedTime(long current, long target) {
 
         if ((int)Math.log10(target)+1 != 13 && (int)Math.log10(current)+1 != 13) {
             throw new RuntimeException("밀리세컨드 단위가 아닙니다");

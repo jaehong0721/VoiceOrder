@@ -46,7 +46,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
         String businessContent = removeAddressAndNameInContent(vendor.items,  vendorName, address);
 
         long callTime = appPreferenceManager.getCallTime(phoneNumber);
-        String elapsedTime = callTime == -1 ? null : TimeConverter.convert(System.currentTimeMillis(), callTime) + " 통화";
+        String elapsedTime = callTime == -1 ? null : TimeConverter.convertMillisToElapsedTime(System.currentTimeMillis(), callTime) + " 통화";
 
         holder.bindVendorName(vendorName)
                 .bindAddress(address)
