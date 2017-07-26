@@ -19,6 +19,7 @@ public class FirebaseDbManager {
     private static final String ORDERS = "orders";
     private static final String RESTAURANTS = "restaurants";
     private static final String VENDORS = "vendors";
+    private static final String SIGN_UP_TIME = "signUpTime";
 
     private final FirebaseDatabase instance;
 
@@ -34,17 +35,6 @@ public class FirebaseDbManager {
                 .setValue(fcmToken)
                 .addOnSuccessListener(listener)
                 .addOnFailureListener(listener);
-    }
-
-    public void getRecordedOrder(String phoneNumber, ValueEventListener listener) {
-        //오퍼레이터 접수 전 데이터 로드
-        instance.getReference().child(RESTAURANTS)
-                .child(phoneNumber)
-                .child(RECORDED_ORDERS)
-                .orderByKey()
-                .startAt(phoneNumber + "_00000000000000")
-                .endAt(phoneNumber + "_99999999999999")
-                .addListenerForSingleValueEvent(listener);
     }
 
     public Query subscribeRecordedOrder(String phoneNumber, ChildEventListener listener) {
@@ -140,5 +130,23 @@ public class FirebaseDbManager {
         instance.getReference()
                 .child(VENDORS)
                 .updateChildren(uploadPathMap, listener);
+    }
+
+    public void checkUserAlreadyCreated(String phoneNumber, ToastErrorHandlingListener listener) {
+        instance.getReference().child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(INFO)
+                .child(SIGN_UP_TIME)
+                .addListenerForSingleValueEvent(listener);
+    }
+
+    public void setInitialSignUpTime(String phoneNumber, String signUpTime, SimpleAuthListener listener) {
+        instance.getReference().child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(INFO)
+                .child(SIGN_UP_TIME)
+                .setValue(signUpTime)
+                .addOnSuccessListener(listener)
+                .addOnFailureListener(listener);
     }
 }

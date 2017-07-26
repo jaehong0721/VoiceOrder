@@ -19,6 +19,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crash.FirebaseCrash;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.FirebaseDatabase;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.BuildConfig;
@@ -30,11 +31,13 @@ import com.rena21c.voiceorder.etc.RecordedFileManager;
 import com.rena21c.voiceorder.etc.VersionManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.SimpleAuthListener;
+import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.network.ApiService;
 import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.network.NoConnectivityException;
 import com.rena21c.voiceorder.pojo.UserToken;
 import com.rena21c.voiceorder.util.LauncherUtil;
+import com.rena21c.voiceorder.util.TimeConverter;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 
@@ -192,7 +195,7 @@ public class SplashActivity extends BaseActivity {
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            storeFcmToken();
+                            checkUserAlreadyCreated();
                         } else {
                             Dialogs.createPlayServiceUpdateWarningDialog(SplashActivity.this, new Dialog.OnClickListener() {
                                 @Override
@@ -203,6 +206,30 @@ public class SplashActivity extends BaseActivity {
                         }
                     }
                 });
+    }
+
+    private void checkUserAlreadyCreated() {
+        final String phoneNumber = appPreferenceManager.getPhoneNumber();
+
+        dbManager.checkUserAlreadyCreated(phoneNumber, new ToastErrorHandlingListener(this) {
+            @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    storeFcmToken();
+                } else {
+                    String signUpTime = TimeConverter.convertMillisToDateFormat(System.currentTimeMillis());
+                    storeInitialSignUpTime(phoneNumber, signUpTime);
+                }
+            }
+        });
+
+    }
+
+    private void storeInitialSignUpTime(String phoneNumber, String signUpTime) {
+        dbManager.setInitialSignUpTime(phoneNumber, signUpTime, new SimpleAuthListener(this) {
+            @Override public void onSuccess(Object o) {
+                storeFcmToken();
+            }
+        });
     }
 
     private void storeFcmToken() {
