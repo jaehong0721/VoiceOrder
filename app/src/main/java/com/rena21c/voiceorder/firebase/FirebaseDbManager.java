@@ -26,7 +26,7 @@ public class FirebaseDbManager {
         this.instance = instance;
     }
 
-    public void getFcmToken(String phoneNumber, final String fcmToken, SimpleAuthListener listener) {
+    public void setFcmToken(String phoneNumber, final String fcmToken, SimpleAuthListener listener) {
         instance.getReference().child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(INFO)

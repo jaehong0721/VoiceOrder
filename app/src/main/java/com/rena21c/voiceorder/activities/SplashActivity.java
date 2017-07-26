@@ -206,7 +206,7 @@ public class SplashActivity extends BaseActivity {
     }
 
     private void storeFcmToken() {
-        dbManager.getFcmToken(appPreferenceManager.getPhoneNumber(), appPreferenceManager.getFcmToken(), new SimpleAuthListener(this) {
+        dbManager.setFcmToken(appPreferenceManager.getPhoneNumber(), appPreferenceManager.getFcmToken(), new SimpleAuthListener(this) {
             @Override public void onSuccess(Object o) {
                 if(appPreferenceManager.getUserFirstVisit()) {
                     playTutorialVideo();
