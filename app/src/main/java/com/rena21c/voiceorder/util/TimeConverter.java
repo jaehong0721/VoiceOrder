@@ -1,5 +1,8 @@
 package com.rena21c.voiceorder.util;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 public class TimeConverter {
 
     private static final long SEC = 1000;
@@ -29,5 +32,10 @@ public class TimeConverter {
             return day + "일전";
         }
 
+    }
+
+    public static String convertMillisToDateFormat(long millis) {
+        SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
+        return dayTime.format(new Date(millis));
     }
 }
