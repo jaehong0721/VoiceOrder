@@ -205,13 +205,17 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
         //식당에 등록한 내거래처를 db의 전체 vendors 목록에도 저장
         dbManager.getAllVendors(new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                GenericTypeIndicator vendorMapType = new GenericTypeIndicator<HashMap<String, Object>>() {};
-                HashMap<String,Object> vendorMap = (HashMap)dataSnapshot.getValue(vendorMapType);
 
-                Iterator<String> iterator = myPartnerMap.keySet().iterator();
-                while(iterator.hasNext()) {
-                    String phoneNumber = iterator.next();
-                    if(vendorMap.containsKey(phoneNumber)) iterator.remove();
+                if(dataSnapshot.exists()) {
+                    GenericTypeIndicator vendorMapType = new GenericTypeIndicator<HashMap<String, Object>>() {};
+                    HashMap<String,Object> vendorMap = (HashMap)dataSnapshot.getValue(vendorMapType);
+
+                    Iterator<String> iterator = myPartnerMap.keySet().iterator();
+
+                    while(iterator.hasNext()) {
+                        String phoneNumber = iterator.next();
+                        if(vendorMap.containsKey(phoneNumber)) iterator.remove();
+                    }
                 }
 
                 for(Map.Entry entry : myPartnerMap.entrySet()) {
