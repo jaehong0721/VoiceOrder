@@ -54,6 +54,8 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
     private boolean isTrackingLocation;
 
+    private boolean isConnectedGoogleApi;
+
     private Geocoder geocoder;
 
     public LocationManager(Context context, Geocoder geocoder) {
@@ -79,7 +81,7 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
     public void startLocationUpdates() {
 
-        if (isTrackingLocation) {
+        if (!isConnectedGoogleApi || isTrackingLocation) {
             return;
         }
 
@@ -125,6 +127,7 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
     @SuppressWarnings("MissingPermission")
     @Override public void onConnected(@Nullable Bundle bundle) {
+        isConnectedGoogleApi = true;
 
         if (currentLocation != null) return;
 
@@ -139,10 +142,12 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
     }
 
     @Override public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        isConnectedGoogleApi = false;
         Log.d("test:", "Connection failed");
     }
 
     @Override public void onConnectionSuspended(int i) {
+        isConnectedGoogleApi = false;
         Log.d("test:", "Connection suspended");
     }
 
@@ -157,6 +162,8 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
     public void stopLocationUpdates() {
         Log.d("test:", "stopLocationUpdates");
+        if(!isConnectedGoogleApi || !isTrackingLocation) return;
+
         isTrackingLocation = false;
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
     }
