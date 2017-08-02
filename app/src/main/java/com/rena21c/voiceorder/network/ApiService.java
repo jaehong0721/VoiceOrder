@@ -24,4 +24,7 @@ public interface ApiService {
 
     @GET("/api/vendor/{phoneNumber}")
     Call<HashMap<String,String>> getVendorInfo(@Path("phoneNumber") String phoneNumber);
+
+    @POST("/api/sendNotiToRV")
+    Call<Void> sendNotiToRV(@Body HashMap<String,Object> bodyMap);
 }

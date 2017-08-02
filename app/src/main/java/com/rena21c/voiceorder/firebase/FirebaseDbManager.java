@@ -20,6 +20,7 @@ public class FirebaseDbManager {
     private static final String RESTAURANTS = "restaurants";
     private static final String VENDORS = "vendors";
     private static final String SIGN_UP_TIME = "signUpTime";
+    private static final String RESTAURANT_NAME = "restaurantName";
 
     private final FirebaseDatabase instance;
 
@@ -148,5 +149,13 @@ public class FirebaseDbManager {
                 .setValue(signUpTime)
                 .addOnSuccessListener(listener)
                 .addOnFailureListener(listener);
+    }
+
+    public void getRestaurantName(String phoneNumber, ToastErrorHandlingListener listener) {
+        instance.getReference().child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(INFO)
+                .child(RESTAURANT_NAME)
+                .addListenerForSingleValueEvent(listener);
     }
 }
