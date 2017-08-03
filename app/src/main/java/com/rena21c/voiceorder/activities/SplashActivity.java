@@ -6,7 +6,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -14,7 +13,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.youtube.player.YouTubeStandalonePlayer;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -42,7 +40,6 @@ import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 
 import java.io.File;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -50,8 +47,6 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 
 public class SplashActivity extends BaseActivity {
-
-    private static final int REQ_PLAY_TUTORIAL_VIDEO = 0;
 
     private PermissionManager permissionManager;
 
@@ -110,24 +105,6 @@ public class SplashActivity extends BaseActivity {
                 checkPlayService();
             }
         });
-    }
-
-    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == REQ_PLAY_TUTORIAL_VIDEO) {
-
-            switch (YouTubeStandalonePlayer.getReturnedInitializationResult(data)) {
-
-                case SUCCESS:
-                    goToMain();
-                    break;
-
-                default:
-                    String error = YouTubeStandalonePlayer.getReturnedInitializationResult(data).toString();
-                    FirebaseCrash.log("Can not play tutorial video : " + error);
-                    goToMain();
-                    break;
-            }
-        }
     }
 
     private void checkPlayService() {
@@ -235,32 +212,11 @@ public class SplashActivity extends BaseActivity {
     private void storeFcmToken() {
         dbManager.setFcmToken(appPreferenceManager.getPhoneNumber(), appPreferenceManager.getFcmToken(), new SimpleAuthListener(this) {
             @Override public void onSuccess(Object o) {
-                if(appPreferenceManager.getUserFirstVisit()) {
-                    playTutorialVideo();
-                } else {
-                    goToMain();
-                }
+                goToMain();
             }
         });
     }
-
-    private void playTutorialVideo() {
-        String developerKey = getResources().getString(R.string.google_api_key);
-        String videoId = getResources().getString(R.string.tutorial_video_id);
-        Intent intent = YouTubeStandalonePlayer.createVideoIntent(SplashActivity.this, developerKey, videoId, 0, false, true);
-
-        if (canResolveIntent(intent)) {
-            startActivityForResult(intent, REQ_PLAY_TUTORIAL_VIDEO);
-        } else {
-            goToMain();
-        }
-    }
-
-    private boolean canResolveIntent(Intent intent) {
-        List<ResolveInfo> resolveInfo = getPackageManager().queryIntentActivities(intent, 0);
-        return resolveInfo != null && !resolveInfo.isEmpty();
-    }
-
+    
     private void goToMain() {
 
         appPreferenceManager.setUserFirstVisit();

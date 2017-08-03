@@ -37,6 +37,7 @@ import java.io.IOException;
 public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderManager.VoiceRecordCallback,
                                                                     RecordedFilePlayer.PlayRecordedFileListener {
 
+
     private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
 
     private AppPreferenceManager appPreferenceManager;
@@ -77,8 +78,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
         recordedFilePlayer = new RecordedFilePlayer((AudioManager)getSystemService(Context.AUDIO_SERVICE));
 
-        voiceOrderView = new VoiceOrderView(VoiceOrderActivity.this);
-        voiceOrderView.initView(dbManager, recordedFileManager);
+        voiceOrderView = new VoiceOrderView(this,dbManager, recordedFileManager);
 
         recordManager = new VoiceRecorderManager(recordedFileManager, this);
         memorySizeChecker = new MemorySizeChecker(REQUIRED_SPACE);
@@ -219,5 +219,10 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
             recordManager.start(fileName);
         }
 
+    }
+
+    public void playTutorialVideo() {
+        Intent tutorialIntent = new Intent(VoiceOrderActivity.this, TutorialVideoPlayActivity.class);
+        startActivity(tutorialIntent);
     }
 }
