@@ -29,6 +29,7 @@ import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.services.FileUploadService;
 import com.rena21c.voiceorder.services.RecordedFilePlayer;
 import com.rena21c.voiceorder.services.VoiceRecorderManager;
+import com.rena21c.voiceorder.services.YoutubePlayer;
 import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.util.MemorySizeChecker;
 
@@ -36,6 +37,7 @@ import java.io.IOException;
 
 public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderManager.VoiceRecordCallback,
                                                                     RecordedFilePlayer.PlayRecordedFileListener {
+
 
     private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
 
@@ -77,8 +79,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
         recordedFilePlayer = new RecordedFilePlayer((AudioManager)getSystemService(Context.AUDIO_SERVICE));
 
-        voiceOrderView = new VoiceOrderView(VoiceOrderActivity.this);
-        voiceOrderView.initView(dbManager, recordedFileManager);
+        voiceOrderView = new VoiceOrderView(this,dbManager, recordedFileManager);
 
         recordManager = new VoiceRecorderManager(recordedFileManager, this);
         memorySizeChecker = new MemorySizeChecker(REQUIRED_SPACE);
@@ -219,5 +220,19 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
             recordManager.start(fileName);
         }
 
+    }
+
+    public void playTutorialVideo() {
+        String developerKey = getResources().getString(R.string.google_api_key);
+        String videoId = getResources().getString(R.string.tutorial_video_id);
+
+        YoutubePlayer youtubePlayer = new YoutubePlayer(developerKey, videoId);
+        Intent youtubeIntent = youtubePlayer.getYoutubeIntent(this);
+
+        if(youtubePlayer.canPlayVideo(getPackageManager(), youtubeIntent)) {
+            startActivity(youtubeIntent);
+        } else {
+            Toast.makeText(this, "죄송합니다 동영상을 실행할 수 없습니다", Toast.LENGTH_SHORT).show();
+        }
     }
 }
