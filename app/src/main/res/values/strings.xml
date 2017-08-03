@@ -6,6 +6,7 @@
     <string name="grape_number">0230122888</string>
 
     <string name="tutorial_video_id">9D-YTRNHaaw</string>
+    <string name="tutorial_instruction">음성 주문 사용방법이 궁금하세요?\n동영상 가이드를 참조하세요!</string>
 
     <string name="voice_order_guide_main_instruction">아래 버튼을 누르고,\n주문 할 품목과\n수량을 말해주세요!</string>
     <string name="voice_order_guide_sub_instruction">내 거래처에 등록된 업체들은 카톡/문자로 \n주문을 받습니다.</string>
@@ -18,4 +19,5 @@
 
     <string name="request_estimate_main_instruction">사장님,더 저렴한 가격의\n식자재를 찾으세요?</string>
     <string name="request_estimate_sub_instruction">지금 바로 거상에 견적 요청을 해보세요.\n거상이 직접 저렴한 납품 업체에서 견적서를 받아\n사장님께 전달 드립니다</string>
+
 </resources>
