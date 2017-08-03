@@ -221,6 +221,9 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
             return;
         }
 
+        //서버에게도 목록 전송
+        sendAddedPartnersToServer(myPartnerMap);
+
         //식당에 등록한 내거래처를 db의 전체 vendors 목록에도 저장
         dbManager.getAllVendors(new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
@@ -241,9 +244,6 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
                     finish();
                     return;
                 }
-
-                //서버에게도 목록 전송
-                sendAddedPartnersToServer(myPartnerMap);
 
                 for(Map.Entry<String, MyPartner> entry : myPartnerMap.entrySet()) {
                     String phoneNumber = (entry.getKey()).trim();
@@ -279,10 +279,13 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
     }
 
     private void sendAddedPartnersToServer(final HashMap<String, MyPartner> myPartnerMap) {
+        final HashMap<String, MyPartner> copiedMap = new HashMap<>();
+        copiedMap.putAll(myPartnerMap);
 
         dbManager.getRestaurantName(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
                 HashMap<String, Object> bodyMap = new HashMap<>();
+
                 double latitude;
                 double longitude;
                 final String restoName;
@@ -296,7 +299,7 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
                 }
                 bodyMap.put("restoName", restoName);
 
-                for(Map.Entry<String, MyPartner> entry : myPartnerMap.entrySet()) {
+                for(Map.Entry<String, MyPartner> entry : copiedMap.entrySet()) {
                     String phoneNumber = (entry.getKey()).trim();
                     String vendorName = (entry.getValue()).name;
 
