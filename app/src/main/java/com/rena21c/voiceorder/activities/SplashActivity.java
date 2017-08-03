@@ -6,7 +6,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ResolveInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -42,7 +41,6 @@ import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 
 import java.io.File;
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -235,32 +233,11 @@ public class SplashActivity extends BaseActivity {
     private void storeFcmToken() {
         dbManager.setFcmToken(appPreferenceManager.getPhoneNumber(), appPreferenceManager.getFcmToken(), new SimpleAuthListener(this) {
             @Override public void onSuccess(Object o) {
-                if(appPreferenceManager.getUserFirstVisit()) {
-                    playTutorialVideo();
-                } else {
-                    goToMain();
-                }
+                goToMain();
             }
         });
     }
-
-    private void playTutorialVideo() {
-        String developerKey = getResources().getString(R.string.google_api_key);
-        String videoId = getResources().getString(R.string.tutorial_video_id);
-        Intent intent = YouTubeStandalonePlayer.createVideoIntent(SplashActivity.this, developerKey, videoId, 0, false, true);
-
-        if (canResolveIntent(intent)) {
-            startActivityForResult(intent, REQ_PLAY_TUTORIAL_VIDEO);
-        } else {
-            goToMain();
-        }
-    }
-
-    private boolean canResolveIntent(Intent intent) {
-        List<ResolveInfo> resolveInfo = getPackageManager().queryIntentActivities(intent, 0);
-        return resolveInfo != null && !resolveInfo.isEmpty();
-    }
-
+    
     private void goToMain() {
 
         appPreferenceManager.setUserFirstVisit();
