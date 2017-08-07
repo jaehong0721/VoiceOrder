@@ -8,7 +8,7 @@ import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.firebase.AnalyticsEventManager;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 
-public class HasTabActivity extends BaseActivity {
+public class HasTabActivity extends BaseActivity implements TabActionBar.TabClickListener{
 
     private TabActionBar tabActionBar;
     private AnalyticsEventManager eventManager;
@@ -27,49 +27,42 @@ public class HasTabActivity extends BaseActivity {
 
     @Override protected void onStart() {
         super.onStart();
-
-        tabActionBar.setTabClickListener(new TabActionBar.TabClickListener() {
-            @Override public void onTabClicked(TabActionBar.Tab tab) {
-
-                Intent intent = new Intent();
-                intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                intent.putExtra("tab", tab.toString());
-
-                switch (tab) {
-                    case RECOMMEND:
-                        eventManager.setRecommendTabClickEvent();
-                        intent.setComponent(new ComponentName(HasTabActivity.this, RecommendActivity.class));
-                        break;
-
-                    case VOICE_ORDER:
-                        eventManager.setVoiceOrderTabClickEvent();
-                        intent.setComponent(new ComponentName(HasTabActivity.this, VoiceOrderActivity.class));
-                        break;
-
-                    case REQUEST_ESTIMATE:
-                        intent.setComponent(new ComponentName(HasTabActivity.this, RequestEstimateActivity.class));
-                        break;
-
-                    case MY_PARTNER:
-                        eventManager.setMyPartnerTabClickEvent();
-                        intent.setComponent(new ComponentName(HasTabActivity.this, MyPartnerActivity.class));
-                        break;
-                }
-
-                startActivity(intent);
-            }
-        });
-    }
-
-    @Override protected void onStop() {
-        super.onStop();
-
-        tabActionBar.removeTabClickListener();
+        if(tabActionBar.isSetTabClickListener()) return;
+        tabActionBar.setTabClickListener(this);
     }
 
     protected void moveTab(TabActionBar.Tab tab) {
         tabActionBar.moveTab(tab);
+    }
+
+    @Override public void onTabClicked(TabActionBar.Tab tab) {
+        Intent intent = new Intent();
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        intent.putExtra("tab", tab.toString());
+
+        switch (tab) {
+            case RECOMMEND:
+                eventManager.setRecommendTabClickEvent();
+                intent.setComponent(new ComponentName(this, RecommendActivity.class));
+                break;
+
+            case VOICE_ORDER:
+                eventManager.setVoiceOrderTabClickEvent();
+                intent.setComponent(new ComponentName(this, VoiceOrderActivity.class));
+                break;
+
+            case REQUEST_ESTIMATE:
+                intent.setComponent(new ComponentName(this, RequestEstimateActivity.class));
+                break;
+
+            case MY_PARTNER:
+                eventManager.setMyPartnerTabClickEvent();
+                intent.setComponent(new ComponentName(this, MyPartnerActivity.class));
+                break;
+        }
+
+        startActivity(intent);
     }
 }

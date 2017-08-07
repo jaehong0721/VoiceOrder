@@ -11,6 +11,8 @@ import com.rena21c.voiceorder.view.widgets.UnderLineButton;
 
 public class TabActionBar implements ActionBarInterface, View.OnClickListener {
 
+    private boolean isSetListener;
+
     public enum Tab {
         RECOMMEND(R.id.btnRecommend),
         VOICE_ORDER(R.id.btnVoiceOrder),
@@ -86,11 +88,10 @@ public class TabActionBar implements ActionBarInterface, View.OnClickListener {
 
     public void setTabClickListener(TabClickListener listener) {
         this.listener = listener;
+        isSetListener = true;
     }
 
-    public void removeTabClickListener() {
-        this.listener = null;
-    }
+    public boolean isSetTabClickListener() { return isSetListener;}
 
     @Override public void onClick(View v) {
         switch (v.getId()) {
