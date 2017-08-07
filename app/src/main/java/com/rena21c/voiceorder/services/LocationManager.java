@@ -68,11 +68,14 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
     }
 
     public void connectGoogleApiClient() {
+        if(isConnectedGoogleApi) return;
         googleApiClient.connect();
     }
 
     public void disconnectGoogleApiClient() {
+        if(!isConnectedGoogleApi) return;
         googleApiClient.disconnect();
+        isConnectedGoogleApi = false;
     }
 
     public void setLocationUpdateListener(LocationUpdateListener listener) {
@@ -85,7 +88,6 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
             return;
         }
 
-        isTrackingLocation = true;
         Log.d("test:", "startLocationUpdates");
         LocationServices.SettingsApi.checkLocationSettings(
                 googleApiClient,
@@ -99,6 +101,7 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
                 switch (status.getStatusCode()) {
 
                     case LocationSettingsStatusCodes.SUCCESS:
+                        isTrackingLocation = true;
                         Log.d("test", "locationSettingsRequest success");
                         LocationServices.FusedLocationApi.requestLocationUpdates(
                                 googleApiClient, locationRequest, LocationManager.this);
@@ -127,17 +130,19 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
     @SuppressWarnings("MissingPermission")
     @Override public void onConnected(@Nullable Bundle bundle) {
+        Log.d("test:", "Connection success");
         isConnectedGoogleApi = true;
 
         if (currentLocation != null) return;
 
         Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
 
-        if (lastLocation == null) return;
+        if (lastLocation != null) {
+            currentLocation = lastLocation;
+            String locality = getLocalityFrom(currentLocation.getLatitude(), currentLocation.getLongitude());
+            listener.onLocationUpdated(currentLocation.getLatitude(), currentLocation.getLongitude(), locality);
+        }
 
-        currentLocation = lastLocation;
-        String locality = getLocalityFrom(currentLocation.getLatitude(), currentLocation.getLongitude());
-        listener.onLocationUpdated(currentLocation.getLatitude(), currentLocation.getLongitude(), locality);
         startLocationUpdates();
     }
 
@@ -171,6 +176,7 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
     private void buildGoogleApiClient(Context context) {
         googleApiClient = new GoogleApiClient.Builder(context)
                 .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
     }
@@ -210,13 +216,16 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
     private String getLocalityFrom(double latitude, double longitude) {
         List<Address> addressList = null;
+        String locality = "알수없음";
         try {
             addressList = geocoder.getFromLocation(latitude, longitude, 1);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return addressList != null ? addressList.get(0).getLocality() : "알수없음";
+        if(addressList != null && addressList.size() != 0)
+            locality = addressList.get(0).getLocality();
+        return locality != null ? locality : "알수없음";
     }
 
 }

@@ -152,6 +152,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
                 llSearch.requestFocus();
                 HashMap<String, Object> bodyMap = new HashMap<>();
+                Log.d("test", "latitude : " + latitude + "," + "longitude : " + longitude);
                 bodyMap.put("latitude", latitude);
                 bodyMap.put("longitude", longitude);
                 requestVendor(bodyMap);
@@ -220,17 +221,17 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
     }
 
     @Override protected void onStart() {
+        super.onStart();
         Log.d("test:", "onStart");
         locationManager.connectGoogleApiClient();
-        super.onStart();
     }
 
     @Override protected void onResume() {
+        super.onResume();
         Log.d("test:", "onResume");
         try {
             locationManager.startLocationUpdates();
         } catch (IllegalStateException e) { FirebaseCrash.report(e); }
-        super.onResume();
     }
 
     @Override protected void onPause() {
@@ -260,7 +261,8 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
                     case Activity.RESULT_CANCELED:
                         Toast.makeText(this, "업체추천 기능을 사용하려면 '위치'를 활성화해야 합니다", Toast.LENGTH_SHORT).show();
-                        super.moveTab(TabActionBar.Tab.VOICE_ORDER);
+                        moveTab(TabActionBar.Tab.VOICE_ORDER);
+                        locationManager.disconnectGoogleApiClient();
                         finish();
                         break;
                 }
