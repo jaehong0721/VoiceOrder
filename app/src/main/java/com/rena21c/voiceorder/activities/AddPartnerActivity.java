@@ -125,6 +125,7 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
         btnRegister = (Button) findViewById(R.id.btnRegister);
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
+                finish();
                 dbManager.uploadMyPartner(appPreferenceManager.getPhoneNumber(), myPartnerMap, AddPartnerActivity.this);
             }
         });
@@ -216,10 +217,7 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
     @Override public void onComplete(@NonNull Task task) {
         if(!task.isSuccessful()) Toast.makeText(this, "거래처 등록에 실패하였습니다", Toast.LENGTH_SHORT).show();
 
-        if(myPartnerMap.size() == 0) {
-            finish();
-            return;
-        }
+        if(myPartnerMap.size() == 0) return;
 
         //서버에게도 목록 전송
         sendAddedPartnersToServer(myPartnerMap);
@@ -240,10 +238,7 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
                     }
                 }
 
-                if(myPartnerMap.size() == 0) {
-                    finish();
-                    return;
-                }
+                if(myPartnerMap.size() == 0) return;
 
                 for(Map.Entry<String, MyPartner> entry : myPartnerMap.entrySet()) {
                     String phoneNumber = (entry.getKey()).trim();
@@ -258,7 +253,6 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
                 dbManager.updateVendors(uploadPathMap, new DatabaseReference.CompletionListener() {
                     @Override public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                         if(databaseError != null) FirebaseCrash.logcat(Log.WARN, "FIRE_BASE", "내거래처 vendors에 저장 실패 : " + databaseError.getMessage());
-                        finish();
                     }
                 });
             }
