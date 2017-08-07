@@ -43,7 +43,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
 
         final String vendorName = vendor.name;
         String address = AddressUtil.convertToSimpleAddress(vendor.address);
-        String businessContent = removeAddressAndNameInContent(vendor.items,  vendorName, address);
+        String businessContent = vendor.items;
 
         long callTime = appPreferenceManager.getCallTime(phoneNumber);
         String elapsedTime = callTime == -1 ? null : TimeConverter.convertMillisToElapsedTime(System.currentTimeMillis(), callTime) + " 통화";
@@ -70,9 +70,5 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
 
     public void clearVendors() {
         vendors.clear();
-    }
-
-    private String removeAddressAndNameInContent(String content, String name, String address) {
-        return content.replaceAll(name, "").replaceAll(address, "");
     }
 }
