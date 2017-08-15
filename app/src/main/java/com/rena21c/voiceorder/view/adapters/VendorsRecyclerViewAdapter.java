@@ -17,20 +17,25 @@ import com.rena21c.voiceorder.util.TimeConverter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorsRecyclerViewAdapter.VendorInfoViewHolder>{
+public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>{
 
     public interface CallButtonClickListener {
         void onCallButtonClick(String phoneNumber, String name, int itemPosition);
     }
 
-    public class VendorInfoViewHolder extends RecyclerView.ViewHolder {
+    public interface AppDownloadListener {
+        void onAppDownload();
+    }
+
+    private class VendorInfoViewHolder extends RecyclerView.ViewHolder {
+
         private TextView tvVendorName;
         private TextView tvBusinessContent;
         private TextView tvAddress;
         private TextView tvElapsedTimeFromCall;
         private ImageView ivCall;
 
-        public VendorInfoViewHolder(View itemView) {
+        VendorInfoViewHolder(View itemView) {
             super(itemView);
             tvVendorName = (TextView) itemView.findViewById(R.id.tvVendorName);
             tvBusinessContent = (TextView) itemView.findViewById(R.id.tvBusinessContent);
@@ -39,18 +44,18 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorsRecy
             ivCall = (ImageView) itemView.findViewById(R.id.ivCall);
         }
 
-        public VendorInfoViewHolder bindVendorName(String vendorName) {tvVendorName.setText(vendorName); return this;}
+        VendorInfoViewHolder bindVendorName(String vendorName) {tvVendorName.setText(vendorName); return this;}
 
-        public VendorInfoViewHolder bindBusinessContent(String businessContent) {tvBusinessContent.setText(businessContent); return this;}
+        VendorInfoViewHolder bindBusinessContent(String businessContent) {tvBusinessContent.setText(businessContent); return this;}
 
-        public VendorInfoViewHolder bindAddress(String address) {tvAddress.setText(address); return this;}
+        VendorInfoViewHolder bindAddress(String address) {tvAddress.setText(address); return this;}
 
-        public VendorInfoViewHolder setCallButtonClickListener(View.OnClickListener clickListener) {
+        VendorInfoViewHolder setCallButtonClickListener(View.OnClickListener clickListener) {
             ivCall.setOnClickListener(clickListener);
             return this;
         }
 
-        public VendorInfoViewHolder bindElapsedTimeFromCall(String elapsedTime) {
+        VendorInfoViewHolder bindElapsedTimeFromCall(String elapsedTime) {
             if(elapsedTime != null) {
                 tvElapsedTimeFromCall.setText(elapsedTime);
                 tvElapsedTimeFromCall.setVisibility(View.VISIBLE);
@@ -61,49 +66,82 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorsRecy
         }
     }
 
+    private class VendorAppDownloadViewHolder extends RecyclerView.ViewHolder {
+
+        public VendorAppDownloadViewHolder(View itemView) {
+            super(itemView);
+        }
+
+        void setAppDownloadListener(final AppDownloadListener listener) {
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    listener.onAppDownload();
+                }
+            });
+        }
+    }
+
+
     private List<Vendor> vendors;
 
-    private CallButtonClickListener callButtonClickListener;
+    private final CallButtonClickListener callButtonClickListener;
+    private final AppDownloadListener appDownloadListener;
 
     private AppPreferenceManager appPreferenceManager;
 
     public VendorsRecyclerViewAdapter(AppPreferenceManager appPreferenceManager,
-                                      CallButtonClickListener callButtonClickListener) {
+                                      CallButtonClickListener callButtonClickListener,
+                                      AppDownloadListener appDownloadListener) {
         vendors = new ArrayList<>();
         this.appPreferenceManager = appPreferenceManager;
         this.callButtonClickListener = callButtonClickListener;
+        this.appDownloadListener = appDownloadListener;
     }
 
-    @Override public VendorInfoViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_vendors, parent, false);
+    @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view;
+        if(viewType == 1) {
+            view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_download_vendor_app, parent, false);
+            return new VendorAppDownloadViewHolder(view);
+        }
+        view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_vendors, parent, false);
         return new VendorInfoViewHolder(view);
     }
 
-    @Override public void onBindViewHolder(final VendorInfoViewHolder holder, int position) {
-        Vendor vendor = vendors.get(position);
+    @Override public void onBindViewHolder(final RecyclerView.ViewHolder holder, int position) {
+        if(holder instanceof VendorInfoViewHolder) {
+            Vendor vendor = vendors.get(position);
 
-        final String phoneNumber = vendor.phoneNumber;
+            final String phoneNumber = vendor.phoneNumber;
 
-        final String vendorName = vendor.name;
-        String address = AddressUtil.convertToSimpleAddress(vendor.address);
-        String businessContent = vendor.items;
+            final String vendorName = vendor.name;
+            String address = AddressUtil.convertToSimpleAddress(vendor.address);
+            String businessContent = vendor.items;
 
-        long callTime = appPreferenceManager.getCallTime(phoneNumber);
-        String elapsedTime = callTime == -1 ? null : TimeConverter.convertMillisToElapsedTime(System.currentTimeMillis(), callTime) + " 통화";
+            long callTime = appPreferenceManager.getCallTime(phoneNumber);
+            String elapsedTime = callTime == -1 ? null : TimeConverter.convertMillisToElapsedTime(System.currentTimeMillis(), callTime) + " 통화";
 
-        holder.bindVendorName(vendorName)
-                .bindAddress(address)
-                .bindBusinessContent(businessContent)
-                .bindElapsedTimeFromCall(elapsedTime)
-                .setCallButtonClickListener(new View.OnClickListener() {
-                    @Override public void onClick(View v) {
-                        callButtonClickListener.onCallButtonClick(phoneNumber, vendorName, holder.getAdapterPosition());
-                    }
-                });
+            ((VendorInfoViewHolder)holder)
+                    .bindVendorName(vendorName)
+                    .bindAddress(address)
+                    .bindBusinessContent(businessContent)
+                    .bindElapsedTimeFromCall(elapsedTime)
+                    .setCallButtonClickListener(new View.OnClickListener() {
+                        @Override public void onClick(View v) {
+                            callButtonClickListener.onCallButtonClick(phoneNumber, vendorName, holder.getAdapterPosition());
+                        }
+                    });
+        } else {
+            ((VendorAppDownloadViewHolder)holder).setAppDownloadListener(appDownloadListener);
+        }
     }
 
     @Override public int getItemCount() {
         return vendors.size();
+    }
+
+    @Override public int getItemViewType(int position) {
+        return position % 10;
     }
 
     public void setVendors(List<Vendor> vendors) {

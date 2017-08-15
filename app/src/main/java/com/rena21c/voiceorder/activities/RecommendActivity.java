@@ -89,15 +89,21 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         calledVendors = appPreferenceManager.getCalledVendors();
         rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorsRecyclerViewAdapter.CallButtonClickListener() {
 
-             @Override public void onCallButtonClick(String phoneNumber, String name, int itemPosition) {
-                 position = itemPosition;
-                 vendorPhoneNumber = phoneNumber;
-                 vendorName = name;
+            @Override public void onCallButtonClick(String phoneNumber, String name, int itemPosition) {
+                position = itemPosition;
+                vendorPhoneNumber = phoneNumber;
+                vendorName = name;
 
-                 beforeCallDialog = TwoButtonDialogFragment.newInstance("‘거상앱으로 전화드립니다’\n라고 꼭 말씀해주세요", "취소", "통화");
-                 beforeCallDialog.show(getSupportFragmentManager(), "dialog");
-             }
-         });
+                beforeCallDialog = TwoButtonDialogFragment.newInstance("‘거상앱으로 전화드립니다’\n라고 꼭 말씀해주세요", "취소", "통화");
+                beforeCallDialog.show(getSupportFragmentManager(), "dialog");
+            }
+        }, new VendorsRecyclerViewAdapter.AppDownloadListener() {
+            @Override public void onAppDownload() {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse("market://details?id=com.rena21.driver"));
+                startActivity(intent);
+            }
+        });
 
         rvVendors = (RecyclerViewEmptySupport) findViewById(R.id.rvVendors);
         tvCurrentLocation = (TextView) findViewById(R.id.tvCurrentLocation);
