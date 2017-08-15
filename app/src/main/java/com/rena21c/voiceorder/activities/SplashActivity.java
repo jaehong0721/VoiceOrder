@@ -18,7 +18,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.FirebaseDatabase;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.BuildConfig;
 import com.rena21c.voiceorder.R;
@@ -62,7 +61,7 @@ public class SplashActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
+        dbManager = App.getApplication(getApplicationContext()).getDbMangaer();
 
         firebaseAuth = FirebaseAuth.getInstance();
 
