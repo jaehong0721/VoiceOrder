@@ -24,7 +24,7 @@ import com.rena21c.voiceorder.view.widgets.ViewPagerIndicator;
 
 import java.util.HashMap;
 
-public class VoiceOrderView implements RecordAndStopButton.activateRecorderListener {
+public class VoiceOrderView implements RecordAndStopButton.ActivateRecorderListener {
 
     public static final int NO_INTERNAL_MEMORY = 0;
     public static final int NO_INTERNET_CONNECT = 1;
@@ -171,6 +171,10 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
 
     public void clearKeepScreenOn() {
         activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+    }
+
+    public void callOnClickRecord() {
+        recordAndStopButton.callOnClick();
     }
 
     @Override

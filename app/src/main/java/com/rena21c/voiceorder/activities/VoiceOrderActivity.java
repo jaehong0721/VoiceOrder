@@ -57,6 +57,8 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
     private ChildEventListener recordListListener;
     private Query recordListQuery;
 
+    private String targetVendor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,12 +144,22 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         };
 
         acceptedOrderQuery = dbManager.subscribeAcceptedOrder(appPreferenceManager.getPhoneNumber(), acceptedOrderChildEventListener);
+
+        targetVendor = getIntent().getStringExtra("direct");
+    }
+
+    @Override protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        targetVendor = intent.getStringExtra("direct");
     }
 
     @Override protected void onStart() {
         super.onStart();
         registerReceiver(fileUploadSuccessReceiver, new IntentFilter("com.rena21c.voiceorder.ACTION_UPLOAD"));
         voiceOrderView.setView(appPreferenceManager.getUserFirstRecord());
+
+        if(targetVendor == null) return;
+        voiceOrderView.callOnClickRecord();
     }
 
     @Override protected void onPause() {
@@ -207,8 +219,13 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         startService(intent);
     }
 
-    private void startRecording() {
 
+    public void playTutorialVideo() {
+        Intent tutorialIntent = new Intent(VoiceOrderActivity.this, TutorialVideoPlayActivity.class);
+        startActivity(tutorialIntent);
+    }
+
+    private void startRecording() {
         if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
             voiceOrderView.showDialog(VoiceOrderView.NO_INTERNET_CONNECT);
         } else {
@@ -219,10 +236,5 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
             recordManager.start(fileName);
         }
 
-    }
-
-    public void playTutorialVideo() {
-        Intent tutorialIntent = new Intent(VoiceOrderActivity.this, TutorialVideoPlayActivity.class);
-        startActivity(tutorialIntent);
     }
 }

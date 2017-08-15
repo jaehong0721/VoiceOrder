@@ -30,7 +30,7 @@ public class CallDialogFragment extends DialogFragment {
 
     public interface CallDialogClickListener {
         void onClickCall(String phoneNumber);
-        void onClickVoiceOrder();
+        void onClickVoiceOrder(String phoneNumber);
     }
 
     private static final String PHONE_NUMBER = "phoneNumber";
@@ -98,7 +98,7 @@ public class CallDialogFragment extends DialogFragment {
             }
         });
         btnMoveVoiceOrder.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {listener.onClickVoiceOrder();
+            @Override public void onClick(View v) {listener.onClickVoiceOrder(phoneNumber);
             }
         });
     }

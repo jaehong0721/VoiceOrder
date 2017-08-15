@@ -79,8 +79,14 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
         startActivity(intent);
     }
 
-    public void moveToVoiceOrderTab() {
-        super.moveTab(TabActionBar.Tab.VOICE_ORDER);
+    public void directlyVoiceOrder(String phoneNumber) {
+        Intent intent = new Intent(this, VoiceOrderActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        intent.putExtra("direct", phoneNumber);
+        intent.putExtra("tab", TabActionBar.Tab.VOICE_ORDER.toString());
+
+        startActivity(intent);
     }
 
     private void showMyPartnerList() {

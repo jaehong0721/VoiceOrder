@@ -234,9 +234,9 @@ public class MyPartnerListViewModel implements  View.OnAttachStateChangeListener
         ((MyPartnerActivity)view.getContext()).moveToCallApp(phoneNumber);
     }
 
-    @Override public void onClickVoiceOrder() {
+    @Override public void onClickVoiceOrder(String phoneNumber) {
         callDialogFragment.dismiss();
-        ((MyPartnerActivity)view.getContext()).moveToVoiceOrderTab();
+        ((MyPartnerActivity)view.getContext()).directlyVoiceOrder(phoneNumber);
     }
 }
 
