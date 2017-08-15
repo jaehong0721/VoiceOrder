@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginTop="8dp">
+
+    <ImageView
+        android:id="@+id/ivIcon"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="23dp"
+        android:src="@drawable/car"/>
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/ivIcon"
+        android:layout_marginLeft="16dp"
+        android:layout_centerVertical="true">
+
+        <TextView
+            android:id="@+id/tvText1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="15sp"
+            android:textColor="@color/dark_maroon"
+            android:text="업체추천에서 내 업체를 소개하고 싶다면"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvText1"
+            android:layout_marginTop="6dp"
+            android:textSize="15sp"
+            android:textColor="#096769"
+            android:text="납품업체 앱 다운 받기"
+            android:drawableRight="@drawable/vendor_app_download_direction"
+            android:drawablePadding="2dp"/>
+
+    </RelativeLayout>
+
+</RelativeLayout>
