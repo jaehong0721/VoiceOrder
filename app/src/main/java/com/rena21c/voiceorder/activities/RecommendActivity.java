@@ -24,9 +24,12 @@ import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.firebase.AnalyticsEventManager;
+import com.rena21c.voiceorder.firebase.FirebaseDbManager;
+import com.rena21c.voiceorder.firebase.HasDbListener;
 import com.rena21c.voiceorder.network.ApiService;
 import com.rena21c.voiceorder.pojo.Vendor;
 import com.rena21c.voiceorder.services.LocationManager;
+import com.rena21c.voiceorder.util.StringUtil;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.adapters.VendorsRecyclerViewAdapter;
@@ -57,6 +60,8 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
     private Retrofit retrofit;
     private ApiService apiService;
 
+
+    private FirebaseDbManager dbManager;
     private AppPreferenceManager appPreferenceManager;
     private AnalyticsEventManager eventManager;
 
@@ -83,6 +88,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recommend);
 
+        dbManager = App.getApplication(getApplicationContext()).getDbMangaer();
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         eventManager = App.getApplication(getApplicationContext()).getEventManager();
 
@@ -107,7 +113,14 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                 },
                 new VendorsRecyclerViewAdapter.ClickVendorListener() {
                     @Override public void onClickVendor(String phoneNumber) {
-                        Toast.makeText(RecommendActivity.this, phoneNumber + "click!", Toast.LENGTH_SHORT).show();
+                        dbManager.hasVendor(StringUtil.removeSpecialLetter(phoneNumber), new HasDbListener(RecommendActivity.this) {
+                            @Override protected void hasDb() {
+                                Toast.makeText(RecommendActivity.this, "납품업체 정보 있음!", Toast.LENGTH_SHORT).show();
+                            }
+                            @Override protected void hasNone() {
+                                Toast.makeText(RecommendActivity.this, "납품업체 정보 추가중입니다", Toast.LENGTH_SHORT).show();
+                            }
+                        });
                     }
                 });
 

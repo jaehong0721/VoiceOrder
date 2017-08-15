@@ -170,6 +170,13 @@ public class FirebaseDbManager {
                 .addListenerForSingleValueEvent(listener);
     }
 
+    public void hasVendor(String phoneNumber, HasDbListener hasDbListener) {
+        getRootRef()
+                .child(VENDORS)
+                .child(phoneNumber)
+                .addListenerForSingleValueEvent(hasDbListener);
+    }
+
     private DatabaseReference getRootRef() {
         return instance.getReference();
     }
