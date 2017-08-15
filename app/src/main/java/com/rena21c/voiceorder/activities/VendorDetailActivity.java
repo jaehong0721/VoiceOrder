@@ -62,5 +62,14 @@ public class VendorDetailActivity extends AppCompatActivity {
                 businessInfoContainer.setBusinessInfo(dataSnapshot);
             }
         });
+
+        dbManager.getVisitCount(phoneNumber, new ToastErrorHandlingListener(this) {
+            @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                long visitCount = 0;
+                if(dataSnapshot.exists())
+                    visitCount = (Long)dataSnapshot.getValue();
+                dbManager.setVisitCount(phoneNumber, visitCount + 1);
+            }
+        });
     }
 }

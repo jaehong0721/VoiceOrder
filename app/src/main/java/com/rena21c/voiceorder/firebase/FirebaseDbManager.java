@@ -22,6 +22,8 @@ public class FirebaseDbManager {
     private static final String SIGN_UP_TIME = "signUpTime";
     private static final String RESTAURANT_NAME = "restaurantName";
     private static final String BUSINESS_INFO = "businessInfo";
+    private static final String RANKING_INFO = "rankingInfo";
+    private static final String VISIT_COUNT = "visitCount";
 
     private final FirebaseDatabase instance;
 
@@ -43,7 +45,7 @@ public class FirebaseDbManager {
     }
 
     public Query subscribeRecordedOrder(String phoneNumber, ChildEventListener listener) {
-        Query query  = getRootRef()
+        Query query = getRootRef()
                 .child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(RECORDED_ORDERS)
@@ -52,7 +54,7 @@ public class FirebaseDbManager {
                 .endAt(phoneNumber + "_99999999999999")
                 .limitToLast(10);
 
-                query.addChildEventListener(listener);
+        query.addChildEventListener(listener);
         return query;
     }
 
@@ -98,9 +100,9 @@ public class FirebaseDbManager {
 
     public DatabaseReference subscribeMyPartner(String phoneNumber, ValueEventListener listener) {
         DatabaseReference reference = getRootRef()
-                                        .child(RESTAURANTS)
-                                        .child(phoneNumber)
-                                        .child(VENDORS);
+                .child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(VENDORS);
         reference.addValueEventListener(listener);
         return reference;
     }
@@ -191,6 +193,25 @@ public class FirebaseDbManager {
                 .child(VENDORS)
                 .child(phoneNumber)
                 .child(BUSINESS_INFO)
+                .addListenerForSingleValueEvent(listener);
+    }
+
+    public void setVisitCount(final String phoneNumber, long visitCount) {
+        getRootRef()
+                .child(VENDORS)
+                .child(phoneNumber)
+                .child(RANKING_INFO)
+                .child(VISIT_COUNT)
+                .setValue(visitCount);
+
+    }
+
+    public void getVisitCount(String phoneNumber, ToastErrorHandlingListener listener) {
+        getRootRef()
+                .child(VENDORS)
+                .child(phoneNumber)
+                .child(RANKING_INFO)
+                .child(VISIT_COUNT)
                 .addListenerForSingleValueEvent(listener);
     }
 
