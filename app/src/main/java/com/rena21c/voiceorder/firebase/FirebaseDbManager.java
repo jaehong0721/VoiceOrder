@@ -46,7 +46,9 @@ public class FirebaseDbManager {
                 .child(RECORDED_ORDERS)
                 .orderByKey()
                 .startAt(phoneNumber + "_00000000000000")
-                .endAt(phoneNumber + "_99999999999999");
+                .endAt(phoneNumber + "_99999999999999")
+                .limitToLast(10);
+
                 query.addChildEventListener(listener);
         return query;
     }
