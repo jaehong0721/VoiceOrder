@@ -4,9 +4,11 @@ import android.app.Application;
 import android.content.Context;
 
 import com.google.firebase.analytics.FirebaseAnalytics;
+import com.google.firebase.database.FirebaseDatabase;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.etc.RecordedFileManager;
 import com.rena21c.voiceorder.firebase.AnalyticsEventManager;
+import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.network.ConnectivityIntercepter;
 
 import okhttp3.OkHttpClient;
@@ -27,6 +29,8 @@ public class App extends Application {
     private RecordedFileManager recordedFileManager;
 
     private AnalyticsEventManager eventManager;
+
+    private FirebaseDbManager dbManager;
 
     @Override
     public void onCreate() {
@@ -54,6 +58,8 @@ public class App extends Application {
                 .build();
 
         recordedFileManager = new RecordedFileManager(getFilesDir());
+
+        dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
     }
 
     public AppPreferenceManager getPreferenceManager() {
@@ -71,5 +77,9 @@ public class App extends Application {
             eventManager = new AnalyticsEventManager(FirebaseAnalytics.getInstance(this), appPreferenceManager.getPhoneNumber());
 
         return eventManager;
+    }
+
+    public FirebaseDbManager getDbMangaer() {
+        return dbManager;
     }
 }

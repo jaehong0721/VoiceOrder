@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
 
-import com.google.firebase.database.FirebaseDatabase;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
@@ -38,7 +37,7 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
         AppPreferenceManager appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         eventManager = App.getApplication(getApplicationContext()).getEventManager();
 
-        FirebaseDbManager dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
+        FirebaseDbManager dbManager = App.getApplication(getApplicationContext()).getDbMangaer();
 
         MyPartnerListViewModel myPartnerListViewModel = new MyPartnerListViewModel (this,
                                                                                     this,

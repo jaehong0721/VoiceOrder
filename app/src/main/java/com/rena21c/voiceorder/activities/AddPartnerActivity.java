@@ -23,7 +23,6 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
@@ -113,7 +112,7 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
 
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
 
-        dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
+        dbManager = App.getApplication(getApplicationContext()).getDbMangaer();
 
         RecyclerView rvContacts = (RecyclerView) findViewById(R.id.rvContacts);
         contactsAdapter = new ContactsRecyclerViewAdapter(this);

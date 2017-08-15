@@ -26,6 +26,7 @@ public class FirebaseDbManager {
 
     public FirebaseDbManager(FirebaseDatabase instance) {
         this.instance = instance;
+        instance.setPersistenceEnabled(true);
     }
 
     public void setFcmToken(String phoneNumber, final String fcmToken, SimpleAuthListener listener) {

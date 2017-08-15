@@ -17,7 +17,6 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
@@ -79,7 +78,7 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         eventManager = App.getApplication(getApplicationContext()).getEventManager();
         recordedFileManager = App.getApplication(getApplicationContext()).getRecordedFileManager();
-        dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
+        dbManager = App.getApplication(getApplicationContext()).getDbMangaer();
         recordedFilePlayer = new RecordedFilePlayer((AudioManager)getSystemService(Context.AUDIO_SERVICE));
 
         voiceOrderView = new VoiceOrderView(this,dbManager, recordedFileManager);

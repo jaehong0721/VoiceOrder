@@ -19,7 +19,7 @@ import com.firebase.jobdispatcher.Trigger;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.crash.FirebaseCrash;
-import com.google.firebase.database.FirebaseDatabase;
+import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
@@ -62,8 +62,8 @@ public class FileUploadService extends IntentService {
                 .setTransferUtility(FileTransferUtil.getTransferUtility(this))
                 .build();
         dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(getApplicationContext()));
-        dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
-        appPreferenceManager = new AppPreferenceManager(this);
+        dbManager = App.getApplication(getApplicationContext()).getDbMangaer();
+        appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
     }
 
     @Override protected void onHandleIntent(@Nullable Intent intent) {
