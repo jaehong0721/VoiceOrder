@@ -1,6 +1,7 @@
 package com.rena21c.voiceorder.view.widgets;
 
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -17,11 +18,19 @@ public class ViewPagerIndicator extends RelativeLayout {
 
     private final int width = DpToPxConverter.convertDpToPx(6,getResources().getDisplayMetrics());
     private final int height = DpToPxConverter.convertDpToPx(6,getResources().getDisplayMetrics());
+    private Integer selected;
+    private Integer unselected;
 
     public ViewPagerIndicator(Context context, AttributeSet attrs) {
         super(context, attrs);
         this.context = context;
         this.dots = new ArrayList<>();
+
+        TypedArray typedArray = getContext().obtainStyledAttributes(attrs, R.styleable.ViewPagerIndicator);
+
+        selected = typedArray.getResourceId(R.styleable.ViewPagerIndicator_selectedDrawable, -1);
+        unselected = typedArray.getResourceId(R.styleable.ViewPagerIndicator_unselectedDrawable, -1);
+        typedArray.recycle();
     }
 
     public void changeDot(int count) {
@@ -53,11 +62,12 @@ public class ViewPagerIndicator extends RelativeLayout {
     }
 
     public void selectDot(int position) {
+        if(selected == null || unselected == null) throw new RuntimeException("you must set indicator resource");
         for (View dot : dots) {
             if (dots.get(position) == dot) {
-                dot.setBackgroundResource(R.drawable.selected_indicator_shape);
+                dot.setBackgroundResource(selected);
             } else {
-                dot.setBackgroundResource(R.drawable.unselected_indicator_shape);
+                dot.setBackgroundResource(unselected);
             }
         }
     }

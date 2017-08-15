@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
                 android:layout_width="match_parent"
-                android:layout_height="220dp">
+                android:layout_height="220dp"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                android:layout_marginBottom="18dp">
 
     <com.rena21c.voiceorder.view.widgets.SettableIndicatorViewPager
         android:id="@+id/settableIndicatorViewPager"
@@ -12,6 +14,8 @@
         android:id="@+id/viewPagerIndicator"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="202dp"
-        android:layout_centerHorizontal="true"/>
+        app:selectedDrawable="@drawable/white_selected_indicator_shape"
+        app:unselectedDrawable="@drawable/white_unselected_indicator_shape"/>
 </RelativeLayout>

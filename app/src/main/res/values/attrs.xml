@@ -28,4 +28,9 @@
         <attr name="background" />
         <attr name="stokeColor" format="color" />
     </declare-styleable>
+
+    <declare-styleable name="ViewPagerIndicator">
+        <attr name="selectedDrawable" format="reference" />
+        <attr name="unselectedDrawable" format="reference"/>
+    </declare-styleable>
 </resources>
