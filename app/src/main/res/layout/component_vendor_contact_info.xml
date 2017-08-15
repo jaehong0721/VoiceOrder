@@ -13,7 +13,7 @@
         android:id="@+id/tvName"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="20sp"
+        android:textSize="23sp"
         tools:text="미리네 식품"/>
 
     <TextView
@@ -22,8 +22,9 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/tvName"
         android:layout_marginTop="6dp"
-        android:textSize="13sp"
-        android:text="정보없음"/>
+        android:textSize="14sp"
+        android:hint="정보없음"
+        android:textColorHint="@color/primaryBrown"/>
 
     <ImageView
         android:id="@+id/ivCall"

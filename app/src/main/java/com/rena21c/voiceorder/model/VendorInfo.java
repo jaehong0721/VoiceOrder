@@ -6,6 +6,7 @@ public class VendorInfo {
     public String vendorName;
     public String ownerName;
     public String phoneNumber;
+    public String address;
 
     public VendorInfo() {}
 

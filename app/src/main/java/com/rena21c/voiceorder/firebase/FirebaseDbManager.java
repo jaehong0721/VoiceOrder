@@ -21,6 +21,7 @@ public class FirebaseDbManager {
     private static final String VENDORS = "vendors";
     private static final String SIGN_UP_TIME = "signUpTime";
     private static final String RESTAURANT_NAME = "restaurantName";
+    private static final String BUSINESS_INFO = "businessInfo";
 
     private final FirebaseDatabase instance;
 
@@ -175,6 +176,14 @@ public class FirebaseDbManager {
                 .child(VENDORS)
                 .child(phoneNumber)
                 .addListenerForSingleValueEvent(hasDbListener);
+    }
+
+    public void getVendorContactInfo(String phoneNumber, ToastErrorHandlingListener listener) {
+        getRootRef()
+                .child(VENDORS)
+                .child(phoneNumber)
+                .child(INFO)
+                .addListenerForSingleValueEvent(listener);
     }
 
     private DatabaseReference getRootRef() {
