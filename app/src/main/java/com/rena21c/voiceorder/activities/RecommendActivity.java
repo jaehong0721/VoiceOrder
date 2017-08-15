@@ -32,7 +32,6 @@ import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.adapters.VendorsRecyclerViewAdapter;
 import com.rena21c.voiceorder.view.widgets.RecyclerViewEmptySupport;
 import com.rena21c.voiceorder.view.widgets.TwoButtonDialogFragment;
-import com.rena21c.voiceorder.viewholder.VendorInfoViewHolder;
 
 import java.util.HashMap;
 import java.util.List;
@@ -88,7 +87,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         eventManager = App.getApplication(getApplicationContext()).getEventManager();
 
         calledVendors = appPreferenceManager.getCalledVendors();
-        rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorInfoViewHolder.CallButtonClickListener() {
+        rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorsRecyclerViewAdapter.CallButtonClickListener() {
 
              @Override public void onCallButtonClick(String phoneNumber, String name, int itemPosition) {
                  position = itemPosition;

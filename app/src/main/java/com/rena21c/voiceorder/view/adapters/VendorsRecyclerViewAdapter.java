@@ -5,27 +5,70 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.pojo.Vendor;
 import com.rena21c.voiceorder.util.AddressUtil;
 import com.rena21c.voiceorder.util.TimeConverter;
-import com.rena21c.voiceorder.viewholder.VendorInfoViewHolder;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoViewHolder>{
+public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorsRecyclerViewAdapter.VendorInfoViewHolder>{
 
-    List<Vendor> vendors;
+    public interface CallButtonClickListener {
+        void onCallButtonClick(String phoneNumber, String name, int itemPosition);
+    }
 
-    VendorInfoViewHolder.CallButtonClickListener callButtonClickListener;
+    public class VendorInfoViewHolder extends RecyclerView.ViewHolder {
+        private TextView tvVendorName;
+        private TextView tvBusinessContent;
+        private TextView tvAddress;
+        private TextView tvElapsedTimeFromCall;
+        private ImageView ivCall;
 
-    AppPreferenceManager appPreferenceManager;
+        public VendorInfoViewHolder(View itemView) {
+            super(itemView);
+            tvVendorName = (TextView) itemView.findViewById(R.id.tvVendorName);
+            tvBusinessContent = (TextView) itemView.findViewById(R.id.tvBusinessContent);
+            tvAddress = (TextView) itemView.findViewById(R.id.tvAddress);
+            tvElapsedTimeFromCall = (TextView) itemView.findViewById(R.id.tvElapsedTimeFromCall);
+            ivCall = (ImageView) itemView.findViewById(R.id.ivCall);
+        }
+
+        public VendorInfoViewHolder bindVendorName(String vendorName) {tvVendorName.setText(vendorName); return this;}
+
+        public VendorInfoViewHolder bindBusinessContent(String businessContent) {tvBusinessContent.setText(businessContent); return this;}
+
+        public VendorInfoViewHolder bindAddress(String address) {tvAddress.setText(address); return this;}
+
+        public VendorInfoViewHolder setCallButtonClickListener(View.OnClickListener clickListener) {
+            ivCall.setOnClickListener(clickListener);
+            return this;
+        }
+
+        public VendorInfoViewHolder bindElapsedTimeFromCall(String elapsedTime) {
+            if(elapsedTime != null) {
+                tvElapsedTimeFromCall.setText(elapsedTime);
+                tvElapsedTimeFromCall.setVisibility(View.VISIBLE);
+            } else {
+                tvElapsedTimeFromCall.setVisibility(View.GONE);
+            }
+            return this;
+        }
+    }
+
+    private List<Vendor> vendors;
+
+    private CallButtonClickListener callButtonClickListener;
+
+    private AppPreferenceManager appPreferenceManager;
 
     public VendorsRecyclerViewAdapter(AppPreferenceManager appPreferenceManager,
-                                      VendorInfoViewHolder.CallButtonClickListener callButtonClickListener) {
+                                      CallButtonClickListener callButtonClickListener) {
         vendors = new ArrayList<>();
         this.appPreferenceManager = appPreferenceManager;
         this.callButtonClickListener = callButtonClickListener;
@@ -36,7 +79,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
         return new VendorInfoViewHolder(view);
     }
 
-    @Override public void onBindViewHolder(final VendorInfoViewHolder holder, final int position) {
+    @Override public void onBindViewHolder(final VendorInfoViewHolder holder, int position) {
         Vendor vendor = vendors.get(position);
 
         final String phoneNumber = vendor.phoneNumber;
@@ -54,7 +97,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<VendorInfoV
                 .bindElapsedTimeFromCall(elapsedTime)
                 .setCallButtonClickListener(new View.OnClickListener() {
                     @Override public void onClick(View v) {
-                        callButtonClickListener.onCallButtonClick(phoneNumber, vendorName, position);
+                        callButtonClickListener.onCallButtonClick(phoneNumber, vendorName, holder.getAdapterPosition());
                     }
                 });
     }
