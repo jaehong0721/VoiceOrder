@@ -39,7 +39,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class FileUploadService extends IntentService {
 
     private FirebaseJobDispatcher dispatcher;
-    private AwsS3FileUploader fileUploader;
+    private AwsS3FileUploader audioFileUploader;
+    private AwsS3FileUploader textFileUploader;
     private FirebaseDbManager dbManager;
     private AppPreferenceManager appPreferenceManager;
 
@@ -50,9 +51,14 @@ public class FileUploadService extends IntentService {
 
     @Override public void onCreate() {
         super.onCreate();
-        String bucketName = getResources().getString(R.string.s3_bucket_name);
-        fileUploader = new AwsS3FileUploader.Builder()
-                .setBucketName(bucketName)
+        String saveAudioBucketName = getResources().getString(R.string.s3_audio_bucket_name);
+        audioFileUploader = new AwsS3FileUploader.Builder()
+                .setBucketName(saveAudioBucketName)
+                .setTransferUtility(FileTransferUtil.getTransferUtility(this))
+                .build();
+        String saveTextBucketName = getResources().getString(R.string.s3_text_bucket_name);
+        textFileUploader = new AwsS3FileUploader.Builder()
+                .setBucketName(saveTextBucketName)
                 .setTransferUtility(FileTransferUtil.getTransferUtility(this))
                 .build();
         dispatcher = new FirebaseJobDispatcher(new GooglePlayDriver(getApplicationContext()));
@@ -93,40 +99,75 @@ public class FileUploadService extends IntentService {
         final AtomicBoolean success = new AtomicBoolean(true);
         final CountDownLatch latch = new CountDownLatch(1);
         Log.d("service", "파일 전송 시작: " + file.getName());
-        fileUploader.upload(file, new TransferListener() {
-            @Override public void onStateChanged(int id, TransferState state) {
-                if (state == TransferState.COMPLETED) {
 
-                    addFileNameToDatabase(file);
+        if(file.getName().endsWith(".mp4")) {
+            audioFileUploader.upload(file, null, new TransferListener() {
+                @Override public void onStateChanged(int id, TransferState state) {
+                    if (state == TransferState.COMPLETED) {
 
-                    if (file.length() == 0 || !file.exists()) {
-                        log("파일 크기 0, 오류 의심 됨: " + file.getName());
-                        FirebaseCrash.logcat(Log.ERROR, "service", "파일 업로드 오류 크기 0");
+                        addFileNameToDatabase(file);
+
+                        if (file.length() == 0 || !file.exists()) {
+                            log("파일 크기 0, 오류 의심 됨: " + file.getName());
+                            FirebaseCrash.logcat(Log.ERROR, "service", "파일 업로드 오류 크기 0");
+                        }
+                        Boolean deleted = file.delete();
+                        log("파일 업로드 완료: " + file.getName() + ", 삭제 여부: " + deleted);
+                        Intent intent = new Intent("com.rena21c.voiceorder.ACTION_UPLOAD");
+                        intent.putExtra("file", file.getName());
+                        intent.putExtra("success", true);
+                        sendBroadcast(intent);
+                        success.set(true);
+                        latch.countDown();
                     }
-                    Boolean deleted = file.delete();
-                    log("파일 업로드 완료: " + file.getName() + ", 삭제 여부: " + deleted);
+                }
+
+                @Override public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) { }
+
+                @Override public void onError(int id, Exception ex) {
+                    // 실패한 경우는 redeliver를 취소하고 job에 등록한다.
+                    log("파일 전송 오류: " + ex.toString());
+                    success.set(false);
                     Intent intent = new Intent("com.rena21c.voiceorder.ACTION_UPLOAD");
                     intent.putExtra("file", file.getName());
-                    intent.putExtra("success", true);
+                    intent.putExtra("success", false);
                     sendBroadcast(intent);
-                    success.set(true);
                     latch.countDown();
                 }
-            }
+            });
+        } else {
+            textFileUploader.upload(file, "OrderVendorInfos", new TransferListener() {
+                @Override public void onStateChanged(int id, TransferState state) {
+                    if (state == TransferState.COMPLETED) {
+                        if (file.length() == 0 || !file.exists()) {
+                            log("파일 크기 0, 오류 의심 됨: " + file.getName());
+                            FirebaseCrash.logcat(Log.ERROR, "service", "파일 업로드 오류 크기 0");
+                        }
+                        Boolean deleted = file.delete();
+                        log("파일 업로드 완료: " + file.getName() + ", 삭제 여부: " + deleted);
+                        Intent intent = new Intent("com.rena21c.voiceorder.ACTION_UPLOAD");
+                        intent.putExtra("file", file.getName());
+                        intent.putExtra("success", true);
+                        sendBroadcast(intent);
+                        success.set(true);
+                        latch.countDown();
+                    }
+                }
 
-            @Override public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) { }
+                @Override public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) { }
 
-            @Override public void onError(int id, Exception ex) {
-                // 실패한 경우는 redeliver를 취소하고 job에 등록한다.
-                log("파일 전송 오류: " + ex.toString());
-                success.set(false);
-                Intent intent = new Intent("com.rena21c.voiceorder.ACTION_UPLOAD");
-                intent.putExtra("file", file.getName());
-                intent.putExtra("success", false);
-                sendBroadcast(intent);
-                latch.countDown();
-            }
-        });
+                @Override public void onError(int id, Exception ex) {
+                    // 실패한 경우는 redeliver를 취소하고 job에 등록한다.
+                    log("파일 전송 오류: " + ex.toString());
+                    success.set(false);
+                    Intent intent = new Intent("com.rena21c.voiceorder.ACTION_UPLOAD");
+                    intent.putExtra("file", file.getName());
+                    intent.putExtra("success", false);
+                    sendBroadcast(intent);
+                    latch.countDown();
+                }
+            });
+        }
         try {
             latch.await();
             log("Latch 해제");
@@ -150,7 +191,7 @@ public class FileUploadService extends IntentService {
     private List<File> getRecordFiles() {
         List<File> files = new ArrayList<>();
         for (File file : getFilesDir().listFiles()) {
-            if (file.getName().endsWith(".mp4")) {
+            if (file.getName().endsWith(".mp4") || file.getName().endsWith(".txt")) {
                 files.add(file);
             }
         }

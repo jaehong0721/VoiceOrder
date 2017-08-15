@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">거상</string>
     <string name="server_address">http://13.124.68.71:9000</string>
-    <string name="s3_bucket_name">tgmorders</string>
+    <string name="s3_audio_bucket_name">tgmorders</string>
+    <string name="s3_text_bucket_name">tgmorders-text</string>
 </resources>

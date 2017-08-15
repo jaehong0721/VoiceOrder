@@ -16,8 +16,9 @@ public class AwsS3FileUploader {
         this.transferUtility = transferUtility;
     }
 
-    public void upload(File file, TransferListener transferLisener) {
-        TransferObserver transferObserver = transferUtility.upload(bucketName, file.getName(), file);
+    public void upload(File file, String key, TransferListener transferLisener) {
+        key = key == null ? file.getName() : key + "/" + file.getName();
+        TransferObserver transferObserver = transferUtility.upload(bucketName, key, file);
         transferObserver.setTransferListener(transferLisener);
     }
 

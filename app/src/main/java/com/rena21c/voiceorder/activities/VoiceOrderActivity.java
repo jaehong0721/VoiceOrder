@@ -32,6 +32,8 @@ import com.rena21c.voiceorder.services.VoiceRecorderManager;
 import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.util.MemorySizeChecker;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderManager.VoiceRecordCallback,
@@ -212,7 +214,8 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
     }
 
     public void onStoppedRecording() {
-        recordManager.stop();
+        String fileName = recordManager.stop();
+        if(targetVendor != null) makeTargetVendorTextFile(fileName);
         voiceOrderView.clearKeepScreenOn();
         voiceOrderView.replaceViewToUnRecording();
         Intent intent = new Intent(this, FileUploadService.class);
@@ -236,5 +239,21 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
             recordManager.start(fileName);
         }
 
+    }
+
+    private void makeTargetVendorTextFile(String fileName) {
+        File textFile = new File(getFilesDir().getPath(), fileName + ".txt");
+        FileWriter writer;
+        try {
+            writer = new FileWriter(textFile,true);
+            writer.append(targetVendor);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            textFile.delete();
+            e.printStackTrace();
+        } finally {
+            targetVendor = null;
+        }
     }
 }
