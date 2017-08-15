@@ -87,23 +87,29 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         eventManager = App.getApplication(getApplicationContext()).getEventManager();
 
         calledVendors = appPreferenceManager.getCalledVendors();
-        rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorsRecyclerViewAdapter.CallButtonClickListener() {
+        rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager,
+                new VendorsRecyclerViewAdapter.CallButtonClickListener() {
+                    @Override public void onCallButtonClick(String phoneNumber, String name, int itemPosition) {
+                        position = itemPosition;
+                        vendorPhoneNumber = phoneNumber;
+                        vendorName = name;
 
-            @Override public void onCallButtonClick(String phoneNumber, String name, int itemPosition) {
-                position = itemPosition;
-                vendorPhoneNumber = phoneNumber;
-                vendorName = name;
-
-                beforeCallDialog = TwoButtonDialogFragment.newInstance("‘거상앱으로 전화드립니다’\n라고 꼭 말씀해주세요", "취소", "통화");
-                beforeCallDialog.show(getSupportFragmentManager(), "dialog");
-            }
-        }, new VendorsRecyclerViewAdapter.AppDownloadListener() {
-            @Override public void onAppDownload() {
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                intent.setData(Uri.parse("market://details?id=com.rena21.driver"));
-                startActivity(intent);
-            }
-        });
+                        beforeCallDialog = TwoButtonDialogFragment.newInstance("‘거상앱으로 전화드립니다’\n라고 꼭 말씀해주세요", "취소", "통화");
+                        beforeCallDialog.show(getSupportFragmentManager(), "dialog");
+                    }
+                },
+                new VendorsRecyclerViewAdapter.AppDownloadListener() {
+                    @Override public void onAppDownload() {
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setData(Uri.parse("market://details?id=com.rena21.driver"));
+                        startActivity(intent);
+                    }
+                },
+                new VendorsRecyclerViewAdapter.ClickVendorListener() {
+                    @Override public void onClickVendor(String phoneNumber) {
+                        Toast.makeText(RecommendActivity.this, phoneNumber + "click!", Toast.LENGTH_SHORT).show();
+                    }
+                });
 
         rvVendors = (RecyclerViewEmptySupport) findViewById(R.id.rvVendors);
         tvCurrentLocation = (TextView) findViewById(R.id.tvCurrentLocation);
@@ -209,7 +215,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                     @Override public void onResponse(Call<List<Vendor>> call, Response<List<Vendor>> response) {
                         if (response.body() != null) {
                             int i = 0;
-                            for(Vendor vendor : response.body()) {
+                            for (Vendor vendor : response.body()) {
                                 Log.d("test", i++ + vendor.name);
                             }
 
@@ -236,14 +242,18 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         Log.d("test:", "onResume");
         try {
             locationManager.startLocationUpdates();
-        } catch (IllegalStateException e) { FirebaseCrash.report(e); }
+        } catch (IllegalStateException e) {
+            FirebaseCrash.report(e);
+        }
     }
 
     @Override protected void onPause() {
         Log.d("test:", "onPause");
         try {
             locationManager.stopLocationUpdates();
-        } catch (IllegalStateException e) { FirebaseCrash.report(e); }
+        } catch (IllegalStateException e) {
+            FirebaseCrash.report(e);
+        }
 
         super.onPause();
     }
@@ -252,7 +262,9 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         Log.d("test:", "onStop");
         try {
             locationManager.disconnectGoogleApiClient();
-        } catch (IllegalStateException e) { FirebaseCrash.report(e); }
+        } catch (IllegalStateException e) {
+            FirebaseCrash.report(e);
+        }
 
         super.onStop();
     }

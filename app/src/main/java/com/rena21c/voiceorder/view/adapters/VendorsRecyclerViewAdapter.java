@@ -27,6 +27,10 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
         void onAppDownload();
     }
 
+    public interface ClickVendorListener {
+        void onClickVendor(String phoneNumber);
+    }
+
     private class VendorInfoViewHolder extends RecyclerView.ViewHolder {
 
         private TextView tvVendorName;
@@ -50,11 +54,6 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
 
         VendorInfoViewHolder bindAddress(String address) {tvAddress.setText(address); return this;}
 
-        VendorInfoViewHolder setCallButtonClickListener(View.OnClickListener clickListener) {
-            ivCall.setOnClickListener(clickListener);
-            return this;
-        }
-
         VendorInfoViewHolder bindElapsedTimeFromCall(String elapsedTime) {
             if(elapsedTime != null) {
                 tvElapsedTimeFromCall.setText(elapsedTime);
@@ -62,6 +61,16 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
             } else {
                 tvElapsedTimeFromCall.setVisibility(View.GONE);
             }
+            return this;
+        }
+
+        VendorInfoViewHolder setCallButtonClickListener(View.OnClickListener clickListener) {
+            ivCall.setOnClickListener(clickListener);
+            return this;
+        }
+
+        VendorInfoViewHolder setClickVendorListener(View.OnClickListener clickListener) {
+            itemView.setOnClickListener(clickListener);
             return this;
         }
     }
@@ -83,19 +92,20 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
 
 
     private List<Vendor> vendors;
-
+    private AppPreferenceManager appPreferenceManager;
     private final CallButtonClickListener callButtonClickListener;
     private final AppDownloadListener appDownloadListener;
-
-    private AppPreferenceManager appPreferenceManager;
+    private final ClickVendorListener clickVendorListener;
 
     public VendorsRecyclerViewAdapter(AppPreferenceManager appPreferenceManager,
                                       CallButtonClickListener callButtonClickListener,
-                                      AppDownloadListener appDownloadListener) {
+                                      AppDownloadListener appDownloadListener,
+                                      ClickVendorListener clickVendorListener) {
         vendors = new ArrayList<>();
         this.appPreferenceManager = appPreferenceManager;
         this.callButtonClickListener = callButtonClickListener;
         this.appDownloadListener = appDownloadListener;
+        this.clickVendorListener = clickVendorListener;
     }
 
     @Override public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -129,6 +139,11 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
                     .setCallButtonClickListener(new View.OnClickListener() {
                         @Override public void onClick(View v) {
                             callButtonClickListener.onCallButtonClick(phoneNumber, vendorName, holder.getAdapterPosition());
+                        }
+                    })
+                    .setClickVendorListener(new View.OnClickListener() {
+                        @Override public void onClick(View v) {
+                            clickVendorListener.onClickVendor(phoneNumber);
                         }
                     });
         } else {
