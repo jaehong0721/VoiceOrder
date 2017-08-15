@@ -24,6 +24,7 @@ public class FirebaseDbManager {
     private static final String BUSINESS_INFO = "businessInfo";
     private static final String RANKING_INFO = "rankingInfo";
     private static final String VISIT_COUNT = "visitCount";
+    private static final String IMAGES = "images";
 
     private final FirebaseDatabase instance;
 
@@ -212,6 +213,14 @@ public class FirebaseDbManager {
                 .child(phoneNumber)
                 .child(RANKING_INFO)
                 .child(VISIT_COUNT)
+                .addListenerForSingleValueEvent(listener);
+    }
+
+    public void getVendorImages(String phoneNumber, ToastErrorHandlingListener listener) {
+        getRootRef()
+                .child(VENDORS)
+                .child(phoneNumber)
+                .child(IMAGES)
                 .addListenerForSingleValueEvent(listener);
     }
 

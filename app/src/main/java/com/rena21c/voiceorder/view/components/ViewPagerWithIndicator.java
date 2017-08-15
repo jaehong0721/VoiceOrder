@@ -35,8 +35,4 @@ public class ViewPagerWithIndicator extends FrameLayout {
     public void setAdapter(PagerAdapter adapter) {
         settableIndicatorViewPager.setAdapter(adapter);
     }
-
-    public int getCurrentItem() {
-        return settableIndicatorViewPager.getCurrentItem();
-    }
 }

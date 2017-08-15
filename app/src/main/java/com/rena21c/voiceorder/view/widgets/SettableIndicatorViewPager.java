@@ -15,8 +15,7 @@ public class SettableIndicatorViewPager extends ViewPager {
             PagerAdapter adapter = getAdapter();
             if(adapter != null && indicator != null) {
                 indicator.changeDot(adapter.getCount());
-
-                if(adapter.getCount()==1) indicator.selectDot(0);
+                indicator.selectDot(getCurrentItem());
             }
         }
     };

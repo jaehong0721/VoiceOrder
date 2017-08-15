@@ -13,15 +13,17 @@ import com.bumptech.glide.request.RequestOptions;
 import com.rena21c.voiceorder.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class VendorImageAdapter extends PagerAdapter {
 
     private final LayoutInflater inflater;
-    private ArrayList<String> imageUrl;
+    private List<String> imageUrl;
 
     public VendorImageAdapter(LayoutInflater inflater) {
         this.inflater = inflater;
+        imageUrl = new ArrayList<>();
     }
 
     @Override public Object instantiateItem(ViewGroup container, int position) {
@@ -55,16 +57,8 @@ public class VendorImageAdapter extends PagerAdapter {
         return POSITION_NONE;
     }
 
-    public void setVendorImages(ArrayList<String> imageUrl) {
+    public void setVendorImages(List<String> imageUrl) {
         this.imageUrl = imageUrl;
         notifyDataSetChanged();
-    }
-
-    public void updateVendorImages() {
-        notifyDataSetChanged();
-    }
-
-    public String getCurrentImageUrl(int currentPositon) {
-        return imageUrl.get(currentPositon);
     }
 }

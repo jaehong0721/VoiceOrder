@@ -2,6 +2,7 @@ package com.rena21c.voiceorder.activities;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.LayoutInflater;
 import android.view.View;
 
 import com.google.firebase.database.DataSnapshot;
@@ -11,17 +12,23 @@ import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.util.StringUtil;
 import com.rena21c.voiceorder.view.actionbar.NavigateBackActionBar;
+import com.rena21c.voiceorder.view.adapters.VendorImageAdapter;
 import com.rena21c.voiceorder.view.components.BusinessInfoContainer;
 import com.rena21c.voiceorder.view.components.ContactInfoContainer;
+import com.rena21c.voiceorder.view.components.ViewPagerWithIndicator;
+
+import java.util.List;
 
 
 public class VendorDetailActivity extends AppCompatActivity {
 
     private ContactInfoContainer contactInfoContainer;
     private BusinessInfoContainer businessInfoContainer;
+    private ViewPagerWithIndicator imageViewPager;
     private FirebaseDbManager dbManager;
 
     private String phoneNumber;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,13 +49,21 @@ public class VendorDetailActivity extends AppCompatActivity {
 
         contactInfoContainer = (ContactInfoContainer)findViewById(R.id.contactInfoContainer);
         businessInfoContainer = (BusinessInfoContainer)findViewById(R.id.businessInfoContainer);
-        //정보 로드
-        //방문자 수 올리기
-        //정보 표시
+        imageViewPager = (ViewPagerWithIndicator)findViewById(R.id.imageViewPager);
     }
 
     @Override protected void onStart() {
         super.onStart();
+        dbManager.getVendorImages(phoneNumber, new ToastErrorHandlingListener(this) {
+            @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.exists()) return;
+                VendorImageAdapter vendorImageAdapter = new VendorImageAdapter(LayoutInflater.from(VendorDetailActivity.this));
+                imageViewPager.setAdapter(vendorImageAdapter);
+                vendorImageAdapter.setVendorImages((List)dataSnapshot.getValue());
+                imageViewPager.setVisibility(View.VISIBLE);
+            }
+        });
+
         dbManager.getVendorContactInfo(phoneNumber, new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
                 if(!dataSnapshot.exists()) return;
