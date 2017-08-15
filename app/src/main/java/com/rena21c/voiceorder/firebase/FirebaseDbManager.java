@@ -26,11 +26,12 @@ public class FirebaseDbManager {
 
     public FirebaseDbManager(FirebaseDatabase instance) {
         this.instance = instance;
-        instance.setPersistenceEnabled(true);
+        this.instance.setPersistenceEnabled(true);
+        this.instance.getReference().keepSynced(true);
     }
 
     public void setFcmToken(String phoneNumber, final String fcmToken, SimpleAuthListener listener) {
-        getKeepSyncedRootRef()
+        getRootRef()
                 .child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(INFO)
@@ -41,7 +42,7 @@ public class FirebaseDbManager {
     }
 
     public Query subscribeRecordedOrder(String phoneNumber, ChildEventListener listener) {
-        Query query  = getKeepSyncedRootRef()
+        Query query  = getRootRef()
                 .child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(RECORDED_ORDERS)
@@ -55,7 +56,7 @@ public class FirebaseDbManager {
     }
 
     public void removeRecordedOrder(String phoneNumber, String key) {
-        getKeepSyncedRootRef()
+        getRootRef()
                 .child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(RECORDED_ORDERS)
@@ -64,7 +65,7 @@ public class FirebaseDbManager {
     }
 
     public Query subscribeAcceptedOrder(String phoneNumber, ChildEventListener listener) {
-        Query query = getKeepSyncedRootRef()
+        Query query = getRootRef()
                 .child(ORDERS)
                 .child(RESTAURANTS)
                 .orderByKey()
@@ -75,7 +76,7 @@ public class FirebaseDbManager {
     }
 
     public void getVendorName(String restaurantPhoneNumber, String vendorPhoneNumber, ValueEventListener listener) {
-        getKeepSyncedRootRef()
+        getRootRef()
                 .child(RESTAURANTS)
                 .child(restaurantPhoneNumber)
                 .child(VENDORS)
@@ -85,7 +86,7 @@ public class FirebaseDbManager {
     }
 
     public void addFileName(String phoneNumber, final String fileName, OnCompleteListener listener) {
-        getKeepSyncedRootRef()
+        getRootRef()
                 .child(RESTAURANTS)
                 .child(phoneNumber)
                 .child("recordedOrders")
@@ -95,7 +96,7 @@ public class FirebaseDbManager {
     }
 
     public DatabaseReference subscribeMyPartner(String phoneNumber, ValueEventListener listener) {
-        DatabaseReference reference = getKeepSyncedRootRef()
+        DatabaseReference reference = getRootRef()
                                         .child(RESTAURANTS)
                                         .child(phoneNumber)
                                         .child(VENDORS);
@@ -104,7 +105,7 @@ public class FirebaseDbManager {
     }
 
     public void cancelSubscriptionMyPartner(String phoneNumber, ToastErrorHandlingListener dbListener) {
-        getKeepSyncedRootRef()
+        getRootRef()
                 .child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(VENDORS)
@@ -112,7 +113,7 @@ public class FirebaseDbManager {
     }
 
     public void getMyPartnersOnce(String phoneNumber, ToastErrorHandlingListener listener) {
-        getKeepSyncedRootRef()
+        getRootRef()
                 .child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(VENDORS)
@@ -120,7 +121,7 @@ public class FirebaseDbManager {
     }
 
     public void uploadMyPartner(String phoneNumber, HashMap<String, MyPartner> myPartnerMap, OnCompleteListener listener) {
-        getKeepSyncedRootRef()
+        getRootRef()
                 .child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(VENDORS)
@@ -129,19 +130,19 @@ public class FirebaseDbManager {
     }
 
     public void getAllVendors(ToastErrorHandlingListener listener) {
-        getKeepSyncedRootRef()
+        getRootRef()
                 .child(VENDORS)
                 .addListenerForSingleValueEvent(listener);
     }
 
     public void updateVendors(Map<String, Object> uploadPathMap, DatabaseReference.CompletionListener listener) {
-        getKeepSyncedRootRef()
+        getRootRef()
                 .child(VENDORS)
                 .updateChildren(uploadPathMap, listener);
     }
 
     public void checkUserAlreadyCreated(String phoneNumber, ToastErrorHandlingListener listener) {
-        getKeepSyncedRootRef()
+        getRootRef()
                 .child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(INFO)
@@ -150,7 +151,7 @@ public class FirebaseDbManager {
     }
 
     public void setInitialSignUpTime(String phoneNumber, String signUpTime, SimpleAuthListener listener) {
-        getKeepSyncedRootRef()
+        getRootRef()
                 .child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(INFO)
@@ -161,7 +162,7 @@ public class FirebaseDbManager {
     }
 
     public void getRestaurantName(String phoneNumber, ToastErrorHandlingListener listener) {
-        getKeepSyncedRootRef()
+        getRootRef()
                 .child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(INFO)
@@ -169,9 +170,7 @@ public class FirebaseDbManager {
                 .addListenerForSingleValueEvent(listener);
     }
 
-    private DatabaseReference getKeepSyncedRootRef() {
-        DatabaseReference rootRef = instance.getReference();
-        rootRef.keepSynced(true);
-        return rootRef;
+    private DatabaseReference getRootRef() {
+        return instance.getReference();
     }
 }
