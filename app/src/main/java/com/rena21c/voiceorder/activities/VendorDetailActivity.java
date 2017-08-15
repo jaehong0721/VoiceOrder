@@ -55,5 +55,12 @@ public class VendorDetailActivity extends AppCompatActivity {
                 contactInfoContainer.setContactInfo(dataSnapshot);
             }
         });
+
+        dbManager.getVendorBusinessInfo(phoneNumber, new ToastErrorHandlingListener(this) {
+            @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                if(!dataSnapshot.exists()) return;
+                businessInfoContainer.setBusinessInfo(dataSnapshot);
+            }
+        });
     }
 }

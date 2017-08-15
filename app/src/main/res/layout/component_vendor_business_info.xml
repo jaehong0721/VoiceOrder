@@ -122,8 +122,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/label4"
             android:layout_marginTop="10dp"
-            android:textSize="14sp"
-            android:text="정보없음"/>
+            android:textSize="15sp"
+            android:hint="정보없음"
+            android:textColorHint="@color/primaryBrown"/>
 
     </RelativeLayout>
 
@@ -157,8 +158,9 @@
                 android:id="@+id/tvDeliveryAreas"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="14sp"
-                android:text="정보없음"/>
+                android:textSize="15sp"
+                android:hint="정보없음"
+                android:textColorHint="@color/primaryBrown"/>
 
         </com.google.android.flexbox.FlexboxLayout>
     </RelativeLayout>
@@ -193,8 +195,9 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/label6"
                 android:layout_marginTop="10dp"
-                android:textSize="14sp"
-                android:text="정보없음"/>
+                android:textSize="15sp"
+                android:hint="정보없음"
+                android:textColorHint="@color/primaryBrown"/>
         </RelativeLayout>
 
         <View
@@ -221,8 +224,9 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/label7"
                 android:layout_marginTop="10dp"
-                android:textSize="14sp"
-                android:text="정보없음"/>
+                android:textSize="15sp"
+                android:hint="정보없음"
+                android:textColorHint="@color/primaryBrown" />
         </RelativeLayout>
 
     </LinearLayout>
@@ -252,8 +256,9 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/label8"
             android:layout_marginTop="10dp"
-            android:textSize="14sp"
-            android:text="정보없음"/>
+            android:textSize="15sp"
+            android:hint="정보없음"
+            android:textColorHint="@color/primaryBrown"/>
     </RelativeLayout>
 
 </LinearLayout>

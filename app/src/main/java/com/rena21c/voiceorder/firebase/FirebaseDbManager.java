@@ -186,6 +186,14 @@ public class FirebaseDbManager {
                 .addListenerForSingleValueEvent(listener);
     }
 
+    public void getVendorBusinessInfo(String phoneNumber, ToastErrorHandlingListener listener) {
+        getRootRef()
+                .child(VENDORS)
+                .child(phoneNumber)
+                .child(BUSINESS_INFO)
+                .addListenerForSingleValueEvent(listener);
+    }
+
     private DatabaseReference getRootRef() {
         return instance.getReference();
     }
