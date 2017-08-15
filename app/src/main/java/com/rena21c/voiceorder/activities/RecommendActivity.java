@@ -112,10 +112,10 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                     }
                 },
                 new VendorsRecyclerViewAdapter.ClickVendorListener() {
-                    @Override public void onClickVendor(String phoneNumber) {
+                    @Override public void onClickVendor(final String phoneNumber) {
                         dbManager.hasVendor(StringUtil.removeSpecialLetter(phoneNumber), new HasDbListener(RecommendActivity.this) {
                             @Override protected void hasDb() {
-                                Toast.makeText(RecommendActivity.this, "납품업체 정보 있음!", Toast.LENGTH_SHORT).show();
+                                goToVendorDetail(phoneNumber);
                             }
                             @Override protected void hasNone() {
                                 Toast.makeText(RecommendActivity.this, "납품업체 정보 추가중입니다", Toast.LENGTH_SHORT).show();
@@ -219,6 +219,12 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         rvVendors.setEmptyView(findViewById(R.id.tvEmptyView));
         rvVendors.addItemDecoration(new DividerItemDecoration(getApplicationContext(), R.drawable.shape_divider_recycler_view));
         rvVendors.setAdapter(rvAdapter);
+    }
+
+    private void goToVendorDetail(String phoneNumber) {
+        Intent intent = new Intent(RecommendActivity.this, VendorDetailActivity.class);
+        intent.putExtra("vendorPhoneNumber", phoneNumber);
+        startActivity(intent);
     }
 
     private void requestVendor(HashMap<String, Object> bodyMap) {

@@ -56,8 +56,8 @@
             android:name=".activities.AddPartnerActivity"
             android:parentActivityName=".activities.MyPartnerActivity"
             android:screenOrientation="portrait"/>
-        <activity
-            android:name=".activities.TutorialVideoPlayActivity"/>
+        <activity android:name=".activities.TutorialVideoPlayActivity"/>
+
         <service
             android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
             android:enabled="true"/>
@@ -85,6 +85,8 @@
             android:value="@string/facebook_app_id"/>
 
         <activity android:name=".activities.RequestEstimateActivity">
+        </activity>
+        <activity android:name=".activities.VendorDetailActivity">
         </activity>
     </application>
 
