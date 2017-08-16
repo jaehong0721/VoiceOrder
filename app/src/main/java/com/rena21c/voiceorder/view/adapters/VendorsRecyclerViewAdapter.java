@@ -28,7 +28,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     public interface ClickVendorListener {
-        void onClickVendor(String phoneNumber);
+        void onClickVendor(String phoneNumber, View sharedView);
     }
 
     private class VendorInfoViewHolder extends RecyclerView.ViewHolder {
@@ -143,7 +143,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
                     })
                     .setClickVendorListener(new View.OnClickListener() {
                         @Override public void onClick(View v) {
-                            clickVendorListener.onClickVendor(phoneNumber);
+                            clickVendorListener.onClickVendor(phoneNumber,((VendorInfoViewHolder) holder).ivCall);
                         }
                     });
         } else {

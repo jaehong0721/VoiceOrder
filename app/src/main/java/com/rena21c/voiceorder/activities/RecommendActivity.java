@@ -7,6 +7,8 @@ import android.content.IntentSender;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
@@ -112,10 +114,10 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                     }
                 },
                 new VendorsRecyclerViewAdapter.ClickVendorListener() {
-                    @Override public void onClickVendor(final String phoneNumber) {
+                    @Override public void onClickVendor(final String phoneNumber, final View sharedView) {
                         dbManager.hasVendor(StringUtil.removeSpecialLetter(phoneNumber), new HasDbListener(RecommendActivity.this) {
                             @Override protected void hasDb() {
-                                goToVendorDetail(phoneNumber);
+                                goToVendorDetail(phoneNumber, sharedView);
                             }
                             @Override protected void hasNone() {
                                 Toast.makeText(RecommendActivity.this, "납품업체 정보 추가중입니다", Toast.LENGTH_SHORT).show();
@@ -221,10 +223,12 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         rvVendors.setAdapter(rvAdapter);
     }
 
-    private void goToVendorDetail(String phoneNumber) {
+    private void goToVendorDetail(String phoneNumber, View sharedView) {
         Intent intent = new Intent(RecommendActivity.this, VendorDetailActivity.class);
         intent.putExtra("vendorPhoneNumber", phoneNumber);
-        startActivity(intent);
+
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this,sharedView,"vendor_detail");
+        ActivityCompat.startActivity(this, intent, options.toBundle());
     }
 
     private void requestVendor(HashMap<String, Object> bodyMap) {

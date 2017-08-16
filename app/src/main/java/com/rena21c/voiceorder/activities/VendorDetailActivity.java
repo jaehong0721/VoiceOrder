@@ -1,9 +1,12 @@
 package com.rena21c.voiceorder.activities;
 
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.rena21c.voiceorder.App;
@@ -38,7 +41,7 @@ public class VendorDetailActivity extends AppCompatActivity {
                 .setBackButtonClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        finish();
+                        ActivityCompat.finishAfterTransition(VendorDetailActivity.this);
                     }
                 })
                 .setTitle("업체상세");
@@ -50,6 +53,10 @@ public class VendorDetailActivity extends AppCompatActivity {
         contactInfoContainer = (ContactInfoContainer)findViewById(R.id.contactInfoContainer);
         businessInfoContainer = (BusinessInfoContainer)findViewById(R.id.businessInfoContainer);
         imageViewPager = (ViewPagerWithIndicator)findViewById(R.id.imageViewPager);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return;
+        ImageView ivCall = (ImageView) contactInfoContainer.findViewById(R.id.ivCall);
+        ivCall.setTransitionName("vendor_detail");
     }
 
     @Override protected void onStart() {
