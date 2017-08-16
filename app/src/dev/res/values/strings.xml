@@ -3,4 +3,6 @@
     <string name="server_address">http://13.124.47.50:9000</string>
     <string name="s3_audio_bucket_name">tgmorders-dev</string>
     <string name="s3_text_bucket_name">tgmorders-text-dev</string>
+    <string name="s3_image_bucket_name">tgmorders-backup</string>
+    <string name="s3_base_address">https://s3.ap-northeast-2.amazonaws.com</string>
 </resources>
