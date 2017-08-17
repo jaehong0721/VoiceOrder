@@ -25,6 +25,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.rena21c.voiceorder.App;
+import com.rena21c.voiceorder.BuildConfig;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.etc.IsCheckedComparator;
@@ -279,12 +280,8 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
                 HashMap<String, Object> bodyMap = new HashMap<>();
 
-                double latitude;
-                double longitude;
-                final String restoName;
                 List<HashMap<String, String>> vendors = new ArrayList<>();
-                HashMap<String,String> addedPartner = new HashMap<>();
-
+                final String restoName;
                 if(!dataSnapshot.exists() || dataSnapshot.getValue().equals("")) {
                     restoName = appPreferenceManager.getPhoneNumber();
                 } else {
@@ -293,18 +290,23 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
                 bodyMap.put("restoName", restoName);
 
                 for(Map.Entry<String, MyPartner> entry : copiedMap.entrySet()) {
+                    HashMap<String,String> addedPartner = new HashMap<>();
+
                     String phoneNumber = (entry.getKey()).trim();
                     String vendorName = (entry.getValue()).name;
 
-                    if(phoneNumber.length() != 10 && phoneNumber.length() != 11) continue;
+                    if(phoneNumber.length() < 10 || phoneNumber.length() > 11) continue;
 
                     addedPartner.put("phoneNum", phoneNumber);
                     addedPartner.put("name",vendorName);
                     vendors.add(addedPartner);
                 }
+                if(vendors.size() == 0) return;
                 bodyMap.put("vendors", vendors);
 
                 Location location = simpleLocationManager.getLocation();
+                double latitude;
+                double longitude;
                 if(location != null) {
                     latitude = location.getLatitude();
                     longitude = location.getLongitude();
@@ -322,9 +324,12 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
 
     private void callApiToSendAddedPartners(HashMap<String,Object> bodyMap) {
 
-        for(Map.Entry<String, Object> entry : bodyMap.entrySet()) {
-            Log.d("test", entry.getKey() +"," + entry.getValue());
+        if(BuildConfig.DEBUG) {
+            for (Map.Entry<String, Object> entry : bodyMap.entrySet()) {
+                Log.d("test", entry.getKey() + "," + entry.getValue());
+            }
         }
+
         apiService
                 .sendNotiToRV(bodyMap)
                 .enqueue(new Callback<Void>() {
