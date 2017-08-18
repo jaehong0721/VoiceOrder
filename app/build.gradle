@@ -34,6 +34,7 @@ android {
             proguardFile 'proguard-okhttp3.pro'
             proguardFile 'proguard-retrofit2.pro'
             proguardFile 'proguard-gson.pro'
+            proguardFile 'proguard-glide.pro'
         }
     }
 }
