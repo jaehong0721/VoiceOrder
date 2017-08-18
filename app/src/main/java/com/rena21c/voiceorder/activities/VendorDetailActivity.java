@@ -16,8 +16,11 @@ import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
+import com.rena21c.voiceorder.model.BusinessInfoData;
+import com.rena21c.voiceorder.model.VendorInfo;
 import com.rena21c.voiceorder.network.FileTransferUtil;
 import com.rena21c.voiceorder.util.StringUtil;
+import com.rena21c.voiceorder.util.TransformDataUtil;
 import com.rena21c.voiceorder.view.actionbar.NavigateBackActionBar;
 import com.rena21c.voiceorder.view.adapters.VendorImageAdapter;
 import com.rena21c.voiceorder.view.components.BusinessInfoContainer;
@@ -41,6 +44,8 @@ public class VendorDetailActivity extends AppCompatActivity {
     private String s3BucketName;
     private String s3Address;
 
+    private boolean awsRdb;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,39 +60,62 @@ public class VendorDetailActivity extends AppCompatActivity {
                 })
                 .setTitle("업체상세");
 
+        contactInfoContainer = (ContactInfoContainer)findViewById(R.id.contactInfoContainer);
+        businessInfoContainer = (BusinessInfoContainer)findViewById(R.id.businessInfoContainer);
+
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP) {
+            ImageView ivCall = (ImageView) contactInfoContainer.findViewById(R.id.ivCall);
+            ivCall.setTransitionName("vendor_detail");
+        }
+
+        awsRdb = getIntent().getBooleanExtra("awsRdb", false);
+
+        phoneNumber = StringUtil.removeSpecialLetter(getIntent().getStringExtra("vendorPhoneNumber"));
+
+        if(awsRdb) {
+            setAwsRdbData();
+            return;
+        }
+
         s3 = FileTransferUtil.getS3Client(this);
         s3BucketName = getResources().getString(R.string.s3_image_bucket_name);
         s3Address = getResources().getString(R.string.s3_base_address) + "/" + s3BucketName;
 
-        phoneNumber = StringUtil.removeSpecialLetter(getIntent().getStringExtra("vendorPhoneNumber"));
-
         dbManager = App.getApplication(getApplicationContext()).getDbMangaer();
-
-        contactInfoContainer = (ContactInfoContainer)findViewById(R.id.contactInfoContainer);
-        businessInfoContainer = (BusinessInfoContainer)findViewById(R.id.businessInfoContainer);
         imageViewPager = (ViewPagerWithIndicator)findViewById(R.id.imageViewPager);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) return;
-        ImageView ivCall = (ImageView) contactInfoContainer.findViewById(R.id.ivCall);
-        ivCall.setTransitionName("vendor_detail");
     }
 
     @Override protected void onStart() {
         super.onStart();
 
+        if(awsRdb) return;
+
         setVendorImage();
 
         dbManager.getVendorContactInfo(phoneNumber, new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.exists()) return;
-                contactInfoContainer.setContactInfo(dataSnapshot);
+                VendorInfo vendorInfo = dataSnapshot.getValue(VendorInfo.class);
+                if(vendorInfo == null) {
+                    vendorInfo = new VendorInfo();
+                    vendorInfo.phoneNumber = phoneNumber;
+                    vendorInfo.address = getIntent().getStringExtra("vendorAddress");
+                    vendorInfo.vendorName = getIntent().getStringExtra("vendorName");
+                }
+                contactInfoContainer.setContactInfo(vendorInfo);
             }
         });
 
         dbManager.getVendorBusinessInfo(phoneNumber, new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                if(!dataSnapshot.exists()) return;
-                businessInfoContainer.setBusinessInfo(dataSnapshot);
+                BusinessInfoData businessInfoData = dataSnapshot.getValue(BusinessInfoData.class);
+                if(businessInfoData == null)
+                    businessInfoData = new BusinessInfoData();
+
+                if(businessInfoData.majorItems == null) {
+                    String majorItems = getIntent().getStringExtra("majorItems");
+                    businessInfoData.majorItems = TransformDataUtil.makeMajorItemsList(majorItems);
+                }
+                businessInfoContainer.setBusinessInfo(businessInfoData);
             }
         });
 
@@ -121,5 +149,16 @@ public class VendorDetailActivity extends AppCompatActivity {
                 });
             }
         }).start();
+    }
+
+    private void setAwsRdbData() {
+        VendorInfo vendorInfo = new VendorInfo();
+        vendorInfo.phoneNumber = phoneNumber;
+        vendorInfo.address = getIntent().getStringExtra("vendorAddress");
+        vendorInfo.vendorName = getIntent().getStringExtra("vendorName");
+        contactInfoContainer.setContactInfo(vendorInfo);
+
+        String majorItems = getIntent().getStringExtra("majorItems");
+        businessInfoContainer.setOnlyMajorItems(majorItems);
     }
 }

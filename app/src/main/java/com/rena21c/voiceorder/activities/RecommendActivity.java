@@ -114,13 +114,14 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                     }
                 },
                 new VendorsRecyclerViewAdapter.ClickVendorListener() {
-                    @Override public void onClickVendor(final String phoneNumber, final View sharedView) {
+                    @Override public void onClickVendor(final String phoneNumber, final String vendorName, final String vendorAddress,
+                                                        final String majorItems, final View sharedView) {
                         dbManager.hasVendor(StringUtil.removeSpecialLetter(phoneNumber), new HasDbListener(RecommendActivity.this) {
                             @Override protected void hasDb() {
-                                goToVendorDetail(phoneNumber, sharedView);
+                                goToVendorDetail(phoneNumber,vendorName,vendorAddress,majorItems,sharedView, false);
                             }
                             @Override protected void hasNone() {
-                                Toast.makeText(RecommendActivity.this, "납품업체 정보 추가중입니다", Toast.LENGTH_SHORT).show();
+                                goToVendorDetail(phoneNumber,vendorName,vendorAddress,majorItems,sharedView, true);
                             }
                         });
                     }
@@ -223,37 +224,6 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         rvVendors.setAdapter(rvAdapter);
     }
 
-    private void goToVendorDetail(String phoneNumber, View sharedView) {
-        Intent intent = new Intent(RecommendActivity.this, VendorDetailActivity.class);
-        intent.putExtra("vendorPhoneNumber", phoneNumber);
-
-        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this,sharedView,"vendor_detail");
-        ActivityCompat.startActivity(this, intent, options.toBundle());
-    }
-
-    private void requestVendor(HashMap<String, Object> bodyMap) {
-        apiService
-                .getNearbyVendors(bodyMap)
-                .enqueue(new Callback<List<Vendor>>() {
-                    @Override public void onResponse(Call<List<Vendor>> call, Response<List<Vendor>> response) {
-                        if (response.body() != null) {
-                            int i = 0;
-                            for (Vendor vendor : response.body()) {
-                                Log.d("test", i++ + vendor.name);
-                            }
-
-                            rvAdapter.setVendors(response.body());
-                        } else {
-                            rvAdapter.clearVendors();
-                        }
-                    }
-
-                    @Override public void onFailure(Call<List<Vendor>> call, Throwable t) {
-                        Log.d("test", t.toString());
-                    }
-                });
-    }
-
     @Override protected void onStart() {
         super.onStart();
         Log.d("test:", "onStart");
@@ -329,5 +299,40 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         startActivity(intent);
 
         rvAdapter.notifyItemChanged(position);
+    }
+
+    private void goToVendorDetail(String phoneNumber, String vendorName, String vendorAddress, String majorItems, View sharedView, boolean awsRdb) {
+        Intent intent = new Intent(RecommendActivity.this, VendorDetailActivity.class);
+        intent.putExtra("awsRdb", awsRdb);
+        intent.putExtra("vendorPhoneNumber", phoneNumber);
+        intent.putExtra("vendorName", vendorName);
+        intent.putExtra("vendorAddress", vendorAddress);
+        intent.putExtra("majorItems", majorItems);
+
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this,sharedView,"vendor_detail");
+        ActivityCompat.startActivity(this, intent, options.toBundle());
+    }
+
+    private void requestVendor(HashMap<String, Object> bodyMap) {
+        apiService
+                .getNearbyVendors(bodyMap)
+                .enqueue(new Callback<List<Vendor>>() {
+                    @Override public void onResponse(Call<List<Vendor>> call, Response<List<Vendor>> response) {
+                        if (response.body() != null) {
+                            int i = 0;
+                            for (Vendor vendor : response.body()) {
+                                Log.d("test", i++ + vendor.name);
+                            }
+
+                            rvAdapter.setVendors(response.body());
+                        } else {
+                            rvAdapter.clearVendors();
+                        }
+                    }
+
+                    @Override public void onFailure(Call<List<Vendor>> call, Throwable t) {
+                        Log.d("test", t.toString());
+                    }
+                });
     }
 }

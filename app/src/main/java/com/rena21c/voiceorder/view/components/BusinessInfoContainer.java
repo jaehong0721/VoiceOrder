@@ -6,10 +6,11 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.android.flexbox.FlexboxLayout;
-import com.google.firebase.database.DataSnapshot;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.model.BusinessInfoData;
 import com.rena21c.voiceorder.util.TransformDataUtil;
@@ -26,7 +27,6 @@ public class BusinessInfoContainer extends FrameLayout {
     private TextView tvClosedDay;
     private TextView tvDeliveryTime;
     private TextView tvBusinessLicenseNumber;
-
 
     public BusinessInfoContainer(@NonNull Context context) {
         this(context, null);
@@ -47,8 +47,7 @@ public class BusinessInfoContainer extends FrameLayout {
         deliveryAreasLayout = (FlexboxLayout) findViewById(R.id.deliveryAreasLayout);
     }
 
-    public void setBusinessInfo(DataSnapshot dataSnapshot) {
-        BusinessInfoData businessInfoData = dataSnapshot.getValue(BusinessInfoData.class);
+    public void setBusinessInfo(BusinessInfoData businessInfoData) {
 
         tvPartnerNum.setText(String.valueOf(businessInfoData.partnerNum)+"개");
         tvOrderNum.setText(String.valueOf(businessInfoData.orderNum)+"회");
@@ -67,5 +66,23 @@ public class BusinessInfoContainer extends FrameLayout {
             deliveryAreaView.setArea(deliveryArea);
             deliveryAreasLayout.addView(deliveryAreaView);
         }
+    }
+
+    public void setOnlyMajorItems(String majorItems) {
+        LinearLayout numberInfoLayout = (LinearLayout) findViewById(R.id.numberInfoLayout);
+        RelativeLayout deliverAreaInfoLayout = (RelativeLayout) findViewById(R.id.deliverAreaInfoLayout);
+        LinearLayout operationTimeInfoLayout = (LinearLayout) findViewById(R.id.operationTimeInfoLayout);
+        RelativeLayout licenseNumInfoLayout = (RelativeLayout) findViewById(R.id.licenseNumInfoLayout);
+
+        numberInfoLayout.setVisibility(GONE);
+        deliverAreaInfoLayout.setVisibility(GONE);
+        operationTimeInfoLayout.setVisibility(GONE);
+        licenseNumInfoLayout.setVisibility(GONE);
+
+        setMajorItems(majorItems);
+    }
+
+    public void setMajorItems(String majorItems) {
+        tvMajorItems.setText(majorItems);
     }
 }

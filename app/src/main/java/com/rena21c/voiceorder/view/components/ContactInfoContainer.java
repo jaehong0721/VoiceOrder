@@ -11,7 +11,6 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.firebase.database.DataSnapshot;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.model.VendorInfo;
 
@@ -40,8 +39,7 @@ public class ContactInfoContainer extends FrameLayout {
         ivCall = (ImageView)findViewById(R.id.ivCall);
     }
 
-    public void setContactInfo(DataSnapshot dataSnapshot) {
-        final VendorInfo vendorInfo = dataSnapshot.getValue(VendorInfo.class);
+    public void setContactInfo(final VendorInfo vendorInfo) {
         tvName.setText(vendorInfo.vendorName);
         tvAddress.setText(vendorInfo.address);
         ivCall.setOnClickListener(new OnClickListener() {

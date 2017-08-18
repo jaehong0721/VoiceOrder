@@ -10,6 +10,7 @@
               android:orientation="vertical">
 
     <LinearLayout
+        android:id="@+id/numberInfoLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -126,15 +127,16 @@
             android:hint="정보없음"
             android:textColorHint="@color/primaryBrown"/>
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="16dp"
+            android:layout_below="@id/tvMajorItems"
+            android:background="#14000000"/>
     </RelativeLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginTop="16dp"
-        android:background="#14000000"/>
-
     <RelativeLayout
+        android:id="@+id/deliverAreaInfoLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="21dp">
@@ -163,15 +165,19 @@
                 android:textColorHint="@color/primaryBrown"/>
 
         </com.google.android.flexbox.FlexboxLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_marginTop="16dp"
+            android:layout_below="@+id/deliveryAreasLayout"
+            android:background="#14000000"/>
     </RelativeLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginTop="16dp"
-        android:background="#14000000"/>
+
 
     <LinearLayout
+        android:id="@+id/operationTimeInfoLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="22dp"
@@ -231,22 +237,26 @@
 
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:layout_marginTop="16dp"
-        android:background="#14000000"/>
-
     <RelativeLayout
+        android:id="@+id/licenseNumInfoLayout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="left"
         android:layout_marginTop="21dp">
 
+        <View
+            android:id="@+id/divider_line"
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:layout_alignParentTop="true"
+            android:background="#14000000"/>
+
         <TextView
             android:id="@+id/label8"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:layout_below="@+id/divider_line"
             android:text="사업자등록번호"
             android:textSize="14sp"/>
 

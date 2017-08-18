@@ -1,6 +1,8 @@
 package com.rena21c.voiceorder.util;
 
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class TransformDataUtil {
@@ -15,5 +17,13 @@ public class TransformDataUtil {
         }
         sb.deleteCharAt(sb.length()-1);
         return sb.toString();
+    }
+
+    public static List<String> makeMajorItemsList(String majorItems) {
+        if(majorItems == null || majorItems.equals("")) return null;
+
+        String[] splitAreas = majorItems.split(",");
+        List<String> areaList = new ArrayList<>(Arrays.asList(splitAreas));
+        return areaList;
     }
 }
