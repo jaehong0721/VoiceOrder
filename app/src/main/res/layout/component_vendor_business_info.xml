@@ -25,7 +25,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:text="거래처수"
-                android:textSize="12sp"/>
+                android:textSize="14sp"/>
 
             <TextView
                 android:id="@+id/tvPartnerNum"
@@ -35,7 +35,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="8dp"
                 android:gravity="center"
-                android:textSize="19sp"
+                android:textSize="21sp"
                 android:text="정보없음"/>
         </RelativeLayout>
 
@@ -55,7 +55,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:text="주문수"
-                android:textSize="12sp"/>
+                android:textSize="14sp"/>
 
             <TextView
                 android:id="@+id/tvOrderNum"
@@ -64,7 +64,7 @@
                 android:layout_below="@+id/label2"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="8dp"
-                android:textSize="19sp"
+                android:textSize="21sp"
                 android:text="정보없음"/>
         </RelativeLayout>
 
@@ -84,7 +84,7 @@
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
                 android:text="업력"
-                android:textSize="12sp"/>
+                android:textSize="14sp"/>
 
             <TextView
                 android:id="@+id/tvAge"
@@ -93,7 +93,7 @@
                 android:layout_below="@+id/label3"
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="8dp"
-                android:textSize="19sp"
+                android:textSize="21sp"
                 android:text="정보없음"/>
         </RelativeLayout>
     </LinearLayout>
@@ -114,7 +114,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="주요품목"
-            android:textSize="12sp"/>
+            android:textSize="14sp"/>
 
         <TextView
             android:id="@+id/tvMajorItems"
@@ -144,7 +144,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="배송지역"
-            android:textSize="12sp"/>
+            android:textSize="14sp"/>
 
         <com.google.android.flexbox.FlexboxLayout
             android:id="@+id/deliveryAreasLayout"
@@ -187,7 +187,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="휴무일"
-                android:textSize="12sp"/>
+                android:textSize="14sp"/>
 
             <TextView
                 android:id="@+id/tvClosedDay"
@@ -216,7 +216,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="배송시간"
-                android:textSize="12sp"/>
+                android:textSize="14sp"/>
 
             <TextView
                 android:id="@+id/tvDeliveryTime"
@@ -248,7 +248,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="사업자등록번호"
-            android:textSize="12sp"/>
+            android:textSize="14sp"/>
 
         <TextView
             android:id="@+id/tvBusinessLicenseNumber"
