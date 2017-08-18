@@ -7,6 +7,7 @@
         android:id="@+id/ibBack"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:padding="10dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:background="@null"
