@@ -11,6 +11,7 @@ import android.util.AttributeSet;
 import android.view.View;
 
 import com.rena21c.voiceorder.R;
+import com.rena21c.voiceorder.util.DpToPxConverter;
 
 public class InquireByCallButton extends android.support.v7.widget.AppCompatButton implements View.OnClickListener {
 
@@ -40,6 +41,9 @@ public class InquireByCallButton extends android.support.v7.widget.AppCompatButt
         setBackground(background);
 
         typedArray.recycle();
+
+        int horizontalPadding = DpToPxConverter.convertDpToPx(10, getResources().getDisplayMetrics());
+        setPadding(horizontalPadding,0,horizontalPadding,0);
 
         setOnClickListener(this);
     }
