@@ -16,7 +16,7 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -81,7 +81,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
     private String vendorName;
     private int position;
 
-    private LinearLayout llSearch;
+    private RelativeLayout llSearch;
     private View ibClose;
 
 
@@ -129,7 +129,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
         rvVendors = (RecyclerViewEmptySupport) findViewById(R.id.rvVendors);
         tvCurrentLocation = (TextView) findViewById(R.id.tvCurrentLocation);
-        llSearch = (LinearLayout) findViewById(R.id.llSearch); // 검색시 포커스를 이동시키기 위한 뷰
+        llSearch = (RelativeLayout) findViewById(R.id.llSearch); // 검색시 포커스를 이동시키기 위한 뷰
         actvSearch = (AppCompatAutoCompleteTextView) findViewById(R.id.actvSearch);
         actvSearch.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
