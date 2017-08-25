@@ -5,6 +5,7 @@
                 android:background="@color/primaryYellow">
 
     <LinearLayout
+        android:id="@+id/tutorial_video_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
@@ -18,20 +19,22 @@
             android:src="@drawable/movie"/>
 
         <TextView
+            android:id="@+id/tvTutorial"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="20dp"
             android:lineSpacingExtra="11sp"
             android:text="@string/tutorial_instruction"
-            android:textSize="14sp"/>
+            android:textSize="@dimen/tutorialVideoTextSize"/>
 
     </LinearLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:layout_below="@+id/tutorial_video_layout"
+        android:layout_marginTop="24dp">
 
         <TextView
             android:id="@+id/tvGuide"
@@ -71,6 +74,6 @@
             android:lineSpacingExtra="8sp"
             android:text="@string/voice_order_guide_sub_instruction"
             android:textColor="@color/dark_maroon"
-            android:textSize="16sp"/>
+            android:textSize="@dimen/subGuideTextSize"/>
     </RelativeLayout>
 </RelativeLayout>
