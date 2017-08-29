@@ -22,6 +22,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.crash.FirebaseCrash;
+import com.jakewharton.rxbinding.widget.RxTextView;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
@@ -40,15 +41,22 @@ import com.rena21c.voiceorder.view.widgets.TwoButtonDialogFragment;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 
 @SuppressWarnings("MissingPermission")
 public class RecommendActivity extends HasTabActivity implements TwoButtonDialogFragment.TwoButtonDialogClickListener {
+
+    public static final int TEXT_INPUT_THRESHOLD = 500;
 
     public static final int REQUEST_CHECK_SETTINGS = 0x1;
 
@@ -137,6 +145,33 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
             }
         });
         ibClose = findViewById(R.id.ibClose);
+
+        // Rx debounce를 통해, 특정 시간(TEXT_INPUT_THRESHOLD)동안 입력이 없는 경우 검색을 요청함
+        RxTextView.textChanges(actvSearch)
+                .filter(new Func1<CharSequence, Boolean>() {
+                    @Override public Boolean call(CharSequence charSequence) { return charSequence.length() > 0; }
+                })
+                .debounce(TEXT_INPUT_THRESHOLD, TimeUnit.MILLISECONDS)
+                .map(new Func1<CharSequence, String>() {
+                    @Override public String call(CharSequence charSequence) {
+                        return charSequence.toString();
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<String>() {
+                    @Override public void call(String s) {
+                        if (!located) return;
+                        Log.d("test", "onTextChanged");
+                        HashMap<String, Object> bodyMap = new HashMap<>();
+                        bodyMap.put("latitude", latitude);
+                        bodyMap.put("longitude", longitude);
+                        bodyMap.put("keyWord", s.toString());
+                        requestVendor(bodyMap);
+
+                        rvVendors.scrollToPosition(0);
+                    }
+                });
+
         actvSearch.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
@@ -149,27 +184,6 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                     getSupportActionBar().show();
                     ibClose.setVisibility(View.GONE);
                 }
-            }
-        });
-        actvSearch.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!located) return;
-                Log.d("test", "onTextChanged");
-                HashMap<String, Object> bodyMap = new HashMap<>();
-                bodyMap.put("latitude", latitude);
-                bodyMap.put("longitude", longitude);
-                bodyMap.put("keyWord", s.toString());
-                requestVendor(bodyMap);
-
-                rvVendors.scrollToPosition(0);
-            }
-
-            @Override public void afterTextChanged(Editable s) {
-
             }
         });
 
