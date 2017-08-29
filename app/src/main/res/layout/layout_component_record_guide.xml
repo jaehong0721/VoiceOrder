@@ -43,7 +43,7 @@
             android:gravity="center"
             android:text="@string/voice_order_guide_main_instruction"
             android:textColor="@color/textGuideInstruction"
-            android:textSize="@dimen/guideInstructionsTextSize"
+            android:textSize="34dp"
             />
 
         <TextView

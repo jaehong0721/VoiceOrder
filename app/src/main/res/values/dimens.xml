@@ -7,6 +7,5 @@
 
 
     <!-- Guide View -->
-    <dimen name="guideInstructionsTextSize">34sp</dimen>
     <dimen name="guideExampleTextSize">16sp</dimen>
 </resources>

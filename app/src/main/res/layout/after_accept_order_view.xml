@@ -31,7 +31,7 @@
             android:lineSpacingExtra="5dp"
             android:maxLines="2"
             android:text="양파 3단, 고구마 한 포대,감자 두 포대, 된장 6박스 "
-            android:textSize="30sp" />
+            android:textSize="30dp" />
 
         <TextView
             android:id="@+id/tvVendorList"
