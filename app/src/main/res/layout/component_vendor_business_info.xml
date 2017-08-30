@@ -124,6 +124,7 @@
             android:layout_below="@+id/label4"
             android:layout_marginTop="10dp"
             android:textSize="15sp"
+            android:lineSpacingExtra="6sp"
             android:hint="정보없음"
             android:textColorHint="@color/primaryBrown"/>
 
