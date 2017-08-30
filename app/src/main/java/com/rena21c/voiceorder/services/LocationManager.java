@@ -1,15 +1,19 @@
 package com.rena21c.voiceorder.services;
 
 
+import android.Manifest;
 import android.content.Context;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -26,8 +30,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
-                                        GoogleApiClient.OnConnectionFailedListener,
-                                        LocationListener {
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
     public interface LocationUpdateListener {
         void onLocationUpdateFailed(Status status) throws IntentSender.SendIntentException;
@@ -68,12 +72,12 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
     }
 
     public void connectGoogleApiClient() {
-        if(isConnectedGoogleApi) return;
+        if (isConnectedGoogleApi) return;
         googleApiClient.connect();
     }
 
     public void disconnectGoogleApiClient() {
-        if(!isConnectedGoogleApi) return;
+        if (!isConnectedGoogleApi) return;
         googleApiClient.disconnect();
         isConnectedGoogleApi = false;
     }
@@ -93,19 +97,26 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
                 googleApiClient,
                 locationSettingsRequest
         ).setResultCallback(new ResultCallback<LocationSettingsResult>() {
-            @SuppressWarnings("MissingPermission")
             @Override
             public void onResult(LocationSettingsResult locationSettingsResult) {
+
+
                 final Status status = locationSettingsResult.getStatus();
 
                 switch (status.getStatusCode()) {
 
                     case LocationSettingsStatusCodes.SUCCESS:
-                        isTrackingLocation = true;
-                        Log.d("test", "locationSettingsRequest success");
-                        LocationServices.FusedLocationApi.requestLocationUpdates(
-                                googleApiClient, locationRequest, LocationManager.this);
-                        Log.d("test", "start location update");
+
+                        if (ContextCompat.checkSelfPermission(googleApiClient.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                            isTrackingLocation = true;
+                            Log.d("test", "locationSettingsRequest success");
+                            LocationServices.FusedLocationApi.requestLocationUpdates(
+                                    googleApiClient, locationRequest, LocationManager.this);
+                            Log.d("test", "start location update");
+                        } else {
+                            Toast.makeText(googleApiClient.getContext(), "위치 권한을 활성화해주세요", Toast.LENGTH_SHORT).show();
+                        }
+
                         break;
 
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
