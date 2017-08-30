@@ -9,7 +9,7 @@
         android:layout_height="8dp"
         android:layout_alignParentTop="true"
         android:background="@color/dividerLine"/>
-
+    
     <RelativeLayout
         android:id="@+id/content_layout"
         android:layout_width="match_parent"

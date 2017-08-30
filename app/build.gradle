@@ -68,6 +68,11 @@ dependencies {
     compile 'com.amazonaws:aws-android-sdk-core:2.3.9'
     compile 'com.amazonaws:aws-android-sdk-s3:2.3.9'
     compile 'com.amazonaws:aws-android-sdk-cognito:2.3.9'
+    // RxJava
+    compile 'io.reactivex:rxjava:1.2.5'
+    compile 'io.reactivex:rxandroid:1.2.1'
+    compile 'com.jakewharton.rxbinding:rxbinding:0.4.0'
+    compile 'com.jakewharton.rxbinding:rxbinding-design:0.4.0'
 
     compile 'com.google.android:flexbox:0.3.0'
 
@@ -79,4 +84,5 @@ dependencies {
 
     compile files('libs/YouTubeAndroidPlayerApi.jar')
 }
+
 apply plugin: 'com.google.gms.google-services'
