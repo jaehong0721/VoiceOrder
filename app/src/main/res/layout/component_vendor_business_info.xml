@@ -25,6 +25,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
+                android:textStyle="bold"
                 android:text="거래처수"
                 android:textSize="14sp"/>
 
@@ -55,6 +56,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
+                android:textStyle="bold"
                 android:text="주문수"
                 android:textSize="14sp"/>
 
@@ -84,6 +86,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerHorizontal="true"
+                android:textStyle="bold"
                 android:text="업력"
                 android:textSize="14sp"/>
 
@@ -114,6 +117,7 @@
             android:id="@+id/label4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textStyle="bold"
             android:text="주요품목"
             android:textSize="14sp"/>
 
@@ -146,6 +150,7 @@
             android:id="@+id/label5"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textStyle="bold"
             android:text="배송지역"
             android:textSize="14sp"/>
 
@@ -193,6 +198,7 @@
                 android:id="@+id/label6"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textStyle="bold"
                 android:text="휴무일"
                 android:textSize="14sp"/>
 
@@ -222,6 +228,7 @@
                 android:id="@+id/label7"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textStyle="bold"
                 android:text="배송시간"
                 android:textSize="14sp"/>
 
@@ -258,6 +265,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_below="@+id/divider_line"
+            android:textStyle="bold"
             android:text="사업자등록번호"
             android:textSize="14sp"/>
 
