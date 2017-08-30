@@ -25,7 +25,8 @@
         android:layout_below="@+id/tvVendorName"
         android:layout_marginBottom="9dp"
         android:ellipsize="end"
-        android:maxLines="100"
+        android:maxLines="2"
+        android:lineSpacingExtra="6sp"
         android:textColor="@color/primaryBrown"
         android:textSize="14sp"
         tools:text="고추, 참기름, 마늘, 된장, 초장 등 양념 업체"/>
