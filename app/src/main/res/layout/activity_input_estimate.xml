@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.rena21c.voiceorder.activities.InputEstimateActivity">
+
+    <LinearLayout
+        android:id="@+id/input_estimate_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="11dp"
+        android:layout_marginLeft="18dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="19dp"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2">
+
+                <TextView
+                    android:id="@+id/label1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="품목명"
+                    android:textSize="14sp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_toRightOf="@+id/label1"
+                    android:text="예) 새송이 버섯 "
+                    android:textColor="@color/dark_maroon_40"
+                    android:textSize="14sp"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+
+                <TextView
+                    android:id="@+id/label2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="납품량"
+                    android:textSize="14sp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="8dp"
+                    android:layout_toRightOf="@+id/label2"
+                    android:text="예) 1박스"
+                    android:textColor="@color/dark_maroon_40"
+                    android:textSize="14sp"/>
+            </RelativeLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btnAddInputEstimate"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_below="@+id/input_estimate_container"
+        android:layout_marginBottom="11dp"
+        android:layout_marginLeft="18dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="19dp"
+        android:background="@drawable/shape_colorful_border2"
+        android:text="품목 입력 추가하기"
+        android:textSize="16sp"/>
+
+    <Button
+        android:id="@+id/btnRequestEstimate"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/primaryBrown"
+        android:text="견적요청하기"
+        android:textColor="@color/white"
+        android:textSize="16sp"/>
+</RelativeLayout>
