@@ -35,6 +35,7 @@ android {
             proguardFile 'proguard-retrofit2.pro'
             proguardFile 'proguard-gson.pro'
             proguardFile 'proguard-glide.pro'
+            proguardFile 'proguard-rx.pro'
         }
     }
 }
