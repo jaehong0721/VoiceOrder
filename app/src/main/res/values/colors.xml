@@ -13,6 +13,9 @@
     <color name="dividerLine">#14000000</color>
 
     <color name="dark_maroon_40">#66390405</color>
+    <color name="dark_maroon_20">#33390405</color>
+
+    <color name="black_05">#0D000000</color>
 
     <!-- 제플린에서 추가 -->
     <color name="sea">#2d8985</color>
