@@ -20,7 +20,7 @@
             android:layout_marginTop="19dp">
 
             <LinearLayout
-                android:id="@+id/input_estimate_container"
+                android:id="@+id/estimate_input_view_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -103,11 +103,11 @@
             </LinearLayout>
 
             <Button
-                android:id="@+id/btnAddInputEstimate"
+                android:id="@+id/btnAddEstimateInputView"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginBottom="61dp"
-                android:layout_below="@+id/input_estimate_container"
+                android:layout_below="@+id/estimate_input_view_container"
                 android:layout_marginTop="11dp"
                 android:background="@drawable/shape_colorful_border2"
                 android:text="품목 입력 추가하기"
