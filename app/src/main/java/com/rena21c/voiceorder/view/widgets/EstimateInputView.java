@@ -36,6 +36,16 @@ public class EstimateInputView extends LinearLayout {
         addView(etItemNum);
     }
 
+    public String getItemName() {
+        String itemName = etItemName.getText().toString();
+        return itemName.equals("") ? null : itemName;
+    }
+
+    public String getItemNum() {
+        String itemNum = etItemNum.getText().toString();
+        return itemNum.equals("") ? null : itemNum;
+    }
+
     private void initItemNameView(Context context, AttributeSet attrs) {
         etItemName = newInputEditText(context, attrs);
         ((LayoutParams)etItemName.getLayoutParams()).weight = 2;

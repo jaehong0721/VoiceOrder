@@ -6,6 +6,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.rena21c.voiceorder.model.Estimate;
 import com.rena21c.voiceorder.pojo.MyPartner;
 
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class FirebaseDbManager {
     private static final String RANKING_INFO = "rankingInfo";
     private static final String VISIT_COUNT = "visitCount";
     private static final String NAME = "name";
+    private static final String ADDRESS = "address";
 
     private final FirebaseDatabase instance;
 
@@ -175,12 +177,22 @@ public class FirebaseDbManager {
                 .addOnFailureListener(listener);
     }
 
-    public void getRestaurantName(String phoneNumber, ToastErrorHandlingListener listener) {
+    public void getRestaurantName(String phoneNumber, ValueEventListener listener) {
         DatabaseReference dr = getRootRef()
                 .child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(INFO)
                 .child(RESTAURANT_NAME);
+        dr.keepSynced(true);
+        dr.addListenerForSingleValueEvent(listener);
+    }
+
+    public void getRestaurantAddress(String phoneNumber, ValueEventListener listener) {
+        DatabaseReference dr = getRootRef()
+                .child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(INFO)
+                .child(ADDRESS);
         dr.keepSynced(true);
         dr.addListenerForSingleValueEvent(listener);
     }
@@ -229,6 +241,14 @@ public class FirebaseDbManager {
                 .child(VISIT_COUNT);
         dr.keepSynced(true);
         dr.addListenerForSingleValueEvent(listener);
+    }
+
+    public void setEstimate(String estimateKey, Estimate estimate) {
+        DatabaseReference dr = getRootRef()
+                .child("estimate")
+                .child(estimateKey);
+        dr.setValue(estimate);
+        dr.keepSynced(true);
     }
 
     private DatabaseReference getRootRef() {
