@@ -5,7 +5,8 @@ public class Vendor {
     public String name;
     public String phoneNumber;
     public String address;
-    public String items;
+    public String orderItems;
+    public String majorItems;
 
     public Vendor() {}
 
@@ -19,7 +20,8 @@ public class Vendor {
                 "name='" + name + '\'' +
                 ", phoneNumber='" + phoneNumber + '\'' +
                 ", address='" + address + '\'' +
-                ", items='" + items + '\'' +
+                ", orderItems='" + orderItems + '\'' +
+                ", majorItems='" + majorItems + '\'' +
                 '}';
     }
 }

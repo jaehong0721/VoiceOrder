@@ -125,8 +125,8 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
             final String phoneNumber = vendor.phoneNumber;
 
             final String vendorName = vendor.name;
-            String address = AddressUtil.convertToSimpleAddress(vendor.address);
-            String businessContent = vendor.items;
+            final String address = AddressUtil.convertToSimpleAddress(vendor.address);
+            final String businessContent = vendor.majorItems != null ? vendor.majorItems : vendor.orderItems;
 
             long callTime = appPreferenceManager.getCallTime(phoneNumber);
             String elapsedTime = callTime == -1 ? null : TimeConverter.convertMillisToElapsedTime(System.currentTimeMillis(), callTime) + " 통화";
@@ -143,7 +143,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
                     })
                     .setClickVendorListener(new View.OnClickListener() {
                         @Override public void onClick(View v) {
-                            clickVendorListener.onClickVendor(phoneNumber, vendor.name, vendor.address,vendor.items,
+                            clickVendorListener.onClickVendor(phoneNumber, vendorName, address, businessContent,
                                                              ((VendorInfoViewHolder) holder).ivCall);
                         }
                     });
