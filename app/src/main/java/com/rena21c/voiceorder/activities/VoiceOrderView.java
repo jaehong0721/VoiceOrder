@@ -5,6 +5,7 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.GenericTypeIndicator;
@@ -23,7 +24,7 @@ import com.rena21c.voiceorder.view.widgets.ViewPagerIndicator;
 
 import java.util.HashMap;
 
-public class VoiceOrderView implements RecordAndStopButton.activateRecorderListener {
+public class VoiceOrderView implements RecordAndStopButton.ActivateRecorderListener {
 
     public static final int NO_INTERNAL_MEMORY = 0;
     public static final int NO_INTERNET_CONNECT = 1;
@@ -37,43 +38,28 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
     private OrderViewPagerAdapter orderViewPagerAdapter;
     private ViewPager orderViewPager;
     private ViewPagerIndicator viewPagerIndicator;
-    private View viewPager;
+    private View orderLayout;
+    private View recordGuideLayout;
 
     private InquireByCallButton callButton;
 
-    public VoiceOrderView(VoiceOrderActivity activity) {
+    public VoiceOrderView(final VoiceOrderActivity activity, FirebaseDbManager dbManager, RecordedFileManager recordedFileManager) {
         this.activity = activity;
 
-        replaceableLayout = (ReplaceableLayout) activity.findViewById(R.id.replaceableLayout);
-        recordingLayout = activity.getLayoutInflater().inflate(R.layout.layout_component_recording, replaceableLayout, false);
+        LayoutInflater layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+
+        callButton = (InquireByCallButton) activity.findViewById(R.id.btnInquire);
 
         recordAndStopButton = (RecordAndStopButton) activity.findViewById(R.id.btnRecordAndStop);
         recordAndStopButton.setListener(this);
-    }
 
-    public void initView(FirebaseDbManager dbManager, RecordedFileManager recordedFileManager) {
+        replaceableLayout = (ReplaceableLayout) activity.findViewById(R.id.replaceableLayout);
 
-        LayoutInflater layoutInflater = (LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        viewPager = layoutInflater.inflate(R.layout.layout_component_order_view_pager, replaceableLayout, false);
+        initRecordingView(layoutInflater);
 
-        viewPagerIndicator = (ViewPagerIndicator) viewPager.findViewById(R.id.viewPagerIndicator);
-        orderViewPager = (ViewPager) viewPager.findViewById(R.id.viewPager);
+        initGuideView(activity, layoutInflater);
 
-        orderViewPagerAdapter = new OrderViewPagerAdapter(activity, dbManager, recordedFileManager, new OrderViewPagerAdapter.ItemCountChangedListener() {
-            @Override public void itemCountChange(int count) {
-                viewPagerIndicator.changeDot(count);
-                if (count == 1) viewPagerIndicator.selectDot(0);
-            }
-        });
-
-        orderViewPager.setAdapter(orderViewPagerAdapter);
-        orderViewPager.addOnPageChangeListener(new SimpleViewPagerSelectedListener() {
-            @Override public void onPageSelected(int position) {
-                viewPagerIndicator.selectDot(position);
-            }
-        });
-
-        callButton = (InquireByCallButton) activity.findViewById(R.id.btnInquire);
+        initOrdersView(activity, dbManager, recordedFileManager, layoutInflater);
     }
 
     public void setView(boolean shouldShowGuide) {
@@ -89,19 +75,6 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
         orderViewPager.setCurrentItem(position);
     }
 
-    private void setGuide() {
-        recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_GUIDE_LAYOUT);
-        View recordGuideLayout = activity.getLayoutInflater().inflate(R.layout.layout_component_record_guide, replaceableLayout, false);
-        callButton.setVisibility(View.VISIBLE);
-        replaceableLayout.replaceChildView(recordGuideLayout);
-    }
-
-    private void setNormal() {
-        recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_ORDER_LIST_LAYOUT);
-        callButton.setVisibility(View.GONE);
-        replaceableLayout.replaceChildView(viewPager);
-    }
-
     public void replaceViewToRecording() {
         if(callButton.getVisibility() == View.VISIBLE) callButton.setVisibility(View.GONE);
         replaceableLayout.replaceChildView(recordingLayout);
@@ -109,7 +82,7 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
     }
 
     public void replaceViewToUnRecording() {
-        replaceableLayout.replaceChildView(viewPager);
+        replaceableLayout.replaceChildView(orderLayout);
         recordAndStopButton.setRecordViewState();
     }
 
@@ -165,6 +138,10 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
         activity.getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
     }
 
+    public void callOnClickRecord() {
+        recordAndStopButton.callOnClick();
+    }
+
     @Override
     public void onStartRecording() {
         activity.onStartedRecording();
@@ -173,5 +150,52 @@ public class VoiceOrderView implements RecordAndStopButton.activateRecorderListe
     @Override
     public void onStopRecording() {
         activity.onStoppedRecording();
+    }
+
+    private void initGuideView(final VoiceOrderActivity activity, LayoutInflater layoutInflater) {
+        recordGuideLayout = layoutInflater.inflate(R.layout.layout_component_record_guide, replaceableLayout, false);
+
+        ImageView ivPlayTutorialVideo = (ImageView) recordGuideLayout.findViewById(R.id.ivPlayTutorialVideo);
+        ivPlayTutorialVideo.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                activity.playTutorialVideo();
+            }
+        });
+    }
+
+    private void initRecordingView(LayoutInflater layoutInflater) {
+        recordingLayout = layoutInflater.inflate(R.layout.layout_component_recording, replaceableLayout, false);
+    }
+
+    private void initOrdersView(VoiceOrderActivity activity, FirebaseDbManager dbManager, RecordedFileManager recordedFileManager, LayoutInflater layoutInflater) {
+        orderLayout = layoutInflater.inflate(R.layout.layout_component_order_view_pager, replaceableLayout, false);
+        viewPagerIndicator = (ViewPagerIndicator) orderLayout.findViewById(R.id.viewPagerIndicator);
+        orderViewPager = (ViewPager) orderLayout.findViewById(R.id.viewPager);
+
+        orderViewPagerAdapter = new OrderViewPagerAdapter(activity, dbManager, recordedFileManager, new OrderViewPagerAdapter.ItemCountChangedListener() {
+            @Override public void itemCountChange(int count) {
+                viewPagerIndicator.changeDot(count);
+                if (count == 1) viewPagerIndicator.selectDot(0);
+            }
+        });
+
+        orderViewPager.setAdapter(orderViewPagerAdapter);
+        orderViewPager.addOnPageChangeListener(new SimpleViewPagerSelectedListener() {
+            @Override public void onPageSelected(int position) {
+                viewPagerIndicator.selectDot(position);
+            }
+        });
+    }
+
+    private void setGuide() {
+        recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_GUIDE_LAYOUT);
+        callButton.setVisibility(View.VISIBLE);
+        replaceableLayout.replaceChildView(recordGuideLayout);
+    }
+
+    private void setNormal() {
+        recordAndStopButton.setInitHeight(recordAndStopButton.HEIGHT_WITH_ORDER_LIST_LAYOUT);
+        callButton.setVisibility(View.GONE);
+        replaceableLayout.replaceChildView(orderLayout);
     }
 }

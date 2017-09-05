@@ -51,19 +51,30 @@
         android:visibility="invisible"
         tools:text="서울 강남구"/>
 
-    <Button
-        android:id="@+id/btnMoveVoiceOrder"
-        android:layout_width="277dp"
-        android:layout_height="55dp"
+    <RelativeLayout
+        android:id="@+id/moveVoiceOrder"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/tvAddress"
         android:layout_centerHorizontal="true"
+        android:padding="10dp"
         android:layout_marginTop="20dp"
-        android:background="@drawable/shape_colorful_border"
-        android:drawableLeft="@drawable/voice_order_icon"
-        android:drawablePadding="-30dp"
-        android:paddingLeft="30dp"
-        android:text="간편한음성주문사용하기"
-        android:textColor="@color/dark_maroon"
-        android:textSize="16sp"/>
+        android:background="@drawable/shape_colorful_border">
 
+        <ImageView
+            android:id="@+id/ivIcon"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:src="@drawable/voice_order_icon"/>
+
+        <com.rena21c.voiceorder.view.widgets.CharacterWrapTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/ivIcon"
+            android:layout_centerVertical="true"
+            android:text="간편한 음성주문 사용하기"/>
+    </RelativeLayout>
+    
 </RelativeLayout>

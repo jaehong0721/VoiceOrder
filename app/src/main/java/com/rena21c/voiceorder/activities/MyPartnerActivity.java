@@ -7,7 +7,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.RelativeLayout;
 
-import com.google.firebase.database.FirebaseDatabase;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
@@ -38,7 +37,7 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
         AppPreferenceManager appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         eventManager = App.getApplication(getApplicationContext()).getEventManager();
 
-        FirebaseDbManager dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
+        FirebaseDbManager dbManager = App.getApplication(getApplicationContext()).getDbMangaer();
 
         MyPartnerListViewModel myPartnerListViewModel = new MyPartnerListViewModel (this,
                                                                                     this,
@@ -79,8 +78,14 @@ public class MyPartnerActivity extends HasTabActivity implements AddPartnerButto
         startActivity(intent);
     }
 
-    public void moveToVoiceOrderTab() {
-        super.moveTab(TabActionBar.Tab.VOICE_ORDER);
+    public void directlyVoiceOrder(String phoneNumber) {
+        Intent intent = new Intent(this, VoiceOrderActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+        intent.putExtra("direct", phoneNumber);
+        intent.putExtra("tab", TabActionBar.Tab.VOICE_ORDER.toString());
+
+        startActivity(intent);
     }
 
     private void showMyPartnerList() {

@@ -7,29 +7,26 @@
     android:orientation="vertical"
     tools:context="com.rena21c.voiceorder.activities.RecommendActivity">
 
-    <LinearLayout
+    <RelativeLayout
         android:id="@+id/llSearch"
         android:layout_width="match_parent"
         android:layout_height="46dp"
         android:background="#f7f7f7"
         android:focusable="true"
         android:focusableInTouchMode="true"
-        android:orientation="horizontal"
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
 
         <android.support.v7.widget.AppCompatAutoCompleteTextView
             android:id="@+id/actvSearch"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="4"
+            android:layout_toLeftOf="@+id/ibClose"
             android:background="@null"
             android:drawableLeft="@drawable/search"
             android:drawablePadding="8dp"
-            android:gravity="center_vertical"
+            android:layout_centerVertical="true"
             android:hint="품목을 입력하세요"
-            android:paddingBottom="14dp"
-            android:paddingTop="14dp"
             android:textColorHint="#4d390405"
             android:inputType="text"
             android:textSize="@dimen/text_default_size"/>
@@ -38,6 +35,7 @@
             android:id="@+id/ibClose"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/tvCurrentLocation"
             android:background="@null"
             android:paddingBottom="14dp"
             android:paddingLeft="8dp"
@@ -48,15 +46,16 @@
 
         <TextView
             android:id="@+id/tvCurrentLocation"
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:layout_weight="1"
             android:drawableLeft="@drawable/crosshair"
+            android:drawablePadding="8dp"
+            android:layout_alignParentRight="true"
             android:gravity="center"
             android:textSize="@dimen/text_default_size"
             tools:text="재궁동"/>
 
-    </LinearLayout>
+    </RelativeLayout>
 
     <View
         android:layout_width="match_parent"

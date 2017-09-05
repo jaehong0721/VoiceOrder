@@ -29,7 +29,7 @@
             android:layout_marginTop="11dp"
             android:lineSpacingExtra="5dp"
             android:text="고객님의 주문이\n성공적으로 저장되었습니다"
-            android:textSize="27sp"/>
+            android:textSize="27dp"/>
 
         <TextView
             android:id="@+id/tvFinish2"

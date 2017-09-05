@@ -19,6 +19,7 @@
     <color name="purple_brown">#643a3b</color>
     <color name="dark_maroon">#390405</color>
     <color name="white">#ffffff</color>
+    <color name="white_50">#80ffffff</color>
     <color name="gunmetal">#494b57</color>
 
 </resources>

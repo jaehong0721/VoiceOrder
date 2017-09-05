@@ -7,8 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.google.firebase.crash.FirebaseCrash;
@@ -30,7 +30,7 @@ public class CallDialogFragment extends DialogFragment {
 
     public interface CallDialogClickListener {
         void onClickCall(String phoneNumber);
-        void onClickVoiceOrder();
+        void onClickVoiceOrder(String phoneNumber);
     }
 
     private static final String PHONE_NUMBER = "phoneNumber";
@@ -43,7 +43,7 @@ public class CallDialogFragment extends DialogFragment {
     private TextView tvBusinessContent;
     private TextView tvAddress;
     private ImageView ivCall;
-    private Button btnMoveVoiceOrder;
+    private RelativeLayout moveVoiceOrder;
 
     private CallDialogClickListener listener;
 
@@ -79,7 +79,7 @@ public class CallDialogFragment extends DialogFragment {
         tvBusinessContent = (TextView) view.findViewById(R.id.tvBusinessContent);
         tvAddress = (TextView) view.findViewById(R.id.tvAddress);
         ivCall = (ImageView) view.findViewById(R.id.ivCall);
-        btnMoveVoiceOrder = (Button) view.findViewById(R.id.btnMoveVoiceOrder);
+        moveVoiceOrder = (RelativeLayout) view.findViewById(R.id.moveVoiceOrder);
 
         return view;
     }
@@ -97,8 +97,8 @@ public class CallDialogFragment extends DialogFragment {
                 listener.onClickCall(phoneNumber);
             }
         });
-        btnMoveVoiceOrder.setOnClickListener(new View.OnClickListener() {
-            @Override public void onClick(View v) {listener.onClickVoiceOrder();
+        moveVoiceOrder.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {listener.onClickVoiceOrder(phoneNumber);
             }
         });
     }

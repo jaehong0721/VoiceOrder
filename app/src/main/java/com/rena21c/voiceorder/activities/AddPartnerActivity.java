@@ -1,6 +1,7 @@
 package com.rena21c.voiceorder.activities;
 
 import android.content.Context;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
@@ -22,9 +23,9 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.rena21c.voiceorder.App;
+import com.rena21c.voiceorder.BuildConfig;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.etc.IsCheckedComparator;
@@ -32,7 +33,9 @@ import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.model.Contact;
 import com.rena21c.voiceorder.model.VendorInfo;
+import com.rena21c.voiceorder.network.ApiService;
 import com.rena21c.voiceorder.pojo.MyPartner;
+import com.rena21c.voiceorder.services.SimpleLocationManager;
 import com.rena21c.voiceorder.util.ContactsLoader;
 import com.rena21c.voiceorder.util.DpToPxConverter;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
@@ -45,7 +48,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
 
 
 public class AddPartnerActivity extends BaseActivity implements ContactInfoViewHolder.CheckContactListener,
@@ -57,6 +66,8 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
     private AppPreferenceManager appPreferenceManager;
 
     private FirebaseDbManager dbManager;
+
+    private SimpleLocationManager simpleLocationManager;
 
     private HashMap<String,MyPartner> myPartnerMap;
     private HashMap<String,MyPartner> removedMyPartnerMap;
@@ -70,6 +81,8 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
     private boolean isInitialAdd;
 
     private HashMap<String, Object> uploadPathMap;
+    private Retrofit retrofit;
+    private ApiService apiService;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +98,12 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
                 })
                 .setTitle("거래처 등록");
 
+        simpleLocationManager = new SimpleLocationManager(this);
+
+        retrofit = App.getApplication(getApplicationContext()).getRetrofit();
+
+        apiService = retrofit.create(ApiService.class);
+
         myPartnerMap = new HashMap<>();
         removedMyPartnerMap = new HashMap<>();
         uploadPathMap = new HashMap<>();
@@ -94,7 +113,7 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
 
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
 
-        dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
+        dbManager = App.getApplication(getApplicationContext()).getDbMangaer();
 
         RecyclerView rvContacts = (RecyclerView) findViewById(R.id.rvContacts);
         contactsAdapter = new ContactsRecyclerViewAdapter(this);
@@ -106,6 +125,7 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
         btnRegister = (Button) findViewById(R.id.btnRegister);
         btnRegister.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
+                finish();
                 dbManager.uploadMyPartner(appPreferenceManager.getPhoneNumber(), myPartnerMap, AddPartnerActivity.this);
             }
         });
@@ -152,8 +172,8 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
 
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()) {
-                    GenericTypeIndicator partnerMapType = new GenericTypeIndicator<HashMap<String, MyPartner>>() {};
-                    myPartnerMap = (HashMap)dataSnapshot.getValue(partnerMapType);
+                    GenericTypeIndicator<HashMap<String, MyPartner>> partnerMapType = new GenericTypeIndicator<HashMap<String, MyPartner>>() {};
+                    myPartnerMap = dataSnapshot.getValue(partnerMapType);
                 }
                 isInitialAdd = myPartnerMap.size() == 0;
                 contactsLoader.startToLoadContacts();
@@ -197,26 +217,32 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
     @Override public void onComplete(@NonNull Task task) {
         if(!task.isSuccessful()) Toast.makeText(this, "거래처 등록에 실패하였습니다", Toast.LENGTH_SHORT).show();
 
-        if(myPartnerMap.size() == 0) {
-            finish();
-            return;
-        }
+        if(myPartnerMap.size() == 0) return;
+
+        //서버에게도 목록 전송
+        sendAddedPartnersToServer(myPartnerMap);
 
         //식당에 등록한 내거래처를 db의 전체 vendors 목록에도 저장
         dbManager.getAllVendors(new ToastErrorHandlingListener(this) {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                GenericTypeIndicator vendorMapType = new GenericTypeIndicator<HashMap<String, Object>>() {};
-                HashMap<String,Object> vendorMap = (HashMap)dataSnapshot.getValue(vendorMapType);
 
-                Iterator<String> iterator = myPartnerMap.keySet().iterator();
-                while(iterator.hasNext()) {
-                    String phoneNumber = iterator.next();
-                    if(vendorMap.containsKey(phoneNumber)) iterator.remove();
+                if(dataSnapshot.exists()) {
+                    GenericTypeIndicator<HashMap<String, Object>> vendorMapType = new GenericTypeIndicator<HashMap<String, Object>>() {};
+                    HashMap<String,Object> vendorMap = dataSnapshot.getValue(vendorMapType);
+
+                    Iterator<String> iterator = myPartnerMap.keySet().iterator();
+
+                    while(iterator.hasNext()) {
+                        String phoneNumber = iterator.next();
+                        if(vendorMap.containsKey(phoneNumber)) iterator.remove();
+                    }
                 }
 
-                for(Map.Entry entry : myPartnerMap.entrySet()) {
-                    String phoneNumber = (String)entry.getKey();
-                    String vendorName = ((MyPartner)entry.getValue()).name;
+                if(myPartnerMap.size() == 0) return;
+
+                for(Map.Entry<String, MyPartner> entry : myPartnerMap.entrySet()) {
+                    String phoneNumber = (entry.getKey()).trim();
+                    String vendorName = (entry.getValue()).name;
 
                     if(phoneNumber.length() != 10 && phoneNumber.length() != 11) continue;
 
@@ -227,7 +253,6 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
                 dbManager.updateVendors(uploadPathMap, new DatabaseReference.CompletionListener() {
                     @Override public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
                         if(databaseError != null) FirebaseCrash.logcat(Log.WARN, "FIRE_BASE", "내거래처 vendors에 저장 실패 : " + databaseError.getMessage());
-                        finish();
                     }
                 });
             }
@@ -245,5 +270,77 @@ public class AddPartnerActivity extends BaseActivity implements ContactInfoViewH
         } else {
             btnRegister.setText(isInitialAdd ? "취소" : "모든 거래처 삭제");
         }
+    }
+
+    private void sendAddedPartnersToServer(final HashMap<String, MyPartner> myPartnerMap) {
+        final HashMap<String, MyPartner> copiedMap = new HashMap<>();
+        copiedMap.putAll(myPartnerMap);
+
+        dbManager.getRestaurantName(appPreferenceManager.getPhoneNumber(), new ToastErrorHandlingListener(this) {
+            @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                HashMap<String, Object> bodyMap = new HashMap<>();
+
+                List<HashMap<String, String>> vendors = new ArrayList<>();
+                final String restoName;
+                if(!dataSnapshot.exists() || dataSnapshot.getValue().equals("")) {
+                    restoName = appPreferenceManager.getPhoneNumber();
+                } else {
+                    restoName = (String)dataSnapshot.getValue();
+                }
+                bodyMap.put("restoName", restoName);
+
+                for(Map.Entry<String, MyPartner> entry : copiedMap.entrySet()) {
+                    HashMap<String,String> addedPartner = new HashMap<>();
+
+                    String phoneNumber = (entry.getKey()).trim();
+                    String vendorName = (entry.getValue()).name;
+
+                    if(phoneNumber.length() < 10 || phoneNumber.length() > 11) continue;
+
+                    addedPartner.put("phoneNum", phoneNumber);
+                    addedPartner.put("name",vendorName);
+                    vendors.add(addedPartner);
+                }
+                if(vendors.size() == 0) return;
+                bodyMap.put("vendors", vendors);
+
+                Location location = simpleLocationManager.getLocation();
+                double latitude;
+                double longitude;
+                if(location != null) {
+                    latitude = location.getLatitude();
+                    longitude = location.getLongitude();
+
+                    bodyMap.put("latitude", latitude);
+                    bodyMap.put("longitude", longitude);
+                }
+
+                bodyMap.put("restoPhoneNum", appPreferenceManager.getPhoneNumber());
+
+                callApiToSendAddedPartners(bodyMap);
+            }
+        });
+    }
+
+    private void callApiToSendAddedPartners(HashMap<String,Object> bodyMap) {
+
+        if(BuildConfig.DEBUG) {
+            for (Map.Entry<String, Object> entry : bodyMap.entrySet()) {
+                Log.d("test", entry.getKey() + "," + entry.getValue());
+            }
+        }
+
+        apiService
+                .sendNotiToRV(bodyMap)
+                .enqueue(new Callback<Void>() {
+                    @Override public void onResponse(Call<Void> call, Response<Void> response) {
+                        if(!response.isSuccessful())
+                            FirebaseCrash.log("추가된 내거래처 정보 서버에게 전달실패 : " + response.code());
+                    }
+
+                    @Override public void onFailure(Call<Void> call, Throwable t) {
+                        FirebaseCrash.log(t.toString());
+                    }
+                });
     }
 }

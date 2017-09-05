@@ -17,7 +17,6 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
@@ -32,10 +31,13 @@ import com.rena21c.voiceorder.services.VoiceRecorderManager;
 import com.rena21c.voiceorder.util.FileNameUtil;
 import com.rena21c.voiceorder.util.MemorySizeChecker;
 
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
 public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderManager.VoiceRecordCallback,
                                                                     RecordedFilePlayer.PlayRecordedFileListener {
+
 
     private final long REQUIRED_SPACE = 5L * 1024L * 1024L;
 
@@ -56,6 +58,8 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
     private ChildEventListener recordListListener;
     private Query recordListQuery;
 
+    private String targetVendor;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -74,11 +78,10 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         eventManager = App.getApplication(getApplicationContext()).getEventManager();
         recordedFileManager = App.getApplication(getApplicationContext()).getRecordedFileManager();
-        dbManager = new FirebaseDbManager(FirebaseDatabase.getInstance());
+        dbManager = App.getApplication(getApplicationContext()).getDbMangaer();
         recordedFilePlayer = new RecordedFilePlayer((AudioManager)getSystemService(Context.AUDIO_SERVICE));
 
-        voiceOrderView = new VoiceOrderView(VoiceOrderActivity.this);
-        voiceOrderView.initView(dbManager, recordedFileManager);
+        voiceOrderView = new VoiceOrderView(this,dbManager, recordedFileManager);
 
         recordManager = new VoiceRecorderManager(recordedFileManager, this);
         memorySizeChecker = new MemorySizeChecker(REQUIRED_SPACE);
@@ -142,12 +145,22 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
         };
 
         acceptedOrderQuery = dbManager.subscribeAcceptedOrder(appPreferenceManager.getPhoneNumber(), acceptedOrderChildEventListener);
+
+        targetVendor = getIntent().getStringExtra("direct");
+    }
+
+    @Override protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        targetVendor = intent.getStringExtra("direct");
     }
 
     @Override protected void onStart() {
         super.onStart();
         registerReceiver(fileUploadSuccessReceiver, new IntentFilter("com.rena21c.voiceorder.ACTION_UPLOAD"));
         voiceOrderView.setView(appPreferenceManager.getUserFirstRecord());
+
+        if(targetVendor == null) return;
+        voiceOrderView.callOnClickRecord();
     }
 
     @Override protected void onPause() {
@@ -200,15 +213,21 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
     }
 
     public void onStoppedRecording() {
-        recordManager.stop();
+        String fileName = recordManager.stop();
+        if(targetVendor != null) makeTargetVendorTextFile(fileName);
         voiceOrderView.clearKeepScreenOn();
         voiceOrderView.replaceViewToUnRecording();
         Intent intent = new Intent(this, FileUploadService.class);
         startService(intent);
     }
 
-    private void startRecording() {
 
+    public void playTutorialVideo() {
+        Intent tutorialIntent = new Intent(VoiceOrderActivity.this, TutorialVideoPlayActivity.class);
+        startActivity(tutorialIntent);
+    }
+
+    private void startRecording() {
         if (!NetworkUtil.isInternetConnected(getApplicationContext())) {
             voiceOrderView.showDialog(VoiceOrderView.NO_INTERNET_CONNECT);
         } else {
@@ -219,5 +238,21 @@ public class VoiceOrderActivity extends HasTabActivity implements VoiceRecorderM
             recordManager.start(fileName);
         }
 
+    }
+
+    private void makeTargetVendorTextFile(String fileName) {
+        File textFile = new File(getFilesDir().getPath(), fileName + ".txt");
+        FileWriter writer;
+        try {
+            writer = new FileWriter(textFile,true);
+            writer.append(targetVendor);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            textFile.delete();
+            e.printStackTrace();
+        } finally {
+            targetVendor = null;
+        }
     }
 }

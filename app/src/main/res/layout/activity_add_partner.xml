@@ -29,10 +29,10 @@
             android:drawablePadding="8dp"
             android:gravity="center_vertical"
             android:hint="이름이나 거래처명으로 검색하세요"
-            android:paddingBottom="14dp"
-            android:paddingTop="14dp"
+            android:layout_centerVertical="true"
             android:textColorHint="#4d390405"
-            android:textSize="@dimen/text_default_size"/>
+            android:textSize="@dimen/text_default_size"
+            android:inputType="text"/>
 
         <ImageView
             android:id="@+id/ivDelete"

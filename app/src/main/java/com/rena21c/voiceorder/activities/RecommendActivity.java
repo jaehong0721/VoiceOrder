@@ -7,6 +7,8 @@ import android.content.IntentSender;
 import android.location.Geocoder;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.text.Editable;
@@ -14,37 +16,47 @@ import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.crash.FirebaseCrash;
+import com.jakewharton.rxbinding.widget.RxTextView;
 import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.firebase.AnalyticsEventManager;
+import com.rena21c.voiceorder.firebase.FirebaseDbManager;
+import com.rena21c.voiceorder.firebase.HasDbListener;
 import com.rena21c.voiceorder.network.ApiService;
 import com.rena21c.voiceorder.pojo.Vendor;
 import com.rena21c.voiceorder.services.LocationManager;
+import com.rena21c.voiceorder.util.StringUtil;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.adapters.VendorsRecyclerViewAdapter;
 import com.rena21c.voiceorder.view.widgets.RecyclerViewEmptySupport;
 import com.rena21c.voiceorder.view.widgets.TwoButtonDialogFragment;
-import com.rena21c.voiceorder.viewholder.VendorInfoViewHolder;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
+import rx.Observable;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
 
 @SuppressWarnings("MissingPermission")
 public class RecommendActivity extends HasTabActivity implements TwoButtonDialogFragment.TwoButtonDialogClickListener {
+
+    public static final int TEXT_INPUT_THRESHOLD = 500;
 
     public static final int REQUEST_CHECK_SETTINGS = 0x1;
 
@@ -58,6 +70,8 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
     private Retrofit retrofit;
     private ApiService apiService;
 
+
+    private FirebaseDbManager dbManager;
     private AppPreferenceManager appPreferenceManager;
     private AnalyticsEventManager eventManager;
 
@@ -75,7 +89,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
     private String vendorName;
     private int position;
 
-    private LinearLayout llSearch;
+    private RelativeLayout llSearch;
     private View ibClose;
 
 
@@ -84,25 +98,46 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_recommend);
 
+        dbManager = App.getApplication(getApplicationContext()).getDbMangaer();
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         eventManager = App.getApplication(getApplicationContext()).getEventManager();
 
         calledVendors = appPreferenceManager.getCalledVendors();
-        rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager, new VendorInfoViewHolder.CallButtonClickListener() {
+        rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager,
+                new VendorsRecyclerViewAdapter.CallButtonClickListener() {
+                    @Override public void onCallButtonClick(String phoneNumber, String name, int itemPosition) {
+                        position = itemPosition;
+                        vendorPhoneNumber = phoneNumber;
+                        vendorName = name;
 
-             @Override public void onCallButtonClick(String phoneNumber, String name, int itemPosition) {
-                 position = itemPosition;
-                 vendorPhoneNumber = phoneNumber;
-                 vendorName = name;
-
-                 beforeCallDialog = TwoButtonDialogFragment.newInstance("‘거상앱으로 전화드립니다’\n라고 꼭 말씀해주세요", "취소", "통화");
-                 beforeCallDialog.show(getSupportFragmentManager(), "dialog");
-             }
-         });
+                        beforeCallDialog = TwoButtonDialogFragment.newInstance("‘거상앱으로 전화드립니다’\n라고 꼭 말씀해주세요", "취소", "통화");
+                        beforeCallDialog.show(getSupportFragmentManager(), "dialog");
+                    }
+                },
+                new VendorsRecyclerViewAdapter.AppDownloadListener() {
+                    @Override public void onAppDownload() {
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setData(Uri.parse("market://details?id=com.rena21.driver"));
+                        startActivity(intent);
+                    }
+                },
+                new VendorsRecyclerViewAdapter.ClickVendorListener() {
+                    @Override public void onClickVendor(final String phoneNumber, final String vendorName, final String vendorAddress,
+                                                        final String majorItems, final View sharedView) {
+                        dbManager.hasVendor(StringUtil.removeSpecialLetter(phoneNumber), new HasDbListener(RecommendActivity.this) {
+                            @Override protected void hasDb() {
+                                goToVendorDetail(phoneNumber,vendorName,vendorAddress,majorItems,sharedView, false);
+                            }
+                            @Override protected void hasNone() {
+                                goToVendorDetail(phoneNumber,vendorName,vendorAddress,majorItems,sharedView, true);
+                            }
+                        });
+                    }
+                });
 
         rvVendors = (RecyclerViewEmptySupport) findViewById(R.id.rvVendors);
         tvCurrentLocation = (TextView) findViewById(R.id.tvCurrentLocation);
-        llSearch = (LinearLayout) findViewById(R.id.llSearch); // 검색시 포커스를 이동시키기 위한 뷰
+        llSearch = (RelativeLayout) findViewById(R.id.llSearch); // 검색시 포커스를 이동시키기 위한 뷰
         actvSearch = (AppCompatAutoCompleteTextView) findViewById(R.id.actvSearch);
         actvSearch.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
@@ -110,6 +145,33 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
             }
         });
         ibClose = findViewById(R.id.ibClose);
+
+        // Rx debounce를 통해, 특정 시간(TEXT_INPUT_THRESHOLD)동안 입력이 없는 경우 검색을 요청함
+        RxTextView.textChanges(actvSearch)
+                .filter(new Func1<CharSequence, Boolean>() {
+                    @Override public Boolean call(CharSequence charSequence) { return charSequence.length() > 0; }
+                })
+                .debounce(TEXT_INPUT_THRESHOLD, TimeUnit.MILLISECONDS)
+                .map(new Func1<CharSequence, String>() {
+                    @Override public String call(CharSequence charSequence) {
+                        return charSequence.toString();
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new Action1<String>() {
+                    @Override public void call(String s) {
+                        if (!located) return;
+                        Log.d("test", "onTextChanged");
+                        HashMap<String, Object> bodyMap = new HashMap<>();
+                        bodyMap.put("latitude", latitude);
+                        bodyMap.put("longitude", longitude);
+                        bodyMap.put("keyWord", s.toString());
+                        requestVendor(bodyMap);
+
+                        rvVendors.scrollToPosition(0);
+                    }
+                });
+
         actvSearch.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
@@ -124,27 +186,6 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                 }
             }
         });
-        actvSearch.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (!located) return;
-                Log.d("test", "onTextChanged");
-                HashMap<String, Object> bodyMap = new HashMap<>();
-                bodyMap.put("latitude", latitude);
-                bodyMap.put("longitude", longitude);
-                bodyMap.put("keyWord", s.toString());
-                requestVendor(bodyMap);
-
-                rvVendors.scrollToPosition(0);
-            }
-
-            @Override public void afterTextChanged(Editable s) {
-
-            }
-        });
 
         ibClose.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
@@ -152,6 +193,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
                 llSearch.requestFocus();
                 HashMap<String, Object> bodyMap = new HashMap<>();
+                Log.d("test", "latitude : " + latitude + "," + "longitude : " + longitude);
                 bodyMap.put("latitude", latitude);
                 bodyMap.put("longitude", longitude);
                 requestVendor(bodyMap);
@@ -196,48 +238,29 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         rvVendors.setAdapter(rvAdapter);
     }
 
-    private void requestVendor(HashMap<String, Object> bodyMap) {
-        apiService
-                .getNearbyVendors(bodyMap)
-                .enqueue(new Callback<List<Vendor>>() {
-                    @Override public void onResponse(Call<List<Vendor>> call, Response<List<Vendor>> response) {
-                        if (response.body() != null) {
-                            int i = 0;
-                            for(Vendor vendor : response.body()) {
-                                Log.d("test", i++ + vendor.name);
-                            }
-
-                            rvAdapter.setVendors(response.body());
-                        } else {
-                            rvAdapter.clearVendors();
-                        }
-                    }
-
-                    @Override public void onFailure(Call<List<Vendor>> call, Throwable t) {
-                        Log.d("test", t.toString());
-                    }
-                });
-    }
-
     @Override protected void onStart() {
+        super.onStart();
         Log.d("test:", "onStart");
         locationManager.connectGoogleApiClient();
-        super.onStart();
     }
 
     @Override protected void onResume() {
+        super.onResume();
         Log.d("test:", "onResume");
         try {
             locationManager.startLocationUpdates();
-        } catch (IllegalStateException e) { FirebaseCrash.report(e); }
-        super.onResume();
+        } catch (IllegalStateException e) {
+            FirebaseCrash.report(e);
+        }
     }
 
     @Override protected void onPause() {
         Log.d("test:", "onPause");
         try {
             locationManager.stopLocationUpdates();
-        } catch (IllegalStateException e) { FirebaseCrash.report(e); }
+        } catch (IllegalStateException e) {
+            FirebaseCrash.report(e);
+        }
 
         super.onPause();
     }
@@ -246,7 +269,9 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         Log.d("test:", "onStop");
         try {
             locationManager.disconnectGoogleApiClient();
-        } catch (IllegalStateException e) { FirebaseCrash.report(e); }
+        } catch (IllegalStateException e) {
+            FirebaseCrash.report(e);
+        }
 
         super.onStop();
     }
@@ -260,7 +285,8 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
                     case Activity.RESULT_CANCELED:
                         Toast.makeText(this, "업체추천 기능을 사용하려면 '위치'를 활성화해야 합니다", Toast.LENGTH_SHORT).show();
-                        super.moveTab(TabActionBar.Tab.VOICE_ORDER);
+                        moveTab(TabActionBar.Tab.VOICE_ORDER);
+                        locationManager.disconnectGoogleApiClient();
                         finish();
                         break;
                 }
@@ -287,5 +313,40 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         startActivity(intent);
 
         rvAdapter.notifyItemChanged(position);
+    }
+
+    private void goToVendorDetail(String phoneNumber, String vendorName, String vendorAddress, String majorItems, View sharedView, boolean awsRdb) {
+        Intent intent = new Intent(RecommendActivity.this, VendorDetailActivity.class);
+        intent.putExtra("awsRdb", awsRdb);
+        intent.putExtra("vendorPhoneNumber", phoneNumber);
+        intent.putExtra("vendorName", vendorName);
+        intent.putExtra("vendorAddress", vendorAddress);
+        intent.putExtra("majorItems", majorItems);
+
+        ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this,sharedView,"vendor_detail");
+        ActivityCompat.startActivity(this, intent, options.toBundle());
+    }
+
+    private void requestVendor(HashMap<String, Object> bodyMap) {
+        apiService
+                .getNearbyVendors(bodyMap)
+                .enqueue(new Callback<List<Vendor>>() {
+                    @Override public void onResponse(Call<List<Vendor>> call, Response<List<Vendor>> response) {
+                        if (response.body() != null) {
+                            int i = 0;
+                            for (Vendor vendor : response.body()) {
+                                Log.d("test", i++ + vendor.name);
+                            }
+
+                            rvAdapter.setVendors(response.body());
+                        } else {
+                            rvAdapter.clearVendors();
+                        }
+                    }
+
+                    @Override public void onFailure(Call<List<Vendor>> call, Throwable t) {
+                        Log.d("test", t.toString());
+                    }
+                });
     }
 }

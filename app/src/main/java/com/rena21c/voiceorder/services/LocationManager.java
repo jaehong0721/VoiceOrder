@@ -1,15 +1,19 @@
 package com.rena21c.voiceorder.services;
 
 
+import android.Manifest;
 import android.content.Context;
 import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -26,8 +30,8 @@ import java.io.IOException;
 import java.util.List;
 
 public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
-                                        GoogleApiClient.OnConnectionFailedListener,
-                                        LocationListener {
+        GoogleApiClient.OnConnectionFailedListener,
+        LocationListener {
 
     public interface LocationUpdateListener {
         void onLocationUpdateFailed(Status status) throws IntentSender.SendIntentException;
@@ -54,6 +58,8 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
     private boolean isTrackingLocation;
 
+    private boolean isConnectedGoogleApi;
+
     private Geocoder geocoder;
 
     public LocationManager(Context context, Geocoder geocoder) {
@@ -66,11 +72,14 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
     }
 
     public void connectGoogleApiClient() {
+        if (isConnectedGoogleApi) return;
         googleApiClient.connect();
     }
 
     public void disconnectGoogleApiClient() {
+        if (!isConnectedGoogleApi) return;
         googleApiClient.disconnect();
+        isConnectedGoogleApi = false;
     }
 
     public void setLocationUpdateListener(LocationUpdateListener listener) {
@@ -79,28 +88,35 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
     public void startLocationUpdates() {
 
-        if (isTrackingLocation) {
+        if (!isConnectedGoogleApi || isTrackingLocation) {
             return;
         }
 
-        isTrackingLocation = true;
         Log.d("test:", "startLocationUpdates");
         LocationServices.SettingsApi.checkLocationSettings(
                 googleApiClient,
                 locationSettingsRequest
         ).setResultCallback(new ResultCallback<LocationSettingsResult>() {
-            @SuppressWarnings("MissingPermission")
             @Override
             public void onResult(LocationSettingsResult locationSettingsResult) {
+
+
                 final Status status = locationSettingsResult.getStatus();
 
                 switch (status.getStatusCode()) {
 
                     case LocationSettingsStatusCodes.SUCCESS:
-                        Log.d("test", "locationSettingsRequest success");
-                        LocationServices.FusedLocationApi.requestLocationUpdates(
-                                googleApiClient, locationRequest, LocationManager.this);
-                        Log.d("test", "start location update");
+
+                        if (ContextCompat.checkSelfPermission(googleApiClient.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                            isTrackingLocation = true;
+                            Log.d("test", "locationSettingsRequest success");
+                            LocationServices.FusedLocationApi.requestLocationUpdates(
+                                    googleApiClient, locationRequest, LocationManager.this);
+                            Log.d("test", "start location update");
+                        } else {
+                            Toast.makeText(googleApiClient.getContext(), "위치 권한을 활성화해주세요", Toast.LENGTH_SHORT).show();
+                        }
+
                         break;
 
                     case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
@@ -125,24 +141,29 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
     @SuppressWarnings("MissingPermission")
     @Override public void onConnected(@Nullable Bundle bundle) {
+        Log.d("test:", "Connection success");
+        isConnectedGoogleApi = true;
 
         if (currentLocation != null) return;
 
         Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
 
-        if (lastLocation == null) return;
+        if (lastLocation != null) {
+            currentLocation = lastLocation;
+            String locality = getLocalityFrom(currentLocation.getLatitude(), currentLocation.getLongitude());
+            listener.onLocationUpdated(currentLocation.getLatitude(), currentLocation.getLongitude(), locality);
+        }
 
-        currentLocation = lastLocation;
-        String locality = getLocalityFrom(currentLocation.getLatitude(), currentLocation.getLongitude());
-        listener.onLocationUpdated(currentLocation.getLatitude(), currentLocation.getLongitude(), locality);
         startLocationUpdates();
     }
 
     @Override public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+        isConnectedGoogleApi = false;
         Log.d("test:", "Connection failed");
     }
 
     @Override public void onConnectionSuspended(int i) {
+        isConnectedGoogleApi = false;
         Log.d("test:", "Connection suspended");
     }
 
@@ -157,6 +178,8 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
     public void stopLocationUpdates() {
         Log.d("test:", "stopLocationUpdates");
+        if(!isConnectedGoogleApi || !isTrackingLocation) return;
+
         isTrackingLocation = false;
         LocationServices.FusedLocationApi.removeLocationUpdates(googleApiClient, this);
     }
@@ -164,6 +187,7 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
     private void buildGoogleApiClient(Context context) {
         googleApiClient = new GoogleApiClient.Builder(context)
                 .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
     }
@@ -203,13 +227,16 @@ public class LocationManager implements GoogleApiClient.ConnectionCallbacks,
 
     private String getLocalityFrom(double latitude, double longitude) {
         List<Address> addressList = null;
+        String locality = "알수없음";
         try {
             addressList = geocoder.getFromLocation(latitude, longitude, 1);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
-        return addressList != null ? addressList.get(0).getLocality() : "알수없음";
+        if(addressList != null && addressList.size() != 0)
+            locality = addressList.get(0).getLocality();
+        return locality != null ? locality : "알수없음";
     }
 
 }
