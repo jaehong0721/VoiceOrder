@@ -1,11 +1,16 @@
 package com.rena21c.voiceorder.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.crash.FirebaseCrash;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -45,7 +50,7 @@ public class InputEstimateActivity extends AppCompatActivity {
                 .setBackButtonClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        finish();
+                        callFinishOnSuccess(null);
                     }
                 })
                 .setTitle("견적요청");
@@ -99,6 +104,7 @@ public class InputEstimateActivity extends AppCompatActivity {
         btnRequestEstimate.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 ArrayList<RequestedEstimateItem> items = new ArrayList<>();
+                final ArrayList<String> displayedItems = new ArrayList<>();
 
                 for(int i = 0; i < estimateInputViewContainer.getChildCount(); i++) {
                     View view = estimateInputViewContainer.getChildAt(i);
@@ -113,35 +119,59 @@ public class InputEstimateActivity extends AppCompatActivity {
                     requestedEstimateItem.itemName = itemName;
                     requestedEstimateItem.itemNum = itemNum;
                     items.add(requestedEstimateItem);
+
+                    displayedItems.add(itemName + " " + itemNum);
                 }
 
-                saveEstimate(items, latch);
-                finish();
+                if(items.size() == 0) {
+                    Toast.makeText(InputEstimateActivity.this, "견적요청을 위해서 품목명과 납품량을 적어주세요", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                saveEstimate(items, latch, new OnCompleteListener() {
+                    @Override public void onComplete(@NonNull Task task) {
+                        if(task.isSuccessful()) {
+                            callFinishOnSuccess(displayedItems);
+                        } else {
+                            callFinishOnFail();
+                        }
+                    }
+                });
+
             }
         });
     }
 
-    private void saveEstimate(final ArrayList<RequestedEstimateItem> items, final CountDownLatch latch) {
-        if(items.size() == 0) return;
+    private void saveEstimate(final ArrayList<RequestedEstimateItem> items, final CountDownLatch latch, OnCompleteListener listener) {
+        try {
+            latch.await();
 
-        new Thread(new Runnable() {
-            @Override public void run() {
-                try {
-                    latch.await();
+            Estimate estimate = new Estimate();
+            estimate.timeMillis = System.currentTimeMillis();
+            estimate.restaurantName = restaurantName;
+            estimate.restaurantAddress = restaurantAddress;
+            estimate.items = items;
 
-                    Estimate estimate = new Estimate();
-                    estimate.timeMillis = System.currentTimeMillis();
-                    estimate.restaurantName = restaurantName;
-                    estimate.restaurantAddress = restaurantAddress;
-                    estimate.items = items;
+            String estimateKey = FileNameUtil.makeFileName(phoneNumber, estimate.timeMillis);
 
-                    String estimateKey = FileNameUtil.makeFileName(phoneNumber, estimate.timeMillis);
+            dbManager.setEstimate(estimateKey, estimate, listener);
+        } catch (InterruptedException e) {
+            FirebaseCrash.report(e);
+            callFinishOnFail();
+        }
 
-                    dbManager.setEstimate(estimateKey, estimate);
-                } catch (InterruptedException e) {
-                    FirebaseCrash.report(e);
-                }
-            }
-        }).start();
+    }
+
+    private void callFinishOnSuccess(ArrayList displayedItems) {
+        Intent intent = new Intent();
+        intent.putExtra("items", displayedItems);
+        setResult(RESULT_OK, intent);
+
+        finish();
+    }
+
+    private void callFinishOnFail() {
+        setResult(RESULT_CANCELED);
+        finish();
     }
 }

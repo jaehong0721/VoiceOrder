@@ -243,11 +243,11 @@ public class FirebaseDbManager {
         dr.addListenerForSingleValueEvent(listener);
     }
 
-    public void setEstimate(String estimateKey, Estimate estimate) {
+    public void setEstimate(String estimateKey, Estimate estimate, OnCompleteListener listener) {
         DatabaseReference dr = getRootRef()
                 .child("estimate")
                 .child(estimateKey);
-        dr.setValue(estimate);
+        dr.setValue(estimate).addOnCompleteListener(listener);
         dr.keepSynced(true);
     }
 
