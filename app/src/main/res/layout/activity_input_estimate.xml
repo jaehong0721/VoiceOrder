@@ -109,7 +109,7 @@
                 android:layout_marginBottom="61dp"
                 android:layout_below="@+id/estimate_input_view_container"
                 android:layout_marginTop="11dp"
-                android:background="@drawable/shape_colorful_border2"
+                android:background="@drawable/shape_colorful_border_transperent_solid"
                 android:text="품목 입력 추가하기"
                 android:textSize="16sp"/>
 
