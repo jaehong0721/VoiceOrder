@@ -50,7 +50,7 @@ public class InputEstimateActivity extends AppCompatActivity {
                 .setBackButtonClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        callFinishOnSuccess(null);
+                        callFinish(true);
                     }
                 })
                 .setTitle("견적요청");
@@ -104,7 +104,6 @@ public class InputEstimateActivity extends AppCompatActivity {
         btnRequestEstimate.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 ArrayList<RequestedEstimateItem> items = new ArrayList<>();
-                final ArrayList<String> displayedItems = new ArrayList<>();
 
                 for(int i = 0; i < estimateInputViewContainer.getChildCount(); i++) {
                     View view = estimateInputViewContainer.getChildAt(i);
@@ -119,8 +118,6 @@ public class InputEstimateActivity extends AppCompatActivity {
                     requestedEstimateItem.itemName = itemName;
                     requestedEstimateItem.itemNum = itemNum;
                     items.add(requestedEstimateItem);
-
-                    displayedItems.add(itemName + " " + itemNum);
                 }
 
                 if(items.size() == 0) {
@@ -131,9 +128,9 @@ public class InputEstimateActivity extends AppCompatActivity {
                 saveEstimate(items, latch, new OnCompleteListener() {
                     @Override public void onComplete(@NonNull Task task) {
                         if(task.isSuccessful()) {
-                            callFinishOnSuccess(displayedItems);
+                            callFinish(true);
                         } else {
-                            callFinishOnFail();
+                            callFinish(false);
                         }
                     }
                 });
@@ -157,21 +154,15 @@ public class InputEstimateActivity extends AppCompatActivity {
             dbManager.setEstimate(estimateKey, estimate, listener);
         } catch (InterruptedException e) {
             FirebaseCrash.report(e);
-            callFinishOnFail();
+            callFinish(false);
         }
 
     }
 
-    private void callFinishOnSuccess(ArrayList displayedItems) {
+    private void callFinish(boolean result) {
         Intent intent = new Intent();
-        intent.putExtra("items", displayedItems);
-        setResult(RESULT_OK, intent);
-
-        finish();
-    }
-
-    private void callFinishOnFail() {
-        setResult(RESULT_CANCELED);
+        if(result)
+            setResult(RESULT_OK, intent);
         finish();
     }
 }

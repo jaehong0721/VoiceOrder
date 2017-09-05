@@ -246,8 +246,29 @@ public class FirebaseDbManager {
     public void setEstimate(String estimateKey, Estimate estimate, OnCompleteListener listener) {
         DatabaseReference dr = getRootRef()
                 .child("estimate")
+                .child(RESTAURANTS)
                 .child(estimateKey);
         dr.setValue(estimate).addOnCompleteListener(listener);
+        dr.keepSynced(true);
+    }
+
+    public void subscribeEstimate(String phoneNumber, ChildEventListener listener) {
+        DatabaseReference dr = getRootRef()
+                .child("estimate")
+                .child(RESTAURANTS);
+        dr.keepSynced(true);
+        Query query = dr.orderByKey()
+                        .startAt(phoneNumber + "_00000000000000")
+                        .endAt(phoneNumber + "_99999999999999")
+                        .limitToLast(1);
+        query.addChildEventListener(listener);
+    }
+
+    public void cancelSubscriptionEstimate(ChildEventListener listener) {
+        DatabaseReference dr = getRootRef()
+                .child("estimate")
+                .child(RESTAURANTS);
+        dr.removeEventListener(listener);
         dr.keepSynced(true);
     }
 
