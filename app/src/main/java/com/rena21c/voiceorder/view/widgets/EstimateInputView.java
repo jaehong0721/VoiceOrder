@@ -36,11 +36,18 @@ public class EstimateInputView extends LinearLayout {
         addView(etItemNum);
     }
 
+    public void setItemName(String itemName) {
+        etItemName.setText(itemName);
+    }
+
     public String getItemName() {
         String itemName = etItemName.getText().toString();
         return itemName.equals("") ? null : itemName;
     }
 
+    public void setItemNum(String itemNum) {
+        etItemNum.setText(itemNum);
+    }
     public String getItemNum() {
         String itemNum = etItemNum.getText().toString();
         return itemNum.equals("") ? null : itemNum;

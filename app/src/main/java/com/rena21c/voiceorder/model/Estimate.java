@@ -6,6 +6,21 @@ import java.util.ArrayList;
 public class Estimate {
     public String restaurantAddress;
     public String restaurantName;
-    public long timeMillis;
     public ArrayList<RequestedEstimateItem> items;
+
+    public ArrayList<String> makeItemNameList() {
+        ArrayList<String> itemNames = new ArrayList<>();
+        for(int i = 0; i<items.size(); i++) {
+            itemNames.add(items.get(i).itemName);
+        }
+        return itemNames;
+    }
+
+    public ArrayList<String> makeItemNumList() {
+        ArrayList<String> itemNums = new ArrayList<>();
+        for(int i = 0; i<items.size(); i++) {
+            itemNums.add(items.get(i).itemNum);
+        }
+        return itemNums;
+    }
 }

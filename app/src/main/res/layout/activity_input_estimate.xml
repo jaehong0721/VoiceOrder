@@ -20,7 +20,7 @@
             android:layout_marginTop="19dp">
 
             <LinearLayout
-                android:id="@+id/estimate_input_view_container"
+                android:id="@+id/input_area"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical">
@@ -76,29 +76,37 @@
 
                 </LinearLayout>
 
-                <com.rena21c.voiceorder.view.widgets.EstimateInputView
+                <LinearLayout
+                    android:id="@+id/estimate_input_view_container"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
 
-                <com.rena21c.voiceorder.view.widgets.EstimateInputView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    <com.rena21c.voiceorder.view.widgets.EstimateInputView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
 
-                <com.rena21c.voiceorder.view.widgets.EstimateInputView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    <com.rena21c.voiceorder.view.widgets.EstimateInputView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
 
-                <com.rena21c.voiceorder.view.widgets.EstimateInputView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    <com.rena21c.voiceorder.view.widgets.EstimateInputView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
 
-                <com.rena21c.voiceorder.view.widgets.EstimateInputView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    <com.rena21c.voiceorder.view.widgets.EstimateInputView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
 
-                <com.rena21c.voiceorder.view.widgets.EstimateInputView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    <com.rena21c.voiceorder.view.widgets.EstimateInputView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <com.rena21c.voiceorder.view.widgets.EstimateInputView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -107,7 +115,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginBottom="61dp"
-                android:layout_below="@+id/estimate_input_view_container"
+                android:layout_below="@+id/input_area"
                 android:layout_marginTop="11dp"
                 android:background="@drawable/shape_colorful_border_transperent_solid"
                 android:text="품목 입력 추가하기"

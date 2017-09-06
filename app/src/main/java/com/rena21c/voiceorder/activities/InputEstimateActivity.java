@@ -3,7 +3,6 @@ package com.rena21c.voiceorder.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -29,7 +28,7 @@ import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 
-public class InputEstimateActivity extends AppCompatActivity {
+public class InputEstimateActivity extends BaseActivity {
 
     private Button btnAddEstimateInputView;
     private Button btnRequestEstimate;
@@ -40,6 +39,7 @@ public class InputEstimateActivity extends AppCompatActivity {
     private String phoneNumber;
     private String restaurantName;
     private String restaurantAddress;
+    private boolean isModify;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,22 +103,7 @@ public class InputEstimateActivity extends AppCompatActivity {
         btnRequestEstimate = (Button) findViewById(R.id.btnRequestEstimate);
         btnRequestEstimate.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
-                ArrayList<RequestedEstimateItem> items = new ArrayList<>();
-
-                for(int i = 0; i < estimateInputViewContainer.getChildCount(); i++) {
-                    View view = estimateInputViewContainer.getChildAt(i);
-                    if(!(view instanceof EstimateInputView)) continue;
-
-                    String itemName = ((EstimateInputView) view).getItemName();
-                    String itemNum = ((EstimateInputView) view).getItemNum();
-
-                    if(itemName == null || itemNum == null) continue;
-
-                    RequestedEstimateItem requestedEstimateItem = new RequestedEstimateItem();
-                    requestedEstimateItem.itemName = itemName;
-                    requestedEstimateItem.itemNum = itemNum;
-                    items.add(requestedEstimateItem);
-                }
+                ArrayList<RequestedEstimateItem> items = getRequestedEstimateItems();
 
                 if(items.size() == 0) {
                     Toast.makeText(InputEstimateActivity.this, "견적요청을 위해서 품목명과 납품량을 적어주세요", Toast.LENGTH_SHORT).show();
@@ -130,6 +115,7 @@ public class InputEstimateActivity extends AppCompatActivity {
                         if(task.isSuccessful()) {
                             callFinish(true);
                         } else {
+                            FirebaseCrash.report(task.getException());
                             callFinish(false);
                         }
                     }
@@ -137,6 +123,52 @@ public class InputEstimateActivity extends AppCompatActivity {
 
             }
         });
+
+        isModify = getIntent().getBooleanExtra("modify", false);
+        if(!isModify) return;
+        setExistingData();
+    }
+
+    @Override public void onBackPressed() {
+        callFinish(true);
+        super.onBackPressed();
+    }
+
+    private void setExistingData() {
+        ArrayList<String> itemNames = getIntent().getStringArrayListExtra("itemNames");
+        ArrayList<String> itemNums = getIntent().getStringArrayListExtra("itemNums");
+
+        int inputViewCount = estimateInputViewContainer.getChildCount();
+
+        for(int i = 0; i<itemNames.size(); i++) {
+            if(i+1 > inputViewCount)
+                estimateInputViewContainer.addView(new EstimateInputView(InputEstimateActivity.this));
+
+            View view = estimateInputViewContainer.getChildAt(i);
+            if(!(view instanceof EstimateInputView)) continue;
+            ((EstimateInputView) view).setItemName(itemNames.get(i));
+            ((EstimateInputView) view).setItemNum(itemNums.get(i));
+        }
+    }
+
+    @NonNull private ArrayList<RequestedEstimateItem> getRequestedEstimateItems() {
+        ArrayList<RequestedEstimateItem> items = new ArrayList<>();
+
+        for(int i = 0; i < estimateInputViewContainer.getChildCount(); i++) {
+            View view = estimateInputViewContainer.getChildAt(i);
+            if(!(view instanceof EstimateInputView)) continue;
+
+            String itemName = ((EstimateInputView) view).getItemName();
+            String itemNum = ((EstimateInputView) view).getItemNum();
+
+            if(itemName == null || itemNum == null) continue;
+
+            RequestedEstimateItem requestedEstimateItem = new RequestedEstimateItem();
+            requestedEstimateItem.itemName = itemName;
+            requestedEstimateItem.itemNum = itemNum;
+            items.add(requestedEstimateItem);
+        }
+        return items;
     }
 
     private void saveEstimate(final ArrayList<RequestedEstimateItem> items, final CountDownLatch latch, OnCompleteListener listener) {
@@ -144,14 +176,20 @@ public class InputEstimateActivity extends AppCompatActivity {
             latch.await();
 
             Estimate estimate = new Estimate();
-            estimate.timeMillis = System.currentTimeMillis();
+            String estimateKey;
+
+            if(isModify) {
+                estimateKey = getIntent().getStringExtra("estimateKey");
+            } else {
+                estimateKey = FileNameUtil.makeFileName(phoneNumber, System.currentTimeMillis());
+            }
+
             estimate.restaurantName = restaurantName;
             estimate.restaurantAddress = restaurantAddress;
             estimate.items = items;
 
-            String estimateKey = FileNameUtil.makeFileName(phoneNumber, estimate.timeMillis);
-
             dbManager.setEstimate(estimateKey, estimate, listener);
+
         } catch (InterruptedException e) {
             FirebaseCrash.report(e);
             callFinish(false);
