@@ -251,7 +251,7 @@ public class FirebaseDbManager {
         dr.setValue(estimate).addOnCompleteListener(listener);
         dr.keepSynced(true);
     }
-    
+
     public void subscribeEstimateItem(String estimateKey, ValueEventListener listener) {
         DatabaseReference dr = getRootRef()
                 .child("estimate")

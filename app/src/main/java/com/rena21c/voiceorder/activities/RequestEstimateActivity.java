@@ -153,7 +153,7 @@ public class RequestEstimateActivity extends HasTabActivity {
     }
 
     private void initRequestView() {
-        setContentView(R.layout.activity_request_estimate);
+        setContentView(R.layout.activity_request_estimate_request);
 
         Button btnRequestEstimate = (Button) findViewById(R.id.btnRequestEstimate);
 
@@ -188,7 +188,7 @@ public class RequestEstimateActivity extends HasTabActivity {
     private void initModifyView() {
         if(modifyView != null) return;
 
-        modifyView = getLayoutInflater().inflate(R.layout.activity_request_estimate_after,null);
+        modifyView = getLayoutInflater().inflate(R.layout.activity_request_estimate_modify,null);
         modifyView.setTag("modify");
         setContentView(modifyView);
 
