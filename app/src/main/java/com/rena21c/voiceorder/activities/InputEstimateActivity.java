@@ -41,6 +41,8 @@ public class InputEstimateActivity extends BaseActivity {
     private String restaurantAddress;
     private boolean isModify;
 
+    private String estimateKey;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,7 +52,7 @@ public class InputEstimateActivity extends BaseActivity {
                 .setBackButtonClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        callFinish(true);
+                        callFinish(true, new Intent());
                     }
                 })
                 .setTitle("견적요청");
@@ -113,10 +115,12 @@ public class InputEstimateActivity extends BaseActivity {
                 saveEstimate(items, latch, new OnCompleteListener() {
                     @Override public void onComplete(@NonNull Task task) {
                         if(task.isSuccessful()) {
-                            callFinish(true);
+                            Intent intent = new Intent();
+                            intent.putExtra("estimateKey", estimateKey);
+                            callFinish(true, intent);
                         } else {
                             FirebaseCrash.report(task.getException());
-                            callFinish(false);
+                            callFinish(false, new Intent());
                         }
                     }
                 });
@@ -130,7 +134,7 @@ public class InputEstimateActivity extends BaseActivity {
     }
 
     @Override public void onBackPressed() {
-        callFinish(true);
+        callFinish(true, new Intent());
         super.onBackPressed();
     }
 
@@ -176,7 +180,6 @@ public class InputEstimateActivity extends BaseActivity {
             latch.await();
 
             Estimate estimate = new Estimate();
-            String estimateKey;
 
             if(isModify) {
                 estimateKey = getIntent().getStringExtra("estimateKey");
@@ -192,13 +195,12 @@ public class InputEstimateActivity extends BaseActivity {
 
         } catch (InterruptedException e) {
             FirebaseCrash.report(e);
-            callFinish(false);
+            callFinish(false, new Intent());
         }
 
     }
 
-    private void callFinish(boolean result) {
-        Intent intent = new Intent();
+    private void callFinish(boolean result, Intent intent) {
         if(result)
             setResult(RESULT_OK, intent);
         finish();

@@ -194,4 +194,16 @@ public class AppPreferenceManager extends Observable {
                 .putString(key, serializedMap)
                 .apply();
     }
+
+    public void setEstimateKey(String estimateKey) {
+        sharedPreference
+                .edit()
+                .putString("estimateKey", estimateKey)
+                .apply();
+    }
+
+    public String getEstimateKey() {
+        return sharedPreference
+                .getString("estimateKey", null);
+    }
 }

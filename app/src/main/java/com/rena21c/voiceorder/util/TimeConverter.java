@@ -1,5 +1,6 @@
 package com.rena21c.voiceorder.util;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -9,6 +10,7 @@ public class TimeConverter {
     private static final long MIN = 60 * SEC;
     private static final long HOUR = 60 * MIN;
     private static final long DAY = 24 * HOUR;
+    private static final long WEEK = 7 * DAY;
 
     public static String convertMillisToElapsedTime(long current, long target) {
 
@@ -37,5 +39,20 @@ public class TimeConverter {
     public static String convertMillisToDateFormat(long millis) {
         SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
         return dayTime.format(new Date(millis));
+    }
+
+    public static long convertStringToMillis(String time) {
+        SimpleDateFormat dayTime = new SimpleDateFormat("yyyyMMddHHmmss");
+        long millis;
+        try {
+            millis = dayTime.parse(time).getTime();
+        } catch (ParseException e) {
+            millis = -1;
+            e.printStackTrace();
+        }
+        return millis;
+    }
+    public static boolean isOverDueDate(long current, long target) {
+        return current > target + 2 * WEEK;
     }
 }

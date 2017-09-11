@@ -251,25 +251,43 @@ public class FirebaseDbManager {
         dr.setValue(estimate).addOnCompleteListener(listener);
         dr.keepSynced(true);
     }
-
-    public void subscribeEstimate(String phoneNumber, ChildEventListener listener) {
+    
+    public void subscribeEstimateItem(String estimateKey, ValueEventListener listener) {
         DatabaseReference dr = getRootRef()
                 .child("estimate")
-                .child(RESTAURANTS);
+                .child(RESTAURANTS)
+                .child(estimateKey)
+                .child("items");
         dr.keepSynced(true);
-        Query query = dr.orderByKey()
-                        .startAt(phoneNumber + "_00000000000000")
-                        .endAt(phoneNumber + "_99999999999999")
-                        .limitToLast(1);
-        query.addChildEventListener(listener);
+        dr.addValueEventListener(listener);
     }
 
-    public void cancelSubscriptionEstimate(ChildEventListener listener) {
+    public void cancelSubscriptionEstimateItem(String estimateKey, ValueEventListener listener) {
         DatabaseReference dr = getRootRef()
                 .child("estimate")
-                .child(RESTAURANTS);
+                .child(RESTAURANTS)
+                .child(estimateKey)
+                .child("items");
         dr.removeEventListener(listener);
+    }
+
+    public void subscribeReply(String estimateKey, ChildEventListener listener) {
+        DatabaseReference dr = getRootRef()
+                .child("estimate")
+                .child(RESTAURANTS)
+                .child(estimateKey)
+                .child("reply");
         dr.keepSynced(true);
+        dr.addChildEventListener(listener);
+    }
+
+    public void cancelSubscriptionReply(String estimateKey, ChildEventListener listener) {
+        DatabaseReference dr = getRootRef()
+                .child("estimate")
+                .child(RESTAURANTS)
+                .child(estimateKey)
+                .child("reply");
+        dr.removeEventListener(listener);
     }
 
     private DatabaseReference getRootRef() {

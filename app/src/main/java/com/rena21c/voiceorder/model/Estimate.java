@@ -2,12 +2,13 @@ package com.rena21c.voiceorder.model;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Estimate {
     public String restaurantAddress;
     public String restaurantName;
     public ArrayList<RequestedEstimateItem> items;
-    public ArrayList<Reply> reply;
+    public HashMap<String, Reply> reply;
 
     public ArrayList<String> makeItemNameList() {
         ArrayList<String> itemNames = new ArrayList<>();

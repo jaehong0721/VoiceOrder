@@ -7,7 +7,6 @@ public class Reply {
     public ArrayList<RepliedEstimateItem> repliedItems;
     public long timeMillis;
     public String vendorName;
-    public String vendorPhoneNumber;
     public int totalPrice;
 
     @Override public String toString() {
@@ -15,19 +14,29 @@ public class Reply {
                 "repliedItems=" + repliedItems +
                 ", timeMillis=" + timeMillis +
                 ", vendorName='" + vendorName + '\'' +
-                ", vendorPhoneNumber='" + vendorPhoneNumber + '\'' +
                 ", totalPrice=" + totalPrice +
                 '}';
     }
 
-    public String getReplyRate() {
+    public float getReplyRate() {
+        int hasReplyCount = getReplyCount();
+
+        return (float) hasReplyCount / repliedItems.size();
+    }
+
+    public String getReplyRateString() {
+        int hasReplyCount = getReplyCount();
+        return hasReplyCount == repliedItems.size() ? "총" : repliedItems.size() + "중 " + hasReplyCount + "개";
+    }
+
+    private int getReplyCount() {
         int hasReplyCount = 0;
 
         for(int i = 0; i<repliedItems.size(); i++) {
             if(repliedItems.get(i).price != 0)
                 hasReplyCount++;
         }
-        String replyRate = hasReplyCount == repliedItems.size() ? "총" : repliedItems.size() + "중 " + hasReplyCount + "개";
-        return replyRate;
+
+        return hasReplyCount;
     }
 }

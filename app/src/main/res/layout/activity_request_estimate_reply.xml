@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+                android:id="@+id/estimate_root_view"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="20dp"
+                android:paddingTop="24dp"
+                android:paddingRight="19dp"
+                android:paddingBottom="22dp"
+                android:background="@color/black_05">
+
+    <FrameLayout
+        android:id="@+id/rdGroupToSorting"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <RadioGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="가격순"
+                android:textSize="13sp"
+                android:textStyle="bold"/>
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:text="최근 견적순"
+                android:textSize="13sp"
+                android:textStyle="bold"/>
+        </RadioGroup>
+    </FrameLayout>
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vpEstimate"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="17dp"
+        android:layout_below="@+id/rdGroupToSorting">
+    </android.support.v4.view.ViewPager>
+</RelativeLayout>
