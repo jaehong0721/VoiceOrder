@@ -28,7 +28,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     public interface ClickVendorListener {
-        void onClickVendor(String phoneNumber, String vendorName, String vendorAddress, String majorItems, View sharedView);
+        void onClickVendor(int itemPosition, String phoneNumber, String vendorName, String vendorAddress, String majorItems, View sharedView);
     }
 
     private class VendorInfoViewHolder extends RecyclerView.ViewHolder {
@@ -143,8 +143,9 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
                     })
                     .setClickVendorListener(new View.OnClickListener() {
                         @Override public void onClick(View v) {
-                            clickVendorListener.onClickVendor(phoneNumber, vendorName, address, businessContent,
-                                                             ((VendorInfoViewHolder) holder).ivCall);
+                            clickVendorListener.onClickVendor(holder.getAdapterPosition(), phoneNumber,
+                                                              vendorName, address, businessContent,
+                                                              ((VendorInfoViewHolder) holder).ivCall);
                         }
                     });
         } else {

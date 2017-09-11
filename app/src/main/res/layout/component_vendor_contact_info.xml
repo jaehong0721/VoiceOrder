@@ -26,10 +26,10 @@
         android:hint="정보없음"
         android:textColorHint="@color/primaryBrown"/>
 
-    <ImageView
+    <com.rena21c.voiceorder.view.widgets.CallButton
         android:id="@+id/ivCall"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:src="@drawable/call"/>
+        android:layout_alignParentRight="true"/>
+
 </RelativeLayout>

@@ -47,6 +47,7 @@ public class MyPartnerListViewModel implements  View.OnAttachStateChangeListener
 
     private TimeSortComparator timeSortComparator;
 
+    private RecyclerView rvMyPartner;
     private MyPartnersRecyclerViewAdapter myPartnersRecyclerViewAdapter;
 
     private CallDialogFragment callDialogFragment;
@@ -56,7 +57,7 @@ public class MyPartnerListViewModel implements  View.OnAttachStateChangeListener
     private ArrayList<DisplayedMyPartner> displayedMyPartners;
 
     private Observer callTimeMapObserver;
-    private  Observer calledVendorMapObserver;
+    private Observer calledVendorMapObserver;
     private ToastErrorHandlingListener dbListener;
 
     private int numberOfMyPartners;
@@ -98,7 +99,7 @@ public class MyPartnerListViewModel implements  View.OnAttachStateChangeListener
         AddPartnerButton addPartnerButton = (AddPartnerButton) view.findViewById(R.id.btnAddPartner);
         addPartnerButton.setAddPartnerListener(addPartnerListener);
 
-        RecyclerView rvMyPartner = (RecyclerView) view.findViewById(R.id.rvMyPartner);
+        rvMyPartner = (RecyclerView) view.findViewById(R.id.rvMyPartner);
 
         myPartnersRecyclerViewAdapter = new MyPartnersRecyclerViewAdapter();
         myPartnersRecyclerViewAdapter.setDisplayedMyPartners(displayedMyPartners);
@@ -230,6 +231,7 @@ public class MyPartnerListViewModel implements  View.OnAttachStateChangeListener
         displayedMyPartner.callTime = currentTimeMillis;
         displayedMyPartners.add(newPosition, displayedMyPartner);
         myPartnersRecyclerViewAdapter.notifyItemInserted(newPosition);
+        rvMyPartner.smoothScrollToPosition(newPosition);
 
         ((MyPartnerActivity)view.getContext()).moveToCallApp(phoneNumber);
     }
