@@ -13,6 +13,7 @@ import com.rena21c.voiceorder.etc.PriceComparatorOnEstimate;
 import com.rena21c.voiceorder.model.RepliedEstimateItem;
 import com.rena21c.voiceorder.model.Reply;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
+import com.rena21c.voiceorder.view.widgets.CallButton;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,6 +45,9 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
 
             TextView tvVendorName = (TextView) view.findViewById(R.id.tvVendorName);
             tvVendorName.setText(reply.vendorName);
+
+            CallButton ivCall = (CallButton) view.findViewById(R.id.ivCall);
+            ivCall.setCalleeInfo(keyList.get(position), reply.vendorName);
 
             RecyclerView rvRepliedEstimateItem = (RecyclerView) view.findViewById(R.id.rvRepliedEstimateItem);
             rvRepliedEstimateItem.setLayoutManager(new LinearLayoutManager(context));

@@ -51,12 +51,12 @@
             android:textStyle="bold"
             tools:text="미리네 식품"/>
 
-        <ImageView
+        <com.rena21c.voiceorder.view.widgets.CallButton
+            android:id="@+id/ivCall"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@+id/tvReplyRate"
-            android:layout_alignParentRight="true"
-            android:src="@drawable/call"/>
+            android:layout_alignParentRight="true"/>
     </RelativeLayout>
 
     <View
