@@ -93,7 +93,7 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
         return POSITION_NONE;
     }
 
-    public void addReply(String replyKey, Reply reply) {
+    public int addReply(String replyKey, Reply reply) {
         keyList.add(replyKey);
         replyHashMap.put(replyKey, reply);
 
@@ -101,14 +101,18 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
         Collections.sort(keyList, priceComparatorOnEstimate);
 
         notifyDataSetChanged();
+
+        return keyList.indexOf(replyKey);
     }
 
-    public void changeReply(String key, Reply reply) {
+    public int changeReply(String key, Reply reply) {
         replyHashMap.put(key, reply);
 
         PriceComparatorOnEstimate priceComparatorOnEstimate = new PriceComparatorOnEstimate(replyHashMap);
         Collections.sort(keyList, priceComparatorOnEstimate);
 
         notifyDataSetChanged();
+
+        return keyList.indexOf(key);
     }
 }

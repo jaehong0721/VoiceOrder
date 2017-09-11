@@ -88,7 +88,8 @@ public class RequestEstimateActivity extends HasTabActivity {
 
                     initReplyView();
 
-                    estimateReplyAdapter.addReply(dataSnapshot.getKey(), reply);
+                    int position = estimateReplyAdapter.addReply(dataSnapshot.getKey(), reply);
+                    vpEstimate.setVerticalScrollbarPosition(position);
                 }
             }
 
@@ -97,7 +98,8 @@ public class RequestEstimateActivity extends HasTabActivity {
 
                 Reply reply = dataSnapshot.getValue(Reply.class);
 
-                estimateReplyAdapter.changeReply(dataSnapshot.getKey(), reply);
+                int position = estimateReplyAdapter.changeReply(dataSnapshot.getKey(), reply);
+                vpEstimate.setVerticalScrollbarPosition(position);
             }
 
             @Override public void onChildRemoved(DataSnapshot dataSnapshot) {}
