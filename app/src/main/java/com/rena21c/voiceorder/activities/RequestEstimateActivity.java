@@ -20,7 +20,7 @@ import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.model.Reply;
 import com.rena21c.voiceorder.model.RequestedEstimateItem;
 import com.rena21c.voiceorder.util.DpToPxConverter;
-import com.rena21c.voiceorder.util.TimeConverter;
+import com.rena21c.voiceorder.util.TimeUtil;
 import com.rena21c.voiceorder.util.TransformDataUtil;
 import com.rena21c.voiceorder.view.adapters.EstimateViewPagerAdapter;
 
@@ -110,8 +110,8 @@ public class RequestEstimateActivity extends HasTabActivity {
         estimateKey = appPreferenceManager.getEstimateKey();
         if(estimateKey != null) {
             String estimateTime = estimateKey.split("_")[1];
-            long estimateTimeMillis = TimeConverter.convertStringToMillis(estimateTime);
-            if(TimeConverter.isOverDueDate(System.currentTimeMillis(), estimateTimeMillis)) {
+            long estimateTimeMillis = TimeUtil.convertStringToMillis(estimateTime);
+            if(TimeUtil.isOverDueDate(System.currentTimeMillis(), estimateTimeMillis)) {
                 //시간 마감
             } else {
                 dbManager.subscribeReply(estimateKey, replyListener);

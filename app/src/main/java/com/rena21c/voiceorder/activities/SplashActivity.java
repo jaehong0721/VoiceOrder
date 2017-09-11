@@ -34,7 +34,7 @@ import com.rena21c.voiceorder.network.NetworkUtil;
 import com.rena21c.voiceorder.network.NoConnectivityException;
 import com.rena21c.voiceorder.pojo.UserToken;
 import com.rena21c.voiceorder.util.LauncherUtil;
-import com.rena21c.voiceorder.util.TimeConverter;
+import com.rena21c.voiceorder.util.TimeUtil;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.dialogs.Dialogs;
 
@@ -192,7 +192,7 @@ public class SplashActivity extends BaseActivity {
                 if(dataSnapshot.exists()) {
                     storeFcmToken();
                 } else {
-                    String signUpTime = TimeConverter.convertMillisToDateFormat(System.currentTimeMillis());
+                    String signUpTime = TimeUtil.convertMillisToDateFormat(System.currentTimeMillis());
                     storeInitialSignUpTime(phoneNumber, signUpTime);
                 }
             }

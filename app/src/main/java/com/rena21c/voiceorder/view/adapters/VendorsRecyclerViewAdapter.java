@@ -12,7 +12,7 @@ import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.pojo.Vendor;
 import com.rena21c.voiceorder.util.AddressUtil;
-import com.rena21c.voiceorder.util.TimeConverter;
+import com.rena21c.voiceorder.util.TimeUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -129,7 +129,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
             final String businessContent = vendor.majorItems != null ? vendor.majorItems : vendor.orderItems;
 
             long callTime = appPreferenceManager.getCallTime(phoneNumber);
-            String elapsedTime = callTime == -1 ? null : TimeConverter.convertMillisToElapsedTime(System.currentTimeMillis(), callTime) + " 통화";
+            String elapsedTime = callTime == -1 ? null : TimeUtil.convertMillisToElapsedTime(System.currentTimeMillis(), callTime) + " 통화";
 
             ((VendorInfoViewHolder)holder)
                     .bindVendorName(vendorName)

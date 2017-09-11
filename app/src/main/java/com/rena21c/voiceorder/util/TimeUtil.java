@@ -4,7 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-public class TimeConverter {
+public class TimeUtil {
 
     private static final long SEC = 1000;
     private static final long MIN = 60 * SEC;

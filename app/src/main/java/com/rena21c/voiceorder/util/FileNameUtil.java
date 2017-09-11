@@ -29,7 +29,7 @@ public class FileNameUtil {
     }
 
     public static String makeFileName(String phoneNumber, long time) {
-        String date = TimeConverter.convertMillisToDateFormat(time);
+        String date = TimeUtil.convertMillisToDateFormat(time);
         return phoneNumber + "_" + date;
     }
 }
