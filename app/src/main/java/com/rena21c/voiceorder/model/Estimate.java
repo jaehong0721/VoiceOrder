@@ -7,6 +7,7 @@ public class Estimate {
     public String restaurantAddress;
     public String restaurantName;
     public ArrayList<RequestedEstimateItem> items;
+    public ArrayList<Reply> reply;
 
     public ArrayList<String> makeItemNameList() {
         ArrayList<String> itemNames = new ArrayList<>();
