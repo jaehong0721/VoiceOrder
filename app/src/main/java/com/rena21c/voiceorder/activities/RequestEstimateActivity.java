@@ -24,6 +24,7 @@ import com.rena21c.voiceorder.model.RequestedEstimateItem;
 import com.rena21c.voiceorder.util.DpToPxConverter;
 import com.rena21c.voiceorder.util.TimeUtil;
 import com.rena21c.voiceorder.util.TransformDataUtil;
+import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 import com.rena21c.voiceorder.view.adapters.EstimateViewPagerAdapter;
 import com.rena21c.voiceorder.view.widgets.FinishEstimateDialogFragment;
 
@@ -237,7 +238,13 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
                         break;
 
                     case "order" :
+                        Intent intent = new Intent(RequestEstimateActivity.this, VoiceOrderActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        intent.putExtra("direct", pageKey);
+                        intent.putExtra("tab", TabActionBar.Tab.VOICE_ORDER.toString());
 
+                        startActivity(intent);
                         break;
                 }
             }
