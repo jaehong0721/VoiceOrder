@@ -20,7 +20,6 @@ import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.model.Reply;
 import com.rena21c.voiceorder.model.RequestedEstimateItem;
-import com.rena21c.voiceorder.pojo.MyPartner;
 import com.rena21c.voiceorder.util.DpToPxConverter;
 import com.rena21c.voiceorder.util.TimeUtil;
 import com.rena21c.voiceorder.util.TransformDataUtil;
@@ -275,13 +274,12 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
         dbManager.setEstimateFinish(estimateKey, key);
 
         String phoneNumber = appPreferenceManager.getPhoneNumber();
-        MyPartner myPartner = new MyPartner();
-        myPartner.name = reply.vendorName;
-        myPartner.items = reply.getRepliedItemNameMapList();
-        HashMap<String, MyPartner> myPartnerHashMap = new HashMap<>();
-        myPartnerHashMap.put(key, myPartner);
 
-        dbManager.uploadMyPartner(phoneNumber, myPartnerHashMap, null);
+        HashMap<String, Object> vendorInfoMap = new HashMap<>();
+        vendorInfoMap.put("name", reply.vendorName);
+        vendorInfoMap.put("items", reply.getRepliedItemNameMapList());
+
+        dbManager.addMyPartner(phoneNumber, key, vendorInfoMap);
 
         isFinish = true;
     }

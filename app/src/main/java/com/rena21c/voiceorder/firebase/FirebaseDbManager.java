@@ -317,4 +317,15 @@ public class FirebaseDbManager {
         dr.keepSynced(true);
         dr.addListenerForSingleValueEvent(listener);
     }
+
+    public void addMyPartner(String phoneNumber, String vendorPhoneNumber, HashMap<String, Object> venorInfoMap) {
+        DatabaseReference dr = getRootRef()
+                .child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(VENDORS)
+                .child(vendorPhoneNumber);
+
+        dr.setValue(venorInfoMap);
+        dr.keepSynced(true);
+    }
 }

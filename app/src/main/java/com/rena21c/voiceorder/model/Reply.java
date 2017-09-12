@@ -49,6 +49,7 @@ public class Reply {
             if(repliedItems.get(i).price != 0) {
                 HashMap<String, String> itemNameMap = new HashMap<>();
                 itemNameMap.put("name", repliedItems.get(i).itemName);
+                itemNameMapList.add(itemNameMap);
             }
         }
         return itemNameMapList;
