@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.PriceComparatorOnEstimate;
+import com.rena21c.voiceorder.etc.TimeComparatorOnEstimate;
 import com.rena21c.voiceorder.model.RepliedEstimateItem;
 import com.rena21c.voiceorder.model.Reply;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
@@ -32,10 +33,11 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
 
     private ArrayList<String> keyList = new ArrayList<>();
     private HashMap<String, Reply> replyHashMap = new HashMap<>();
-    private boolean isFinish;
+
+    private boolean orderByPrice = true;
+    private boolean orderByTime = false;
 
     public EstimateViewPagerAdapter(boolean isFinish, ClickFinishButtonListener listener) {
-        this.isFinish = isFinish;
         this.listener = listener;
 
         if(isFinish)
@@ -146,8 +148,7 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
         keyList.add(replyKey);
         replyHashMap.put(replyKey, reply);
 
-        PriceComparatorOnEstimate priceComparatorOnEstimate = new PriceComparatorOnEstimate(replyHashMap);
-        Collections.sort(keyList, priceComparatorOnEstimate);
+        sortKeyList(orderByPrice, orderByTime);
 
         notifyDataSetChanged();
 
@@ -157,8 +158,7 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
     public int changeReply(String key, Reply reply) {
         replyHashMap.put(key, reply);
 
-        PriceComparatorOnEstimate priceComparatorOnEstimate = new PriceComparatorOnEstimate(replyHashMap);
-        Collections.sort(keyList, priceComparatorOnEstimate);
+        sortKeyList(orderByPrice, orderByTime);
 
         notifyDataSetChanged();
 
@@ -166,7 +166,6 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
     }
 
     public int pickedReply(String key, Reply reply) {
-        isFinish = true;
         keyList.clear();
         keyList.add(key);
         keyList.add("end");
@@ -177,5 +176,26 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
         notifyDataSetChanged();
 
         return keyList.indexOf(key);
+    }
+
+    public void setSorting(boolean orderByPrice, boolean orderByTime) {
+        this.orderByPrice = orderByPrice;
+        this.orderByTime = orderByTime;
+
+        sortKeyList(orderByPrice, orderByTime);
+        notifyDataSetChanged();
+    }
+
+    private void sortKeyList(boolean orderByPrice, boolean orderByTime) {
+        if(keyList.size() == 0) return;
+        if(orderByPrice) {
+            PriceComparatorOnEstimate priceComparatorOnEstimate = new PriceComparatorOnEstimate(replyHashMap);
+            Collections.sort(keyList, priceComparatorOnEstimate);
+        } else if(orderByTime){
+            TimeComparatorOnEstimate timeComparatorOnEstimate = new TimeComparatorOnEstimate(replyHashMap);
+            Collections.sort(keyList, timeComparatorOnEstimate);
+        } else {
+            throw new RuntimeException("가격순, 시간순 정렬 중 하나여야 합니다.");
+        }
     }
 }

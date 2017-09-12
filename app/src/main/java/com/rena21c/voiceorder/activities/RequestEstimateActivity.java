@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,7 +46,6 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
     private ChildEventListener replyListener;
 
     private View modifyView;
-    private Button btnModifyEstimate;
     private TextView tvItems;
 
 
@@ -224,6 +224,20 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
         } else {
             rdGroupToSorting.setVisibility(View.VISIBLE);
             tvHeadMessage.setVisibility(View.GONE);
+
+            final RadioButton rbOrderByPrice = (RadioButton) findViewById(R.id.rbOrderByPrice);
+            final RadioButton rbOrderByTime = (RadioButton) findViewById(R.id.rbOrderByTime);
+            rbOrderByPrice.setChecked(true);
+
+            View.OnClickListener radioButtonClickListener = new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    estimateReplyAdapter.setSorting(rbOrderByPrice.isChecked(), rbOrderByTime.isChecked());
+                    vpEstimate.setCurrentItem(0);
+                }
+            };
+
+            rbOrderByPrice.setOnClickListener(radioButtonClickListener);
+            rbOrderByTime.setOnClickListener(radioButtonClickListener);
         }
 
         vpEstimate = (ViewPager) findViewById(R.id.vpEstimate);
@@ -271,7 +285,7 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
         modifyView.setTag("modify");
         setContentView(modifyView);
 
-        btnModifyEstimate = (Button) findViewById(R.id.btnModifyEstimate);
+        Button btnModifyEstimate = (Button) findViewById(R.id.btnModifyEstimate);
         btnModifyEstimate.setOnClickListener(new View.OnClickListener() {
             @Override public void onClick(View v) {
                 startActivityForResult(modifyIntent, MODIFY);
