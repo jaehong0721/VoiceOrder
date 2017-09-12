@@ -1,0 +1,48 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:context="com.rena21c.voiceorder.view.widgets.TwoButtonDialogFragment">
+
+    <TextView
+        android:id="@+id/tvMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="51dp"
+        android:layout_centerHorizontal="true"
+        android:textSize="23sp"
+        android:lineSpacingExtra="9sp"
+        android:gravity="center_horizontal"
+        android:text="이 업체를 새 거래처로\n등록하시겠습니까?"/>
+
+    <TextView
+        android:id="@+id/tvSubMessage"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvMessage"
+        android:layout_marginTop="5dp"
+        android:layout_centerHorizontal="true"
+        android:textSize="16sp"
+        android:lineSpacingExtra="7sp"
+        android:gravity="center_horizontal"
+        android:text="새 거래처 등록시 해당 견적요청은\n종료됩니다"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="33dp"
+        android:orientation="horizontal"
+        android:layout_below="@+id/tvSubMessage">
+
+        <Button
+            android:id="@+id/btnOk"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="57dp"
+            android:background="@color/primaryYellow"
+            android:lineSpacingExtra="11sp"
+            android:textSize="20sp"
+            tools:text="확인"/>
+    </LinearLayout>
+
+</RelativeLayout>
