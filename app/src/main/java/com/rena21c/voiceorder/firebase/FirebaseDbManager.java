@@ -307,4 +307,14 @@ public class FirebaseDbManager {
     private DatabaseReference getRootRef() {
         return instance.getReference();
     }
+
+    public void checkFinishEstimate(String estimateKey, ToastErrorHandlingListener listener) {
+        DatabaseReference dr = getRootRef()
+                .child("estimate")
+                .child(RESTAURANTS)
+                .child(estimateKey)
+                .child("isFinish");
+        dr.keepSynced(true);
+        dr.addListenerForSingleValueEvent(listener);
+    }
 }

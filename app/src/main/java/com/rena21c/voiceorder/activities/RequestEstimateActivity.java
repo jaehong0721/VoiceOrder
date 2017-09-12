@@ -17,6 +17,7 @@ import com.rena21c.voiceorder.App;
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
+import com.rena21c.voiceorder.firebase.ToastErrorHandlingListener;
 import com.rena21c.voiceorder.model.Reply;
 import com.rena21c.voiceorder.model.RequestedEstimateItem;
 import com.rena21c.voiceorder.pojo.MyPartner;
@@ -55,6 +56,8 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
 
     private HashMap<String, Reply> replyHashMap;
     private FinishEstimateDialogFragment dialogFragment;
+
+    private boolean isFinish;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,9 +100,13 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
 
                     initReplyView();
 
+                    if(isFinish) {
+                        if(!reply.isPicked) return;
+                    }
+
                     replyHashMap.put(dataSnapshot.getKey(), reply);
                     int position = estimateReplyAdapter.addReply(dataSnapshot.getKey(), reply);
-                    vpEstimate.setVerticalScrollbarPosition(position);
+                    vpEstimate.setCurrentItem(position);
                 }
             }
 
@@ -108,8 +115,14 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
 
                 Reply reply = dataSnapshot.getValue(Reply.class);
 
+                if(reply.isPicked) {
+                    int position = estimateReplyAdapter.pickedReply(dataSnapshot.getKey(), reply);
+                    vpEstimate.setCurrentItem(position);
+                    return;
+                }
+
                 int position = estimateReplyAdapter.changeReply(dataSnapshot.getKey(), reply);
-                vpEstimate.setVerticalScrollbarPosition(position);
+                vpEstimate.setCurrentItem(position);
             }
 
             @Override public void onChildRemoved(DataSnapshot dataSnapshot) {}
@@ -124,7 +137,16 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
             if(TimeUtil.isOverDueDate(System.currentTimeMillis(), estimateTimeMillis)) {
                 //시간 마감
             } else {
-                dbManager.subscribeReply(estimateKey, replyListener);
+                dbManager.checkFinishEstimate(estimateKey, new ToastErrorHandlingListener(this) {
+                    @Override public void onDataChange(DataSnapshot dataSnapshot) {
+                        if(dataSnapshot.exists()) {
+                            isFinish = (Boolean) dataSnapshot.getValue();
+                        } else {
+                            isFinish = false;
+                        }
+                        dbManager.subscribeReply(estimateKey, replyListener);
+                    }
+                });
             }
         } else {
             initRequestView();
@@ -151,6 +173,7 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
                     estimateKey = data.getStringExtra("estimateKey");
                     if(estimateKey == null) return;
 
+                    isFinish = false;
                     appPreferenceManager.setEstimateKey(estimateKey);
                     dbManager.subscribeReply(estimateKey, replyListener);
                     dbManager.subscribeEstimateItem(estimateKey, estimateItemListener);
@@ -193,10 +216,18 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
         int margin = DpToPxConverter.convertDpToPx(10, getResources().getDisplayMetrics());
         vpEstimate.setPageMargin(margin);
 
-        estimateReplyAdapter = new EstimateViewPagerAdapter(new EstimateViewPagerAdapter.ClickFinishButtonListener(){
-            @Override public void onClickFinish(String pageKey) {
-                dialogFragment = FinishEstimateDialogFragment.newInstance(pageKey);
-                dialogFragment.show(getSupportFragmentManager(),"finish");
+        estimateReplyAdapter = new EstimateViewPagerAdapter(isFinish, new EstimateViewPagerAdapter.ClickFinishButtonListener(){
+            @Override public void onClickFinish(String what, String pageKey) {
+                switch (what) {
+                    case "finish" :
+                        dialogFragment = FinishEstimateDialogFragment.newInstance(pageKey);
+                        dialogFragment.show(getSupportFragmentManager(),"finish");
+                        break;
+
+                    case "order" :
+
+                        break;
+                }
             }
         });
 
@@ -236,19 +267,22 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
 
     @Override public void onFinish(String key) {
         dialogFragment.dismiss();
+
         Reply reply = replyHashMap.get(key);
+        replyHashMap.clear();
+        replyHashMap.put(key, reply);
 
         dbManager.setEstimateFinish(estimateKey, key);
 
         String phoneNumber = appPreferenceManager.getPhoneNumber();
-
         MyPartner myPartner = new MyPartner();
         myPartner.name = reply.vendorName;
         myPartner.items = reply.getRepliedItemNameMapList();
-
         HashMap<String, MyPartner> myPartnerHashMap = new HashMap<>();
         myPartnerHashMap.put(key, myPartner);
 
         dbManager.uploadMyPartner(phoneNumber, myPartnerHashMap, null);
+
+        isFinish = true;
     }
 }

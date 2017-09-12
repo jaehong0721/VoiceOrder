@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.rena21c.voiceorder.R;
@@ -24,7 +25,7 @@ import java.util.HashMap;
 public class EstimateViewPagerAdapter extends PagerAdapter {
 
     public interface ClickFinishButtonListener {
-        void onClickFinish(String pageKey);
+        void onClickFinish(String what, String pageKey);
     }
 
     private final ClickFinishButtonListener listener;
@@ -33,15 +34,19 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
     private HashMap<String, Reply> replyHashMap = new HashMap<>();
     private boolean isFinish;
 
-    public EstimateViewPagerAdapter(ClickFinishButtonListener listener) {
+    public EstimateViewPagerAdapter(boolean isFinish, ClickFinishButtonListener listener) {
+        this.isFinish = isFinish;
         this.listener = listener;
+
+        if(isFinish)
+            keyList.add("end");
     }
 
     @Override
     public Object instantiateItem(ViewGroup container, final int position) {
         View view;
         final Context context = container.getContext();
-        if(position == keyList.size()-1 && isFinish) {
+        if(keyList.get(position).equals("end")) {
             view = View.inflate(context, R.layout.item_viewpager_estimate, null);
         } else {
             view = View.inflate(context, R.layout.item_viewpager_estimate, null);
@@ -59,13 +64,6 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
 
             CallButton ivCall = (CallButton) view.findViewById(R.id.ivCall);
             ivCall.setCalleeInfo(keyList.get(position), reply.vendorName);
-
-            final Button btnFinish = (Button) view.findViewById(R.id.btnFinish);
-            btnFinish.setOnClickListener(new View.OnClickListener() {
-                @Override public void onClick(View v) {
-                    listener.onClickFinish(keyList.get(position));
-                }
-            });
 
             RecyclerView rvRepliedEstimateItem = (RecyclerView) view.findViewById(R.id.rvRepliedEstimateItem);
             rvRepliedEstimateItem.setLayoutManager(new LinearLayoutManager(context));
@@ -89,6 +87,29 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
                     return repliedItems.size();
                 }
             });
+
+            RelativeLayout btnVoiceOrder= (RelativeLayout) view.findViewById(R.id.btnVoiceOrder);
+            final Button btnFinish = (Button) view.findViewById(R.id.btnFinish);
+
+            if(reply.isPicked){
+                btnVoiceOrder.setVisibility(View.VISIBLE);
+                btnFinish.setVisibility(View.GONE);
+
+                btnVoiceOrder.setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        listener.onClickFinish("order", keyList.get(position));
+                    }
+                });
+            } else {
+                btnFinish.setVisibility(View.VISIBLE);
+                btnVoiceOrder.setVisibility(View.GONE);
+
+                btnFinish.setOnClickListener(new View.OnClickListener() {
+                    @Override public void onClick(View v) {
+                        listener.onClickFinish("finish", keyList.get(position));
+                    }
+                });
+            }
         }
         container.addView(view);
         return view;
@@ -132,6 +153,20 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
 
         PriceComparatorOnEstimate priceComparatorOnEstimate = new PriceComparatorOnEstimate(replyHashMap);
         Collections.sort(keyList, priceComparatorOnEstimate);
+
+        notifyDataSetChanged();
+
+        return keyList.indexOf(key);
+    }
+
+    public int pickedReply(String key, Reply reply) {
+        isFinish = true;
+        keyList.clear();
+        keyList.add(key);
+        keyList.add("end");
+
+        replyHashMap.clear();
+        replyHashMap.put(key, reply);
 
         notifyDataSetChanged();
 

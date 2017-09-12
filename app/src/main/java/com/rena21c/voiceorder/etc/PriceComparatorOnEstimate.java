@@ -15,6 +15,9 @@ public class PriceComparatorOnEstimate implements Comparator<String> {
     }
 
     @Override public int compare(String o1, String o2) {
+        if(o1.equals("end")) return 1;
+        if(o2.equals("end")) return -1;
+
         Reply reply1 = replyHashMap.get(o1);
         Reply reply2 = replyHashMap.get(o2);
 
