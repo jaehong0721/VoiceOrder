@@ -95,22 +95,18 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
 
         replyListener = new ChildEventListener() {
             @Override public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                if(!dataSnapshot.exists()) {
-                    dbManager.subscribeEstimateItem(estimateKey, estimateItemListener);
-                } else {
+                Reply reply = dataSnapshot.getValue(Reply.class);
 
-                    Reply reply = dataSnapshot.getValue(Reply.class);
+                initReplyView();
 
-                    initReplyView();
-
-                    if(isFinish) {
-                        if(!reply.isPicked) return;
-                    }
-
-                    replyHashMap.put(dataSnapshot.getKey(), reply);
-                    int position = estimateReplyAdapter.addReply(dataSnapshot.getKey(), reply);
-                    vpEstimate.setCurrentItem(position);
+                if(isFinish) {
+                    if(!reply.isPicked) return;
                 }
+
+                replyHashMap.put(dataSnapshot.getKey(), reply);
+                int position = estimateReplyAdapter.addReply(dataSnapshot.getKey(), reply);
+                vpEstimate.setCurrentItem(position);
+
             }
 
             @Override public void onChildChanged(DataSnapshot dataSnapshot, String s) {
@@ -147,7 +143,9 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
                         } else {
                             isFinish = false;
                         }
+                        dbManager.subscribeEstimateItem(estimateKey, estimateItemListener);
                         dbManager.subscribeReply(estimateKey, replyListener);
+
                     }
                 });
             }
@@ -178,6 +176,9 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
 
                     estimateKey = newEstimateKey;
                     isFinish = false;
+
+                    modifyView = null;
+                    estimatesView = null;
 
                     appPreferenceManager.setEstimateKey(estimateKey);
                     dbManager.subscribeReply(estimateKey, replyListener);
@@ -243,13 +244,18 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
                         break;
 
                     case "order" :
-                        Intent intent = new Intent(RequestEstimateActivity.this, VoiceOrderActivity.class);
-                        intent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
-                        intent.putExtra("direct", pageKey);
-                        intent.putExtra("tab", TabActionBar.Tab.VOICE_ORDER.toString());
+                        Intent orderIntent = new Intent(RequestEstimateActivity.this, VoiceOrderActivity.class);
+                        orderIntent.setFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
+                        orderIntent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        orderIntent.putExtra("direct", pageKey);
+                        orderIntent.putExtra("tab", TabActionBar.Tab.VOICE_ORDER.toString());
 
-                        startActivity(intent);
+                        startActivity(orderIntent);
+                        break;
+
+                    case "request" :
+                        Intent requestIntent = new Intent(RequestEstimateActivity.this, InputEstimateActivity.class);
+                        startActivityForResult(requestIntent, REQUEST);
                         break;
                 }
             }

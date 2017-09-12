@@ -47,9 +47,15 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
         View view;
         final Context context = container.getContext();
         if(keyList.get(position).equals("end")) {
-            view = View.inflate(context, R.layout.item_viewpager_estimate, null);
+            view = View.inflate(context, R.layout.item_viewpager_estimate_new_request, null);
+            Button btnRequestEstimate = (Button) view.findViewById(R.id.btnRequestEstimate);
+            btnRequestEstimate.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    listener.onClickFinish("request", null);
+                }
+            });
         } else {
-            view = View.inflate(context, R.layout.item_viewpager_estimate, null);
+            view = View.inflate(context, R.layout.item_viewpager_estimate_reply, null);
             final Reply reply = replyHashMap.get(keyList.get(position));
             final ArrayList<RepliedEstimateItem> repliedItems = reply.repliedItems;
 
