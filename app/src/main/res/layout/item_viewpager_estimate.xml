@@ -86,6 +86,7 @@
         android:layout_alignParentBottom="true"
         android:background="@color/white">
 
+
         <Button
             android:id="@+id/btnFinish"
             android:layout_width="match_parent"
@@ -96,8 +97,37 @@
             android:background="@color/primaryBrown"
             android:text="새 거래업체로 등록"
             android:textColor="@color/white"
-            android:textSize="15sp"
+            android:textSize="15dp"
             android:textStyle="bold"/>
+
+
+        <RelativeLayout
+            android:id="@+id/btnVoiceOrder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:paddingLeft="50dp"
+            android:paddingTop="5dp"
+            android:paddingRight="50dp"
+            android:paddingBottom="5dp"
+            android:background="@drawable/shape_colorful_border_transperent_solid">
+
+            <ImageView
+                android:id="@+id/icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:src="@drawable/voice_order_icon2"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@+id/icon"
+                android:layout_marginLeft="16dp"
+                android:layout_centerVertical="true"
+                android:text="음성주문 시작하기"
+                android:textSize="15dp"
+                android:textStyle="bold"/>
+        </RelativeLayout>
     </RelativeLayout>
 
 </RelativeLayout>
