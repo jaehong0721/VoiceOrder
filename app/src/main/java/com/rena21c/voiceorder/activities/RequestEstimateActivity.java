@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.view.ViewPager;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,6 +58,8 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
     private FinishEstimateDialogFragment dialogFragment;
 
     private boolean isFinish;
+    private RadioGroup rdGroupToSorting;
+    private TextView tvHeadMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -206,6 +209,16 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
         estimatesView.setTag("reply");
         setContentView(estimatesView);
 
+        rdGroupToSorting = (RadioGroup) findViewById(R.id.rdGroupToSorting);
+        tvHeadMessage = (TextView) findViewById(R.id.tvHeadMessage);
+        if(isFinish) {
+            rdGroupToSorting.setVisibility(View.GONE);
+            tvHeadMessage.setVisibility(View.VISIBLE);
+        } else {
+            rdGroupToSorting.setVisibility(View.VISIBLE);
+            tvHeadMessage.setVisibility(View.GONE);
+        }
+
         vpEstimate = (ViewPager) findViewById(R.id.vpEstimate);
         vpEstimate.setClipToPadding(false);
 
@@ -267,6 +280,8 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
     @Override public void onFinish(String key) {
         dialogFragment.dismiss();
 
+        isFinish = true;
+
         Reply reply = replyHashMap.get(key);
         replyHashMap.clear();
         replyHashMap.put(key, reply);
@@ -281,6 +296,10 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
 
         dbManager.addMyPartner(phoneNumber, key, vendorInfoMap);
 
-        isFinish = true;
+        if(getWindow().getDecorView().findViewById(R.id.estimate_root_view).getTag() != "reply")
+            throw new RuntimeException("현재 뷰가 견적 뷰페이저여야 합니다");
+
+        rdGroupToSorting.setVisibility(View.GONE);
+        tvHeadMessage.setVisibility(View.VISIBLE);
     }
 }
