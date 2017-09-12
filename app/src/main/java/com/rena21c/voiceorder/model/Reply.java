@@ -9,6 +9,7 @@ public class Reply {
     public long timeMillis;
     public String vendorName;
     public int totalPrice;
+    public boolean isPicked;
 
     @Override public String toString() {
         return "Reply{" +
@@ -16,6 +17,7 @@ public class Reply {
                 ", timeMillis=" + timeMillis +
                 ", vendorName='" + vendorName + '\'' +
                 ", totalPrice=" + totalPrice +
+                ", isPicked=" + isPicked +
                 '}';
     }
 
