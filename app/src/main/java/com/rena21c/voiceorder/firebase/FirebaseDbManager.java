@@ -290,6 +290,20 @@ public class FirebaseDbManager {
         dr.removeEventListener(listener);
     }
 
+    public void setEstimateFinish(String estimateKey, String vendorKey) {
+        HashMap<String, Object> pathMap = new HashMap<>();
+        pathMap.put("/isFinish", true);
+        pathMap.put("/reply/" + vendorKey + "/isPicked", true);
+
+        DatabaseReference dr = getRootRef()
+                .child("estimate")
+                .child(RESTAURANTS)
+                .child(estimateKey);
+
+        dr.keepSynced(true);
+        dr.updateChildren(pathMap);
+    }
+
     private DatabaseReference getRootRef() {
         return instance.getReference();
     }
