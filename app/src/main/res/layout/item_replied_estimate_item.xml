@@ -15,7 +15,7 @@
         android:lineSpacingExtra="36sp"
         tools:text="새송이 버섯, 1박스"/>
 
-    <TextView
+    <com.rena21c.voiceorder.view.widgets.CurrencyFormatTextView
         android:id="@+id/tvPrice"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -23,6 +23,6 @@
         android:lineSpacingExtra="35sp"
         android:layout_alignParentRight="true"
         android:textStyle="bold"
-        tools:text="45,000"/>
+        tools:text="45000"/>
 
 </RelativeLayout>

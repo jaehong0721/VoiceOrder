@@ -17,6 +17,7 @@ import com.rena21c.voiceorder.model.RepliedEstimateItem;
 import com.rena21c.voiceorder.model.Reply;
 import com.rena21c.voiceorder.view.DividerItemDecoration;
 import com.rena21c.voiceorder.view.widgets.CallButton;
+import com.rena21c.voiceorder.view.widgets.CurrencyFormatTextView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -64,8 +65,8 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
             TextView tvReplyRate = (TextView) view.findViewById(R.id.tvReplyRate);
             tvReplyRate.setText(reply.getReplyRateString() + " 견적금액");
 
-            TextView tvPrice = (TextView) view.findViewById(R.id.tvPrice);
-            tvPrice.setText(String.valueOf(reply.totalPrice));
+            CurrencyFormatTextView tvPrice = (CurrencyFormatTextView) view.findViewById(R.id.tvPrice);
+            tvPrice.setWon(reply.totalPrice);
 
             TextView tvVendorName = (TextView) view.findViewById(R.id.tvVendorName);
             tvVendorName.setText(reply.vendorName);
@@ -87,8 +88,8 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
                     String itemInfo = repliedItems.get(position).itemName + "," + repliedItems.get(position).itemNum;
                     tvItemInfo.setText(itemInfo);
 
-                    TextView tvPrice = (TextView) holder.itemView.findViewById(R.id.tvPrice);
-                    tvPrice.setText(String.valueOf(repliedItems.get(position).price));
+                    CurrencyFormatTextView tvPrice = (CurrencyFormatTextView) holder.itemView.findViewById(R.id.tvPrice);
+                    tvPrice.setWon(repliedItems.get(position).price);
                 }
 
                 @Override public int getItemCount() {
