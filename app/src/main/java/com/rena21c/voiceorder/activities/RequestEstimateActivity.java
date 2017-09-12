@@ -138,7 +138,7 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
             String estimateTime = estimateKey.split("_")[1];
             long estimateTimeMillis = TimeUtil.convertStringToMillis(estimateTime);
             if(TimeUtil.isOverDueDate(System.currentTimeMillis(), estimateTimeMillis)) {
-                //시간 마감
+                initRequestView(true);
             } else {
                 dbManager.checkFinishEstimate(estimateKey, new ToastErrorHandlingListener(this) {
                     @Override public void onDataChange(DataSnapshot dataSnapshot) {
@@ -152,7 +152,7 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
                 });
             }
         } else {
-            initRequestView();
+            initRequestView(false);
         }
     }
 
@@ -173,10 +173,12 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
                         dbManager.cancelSubscriptionEstimateItem(estimateKey, estimateItemListener);
                     }
 
-                    estimateKey = data.getStringExtra("estimateKey");
-                    if(estimateKey == null) return;
+                    String newEstimateKey = data.getStringExtra("estimateKey");
+                    if(newEstimateKey == null) return;
 
+                    estimateKey = newEstimateKey;
                     isFinish = false;
+
                     appPreferenceManager.setEstimateKey(estimateKey);
                     dbManager.subscribeReply(estimateKey, replyListener);
                     dbManager.subscribeEstimateItem(estimateKey, estimateItemListener);
@@ -190,8 +192,11 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
         }
     }
 
-    private void initRequestView() {
-        setContentView(R.layout.activity_request_estimate_request);
+    private void initRequestView(boolean expired) {
+        if(expired)
+            setContentView(R.layout.activity_request_estimate_expired);
+        else
+            setContentView(R.layout.activity_request_estimate_request);
 
         Button btnRequestEstimate = (Button) findViewById(R.id.btnRequestEstimate);
 
