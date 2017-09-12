@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.rena21c.voiceorder.R;
@@ -22,12 +23,22 @@ import java.util.HashMap;
 
 public class EstimateViewPagerAdapter extends PagerAdapter {
 
+    public interface ClickFinishButtonListener {
+        void onClickFinish(String pageKey);
+    }
+
+    private final ClickFinishButtonListener listener;
+
     private ArrayList<String> keyList = new ArrayList<>();
     private HashMap<String, Reply> replyHashMap = new HashMap<>();
     private boolean isFinish;
 
+    public EstimateViewPagerAdapter(ClickFinishButtonListener listener) {
+        this.listener = listener;
+    }
+
     @Override
-    public Object instantiateItem(ViewGroup container, int position) {
+    public Object instantiateItem(ViewGroup container, final int position) {
         View view;
         final Context context = container.getContext();
         if(position == keyList.size()-1 && isFinish) {
@@ -48,6 +59,13 @@ public class EstimateViewPagerAdapter extends PagerAdapter {
 
             CallButton ivCall = (CallButton) view.findViewById(R.id.ivCall);
             ivCall.setCalleeInfo(keyList.get(position), reply.vendorName);
+
+            final Button btnFinish = (Button) view.findViewById(R.id.btnFinish);
+            btnFinish.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    listener.onClickFinish(keyList.get(position));
+                }
+            });
 
             RecyclerView rvRepliedEstimateItem = (RecyclerView) view.findViewById(R.id.rvRepliedEstimateItem);
             rvRepliedEstimateItem.setLayoutManager(new LinearLayoutManager(context));

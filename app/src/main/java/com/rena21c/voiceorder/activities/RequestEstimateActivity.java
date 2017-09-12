@@ -19,14 +19,17 @@ import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.firebase.FirebaseDbManager;
 import com.rena21c.voiceorder.model.Reply;
 import com.rena21c.voiceorder.model.RequestedEstimateItem;
+import com.rena21c.voiceorder.pojo.MyPartner;
 import com.rena21c.voiceorder.util.DpToPxConverter;
 import com.rena21c.voiceorder.util.TimeUtil;
 import com.rena21c.voiceorder.util.TransformDataUtil;
 import com.rena21c.voiceorder.view.adapters.EstimateViewPagerAdapter;
+import com.rena21c.voiceorder.view.widgets.FinishEstimateDialogFragment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
-public class RequestEstimateActivity extends HasTabActivity {
+public class RequestEstimateActivity extends HasTabActivity implements FinishEstimateDialogFragment.FinishRequestEstimateListener{
 
     private static final int REQUEST = 0;
     private static final int MODIFY = 1;
@@ -50,9 +53,14 @@ public class RequestEstimateActivity extends HasTabActivity {
 
     private String estimateKey;
 
+    private HashMap<String, Reply> replyHashMap;
+    private FinishEstimateDialogFragment dialogFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        replyHashMap = new HashMap<>();
+
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
 
         dbManager = App.getApplication(getApplicationContext()).getDbMangaer();
@@ -84,10 +92,12 @@ public class RequestEstimateActivity extends HasTabActivity {
                 if(!dataSnapshot.exists()) {
                     dbManager.subscribeEstimateItem(estimateKey, estimateItemListener);
                 } else {
+
                     Reply reply = dataSnapshot.getValue(Reply.class);
 
                     initReplyView();
 
+                    replyHashMap.put(dataSnapshot.getKey(), reply);
                     int position = estimateReplyAdapter.addReply(dataSnapshot.getKey(), reply);
                     vpEstimate.setVerticalScrollbarPosition(position);
                 }
@@ -183,7 +193,13 @@ public class RequestEstimateActivity extends HasTabActivity {
         int margin = DpToPxConverter.convertDpToPx(10, getResources().getDisplayMetrics());
         vpEstimate.setPageMargin(margin);
 
-        estimateReplyAdapter = new EstimateViewPagerAdapter();
+        estimateReplyAdapter = new EstimateViewPagerAdapter(new EstimateViewPagerAdapter.ClickFinishButtonListener(){
+            @Override public void onClickFinish(String pageKey) {
+                dialogFragment = FinishEstimateDialogFragment.newInstance(pageKey);
+                dialogFragment.show(getSupportFragmentManager(),"finish");
+            }
+        });
+
         vpEstimate.setAdapter(estimateReplyAdapter);
     }
 
@@ -216,5 +232,23 @@ public class RequestEstimateActivity extends HasTabActivity {
         modifyIntent.putExtra("estimateKey", estimateKey);
         modifyIntent.putExtra("itemNames", itemNames);
         modifyIntent.putExtra("itemNums", itemNums);
+    }
+
+    @Override public void onFinish(String key) {
+        dialogFragment.dismiss();
+        Reply reply = replyHashMap.get(key);
+
+        dbManager.setEstimateFinish(estimateKey, key);
+
+        String phoneNumber = appPreferenceManager.getPhoneNumber();
+
+        MyPartner myPartner = new MyPartner();
+        myPartner.name = reply.vendorName;
+        myPartner.items = reply.getRepliedItemNameMapList();
+
+        HashMap<String, MyPartner> myPartnerHashMap = new HashMap<>();
+        myPartnerHashMap.put(key, myPartner);
+
+        dbManager.uploadMyPartner(phoneNumber, myPartnerHashMap, null);
     }
 }
