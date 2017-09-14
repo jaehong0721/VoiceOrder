@@ -292,16 +292,11 @@ public class FirebaseDbManager {
 
     public void setEstimateFinish(String estimateKey, String vendorKey) {
         HashMap<String, Object> pathMap = new HashMap<>();
-        pathMap.put("/isFinish", true);
-        pathMap.put("/reply/" + vendorKey + "/isPicked", true);
+        pathMap.put("/estimate/restaurants/" + estimateKey + "/isFinish", true);
+        pathMap.put("/estimate/restaurants/" + estimateKey + "/reply/" + vendorKey + "/isPicked", true);
+        pathMap.put("/estimate/vendors/" + vendorKey + "/" + estimateKey + "/isPicked", true);
 
-        DatabaseReference dr = getRootRef()
-                .child("estimate")
-                .child(RESTAURANTS)
-                .child(estimateKey);
-
-        dr.keepSynced(true);
-        dr.updateChildren(pathMap);
+        getRootRef().updateChildren(pathMap);
     }
 
     private DatabaseReference getRootRef() {
