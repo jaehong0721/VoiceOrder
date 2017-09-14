@@ -155,8 +155,10 @@ public class RequestEstimateActivity extends HasTabActivity implements FinishEst
     }
 
     @Override protected void onDestroy() {
-        dbManager.cancelSubscriptionReply(estimateKey, replyListener);
-        dbManager.cancelSubscriptionEstimateItem(estimateKey, estimateItemListener);
+        if(estimateKey != null) {
+            dbManager.cancelSubscriptionReply(estimateKey, replyListener);
+            dbManager.cancelSubscriptionEstimateItem(estimateKey, estimateItemListener);
+        }
         super.onDestroy();
     }
 
