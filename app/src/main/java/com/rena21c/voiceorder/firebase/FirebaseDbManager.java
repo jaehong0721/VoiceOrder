@@ -299,10 +299,6 @@ public class FirebaseDbManager {
         getRootRef().updateChildren(pathMap);
     }
 
-    private DatabaseReference getRootRef() {
-        return instance.getReference();
-    }
-
     public void checkFinishEstimate(String estimateKey, ToastErrorHandlingListener listener) {
         DatabaseReference dr = getRootRef()
                 .child("estimate")
@@ -322,5 +318,20 @@ public class FirebaseDbManager {
 
         dr.setValue(venorInfoMap);
         dr.keepSynced(true);
+    }
+
+    public void setRestaurantName(String phoneNumber, String restaurantName) {
+        DatabaseReference dr = getRootRef()
+                .child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(INFO)
+                .child(RESTAURANT_NAME);
+
+        dr.keepSynced(true);
+        dr.setValue(restaurantName);
+    }
+
+    private DatabaseReference getRootRef() {
+        return instance.getReference();
     }
 }

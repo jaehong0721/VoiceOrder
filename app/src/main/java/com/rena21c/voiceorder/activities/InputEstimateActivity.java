@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
@@ -32,6 +33,8 @@ public class InputEstimateActivity extends BaseActivity {
 
     private Button btnAddEstimateInputView;
     private Button btnRequestEstimate;
+    private EditText etRestaurantName;
+
     private LinearLayout estimateInputViewContainer;
 
     private FirebaseDbManager dbManager;
@@ -64,13 +67,12 @@ public class InputEstimateActivity extends BaseActivity {
 
         final CountDownLatch latch = new CountDownLatch(2);
 
+        etRestaurantName = (EditText) findViewById(R.id.etRestaurantName);
+
         dbManager.getRestaurantName(phoneNumber, new ValueEventListener() {
             @Override public void onDataChange(DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()) {
-                    restaurantName = (String) dataSnapshot.getValue();
-                } else {
-                    restaurantName = phoneNumber;
-                }
+                if(dataSnapshot.exists())
+                    etRestaurantName.setText((String) dataSnapshot.getValue());
                 latch.countDown();
             }
 
@@ -109,6 +111,12 @@ public class InputEstimateActivity extends BaseActivity {
 
                 if(items.size() == 0) {
                     Toast.makeText(InputEstimateActivity.this, "견적요청을 위해서 품목명과 납품량을 적어주세요", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                restaurantName = etRestaurantName.getText().toString();
+                if(restaurantName == null || restaurantName.equals("")) {
+                    Toast.makeText(InputEstimateActivity.this, "견적요청을 위해서 식당이름을 적어주세요", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -195,6 +203,8 @@ public class InputEstimateActivity extends BaseActivity {
 
             dbManager.setEstimate(estimateKey, estimate, listener);
 
+
+            dbManager.setRestaurantName(phoneNumber, etRestaurantName.getText().toString());
         } catch (InterruptedException e) {
             FirebaseCrash.report(e);
             callFinish(false, new Intent());
