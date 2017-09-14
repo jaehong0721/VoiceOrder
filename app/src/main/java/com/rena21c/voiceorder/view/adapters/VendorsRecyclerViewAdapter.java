@@ -126,7 +126,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
 
             final String vendorName = vendor.name;
             final String address = AddressUtil.convertToSimpleAddress(vendor.address);
-            final String businessContent = vendor.majorItems != null ? vendor.majorItems : vendor.orderItems;
+            final String businessContent = vendor.majorItems != "" ? vendor.majorItems : vendor.orderItems;
 
             long callTime = appPreferenceManager.getCallTime(phoneNumber);
             String elapsedTime = callTime == -1 ? null : TimeUtil.convertMillisToElapsedTime(System.currentTimeMillis(), callTime) + " 통화";
