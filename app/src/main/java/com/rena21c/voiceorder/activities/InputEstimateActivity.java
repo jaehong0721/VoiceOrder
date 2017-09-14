@@ -112,6 +112,8 @@ public class InputEstimateActivity extends BaseActivity {
                     return;
                 }
 
+                Toast.makeText(InputEstimateActivity.this, "견적 요청 중입니다...", Toast.LENGTH_SHORT).show();
+
                 saveEstimate(items, latch, new OnCompleteListener() {
                     @Override public void onComplete(@NonNull Task task) {
                         if(task.isSuccessful()) {
