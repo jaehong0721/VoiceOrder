@@ -83,6 +83,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
     private HashMap<String, String> calledVendors;
 
+    private String restoPhoneNum;
     private String vendorPhoneNumber;
     private String vendorName;
     private int position;
@@ -100,6 +101,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         eventManager = App.getApplication(getApplicationContext()).getEventManager();
 
+        restoPhoneNum = appPreferenceManager.getPhoneNumber();
         calledVendors = appPreferenceManager.getCalledVendors();
         rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager,
                 new VendorsRecyclerViewAdapter.CallButtonClickListener() {
@@ -164,6 +166,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                         bodyMap.put("latitude", latitude);
                         bodyMap.put("longitude", longitude);
                         bodyMap.put("keyWord", s.toString());
+                        bodyMap.put("restoPhoneNum", restoPhoneNum);
                         requestVendor(bodyMap);
 
                         rvVendors.scrollToPosition(0);
@@ -194,6 +197,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                 Log.d("test", "latitude : " + latitude + "," + "longitude : " + longitude);
                 bodyMap.put("latitude", latitude);
                 bodyMap.put("longitude", longitude);
+                bodyMap.put("restoPhoneNum", restoPhoneNum);
                 requestVendor(bodyMap);
                 actvSearch.getText().clear();
             }
@@ -218,6 +222,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                 HashMap<String, Object> bodyMap = new HashMap<>();
                 bodyMap.put("latitude", latitude);
                 bodyMap.put("longitude", longitude);
+                bodyMap.put("restoPhoneNum", restoPhoneNum);
 
                 RecommendActivity.latitude = latitude;
                 RecommendActivity.longitude = longitude;
@@ -331,7 +336,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         ActivityCompat.startActivityForResult(this, intent, VENDOR_DETAIL, options.toBundle());
     }
 
-    private void requestVendor(HashMap<String, Object> bodyMap) {
+    private void requestVendor(final HashMap<String, Object> bodyMap) {
         apiService
                 .getNearbyVendors(bodyMap)
                 .enqueue(new Callback<List<Vendor>>() {
