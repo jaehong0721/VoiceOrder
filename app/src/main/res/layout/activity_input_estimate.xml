@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.rena21c.voiceorder.activities.InputEstimateActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/btnRequestEstimate"
+        android:layout_alignParentTop="true">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="18dp"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="19dp">
+
+            <TextView
+                android:id="@+id/tvRestaurantNameLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="식당 이름"
+                android:textColor="@color/dark_maroon"
+                android:textSize="14sp"
+                android:textStyle="bold"/>
+
+            <EditText
+                android:id="@+id/etRestaurantName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tvRestaurantNameLabel"
+                android:layout_marginTop="12dp"
+                android:background="@color/black_05"
+                android:hint="식당이름"
+                android:inputType="text"
+                android:padding="14dp"
+                android:textColorHint="@color/dark_maroon_20"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:id="@+id/input_area"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/etRestaurantName"
+                android:layout_marginTop="24dp"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="2">
+
+                        <TextView
+                            android:id="@+id/label1"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="품목명"
+                            android:textSize="14sp"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="8dp"
+                            android:layout_toRightOf="@+id/label1"
+                            android:text="예) 새송이 버섯 "
+
+                            android:textColor="@color/dark_maroon_40"
+                            android:textSize="14sp"/>
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <TextView
+                            android:id="@+id/label2"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="납품량"
+                            android:textSize="14sp"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="8dp"
+                            android:layout_toRightOf="@+id/label2"
+                            android:text="예) 1박스"
+                            android:textColor="@color/dark_maroon_40"
+                            android:textSize="14sp"/>
+                    </RelativeLayout>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/estimate_input_view_container"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <com.rena21c.voiceorder.view.widgets.EstimateInputView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <com.rena21c.voiceorder.view.widgets.EstimateInputView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <com.rena21c.voiceorder.view.widgets.EstimateInputView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <com.rena21c.voiceorder.view.widgets.EstimateInputView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                    <com.rena21c.voiceorder.view.widgets.EstimateInputView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"/>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btnAddEstimateInputView"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_below="@+id/input_area"
+                android:layout_marginBottom="61dp"
+                android:layout_marginTop="11dp"
+                android:background="@drawable/shape_colorful_border_transperent_solid"
+                android:text="품목 입력 추가하기"
+                android:textSize="16sp"/>
+
+        </RelativeLayout>
+
+    </ScrollView>
+
+    <Button
+        android:id="@+id/btnRequestEstimate"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/primaryBrown"
+        android:text="견적요청하기"
+        android:textColor="@color/white"
+        android:textSize="16sp"/>
+
+
+</RelativeLayout>

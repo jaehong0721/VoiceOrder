@@ -12,6 +12,12 @@
 
     <color name="dividerLine">#14000000</color>
 
+    <color name="dark_maroon_40">#66390405</color>
+    <color name="dark_maroon_20">#33390405</color>
+
+    <color name="black_05">#0D000000</color>
+
+
     <!-- 제플린에서 추가 -->
     <color name="sea">#2d8985</color>
     <color name="white_80">#ccffffff</color>
@@ -21,5 +27,6 @@
     <color name="white">#ffffff</color>
     <color name="white_50">#80ffffff</color>
     <color name="gunmetal">#494b57</color>
+    <color name="white_four">#fafafa</color>
 
 </resources>

@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.model.DisplayedMyPartner;
-import com.rena21c.voiceorder.util.TimeConverter;
+import com.rena21c.voiceorder.util.TimeUtil;
 import com.rena21c.voiceorder.viewholder.ItemOfListDividerTextViewHolder;
 import com.rena21c.voiceorder.viewholder.SimpleVendorInfoViewHolder;
 
@@ -53,7 +53,7 @@ public class MyPartnersRecyclerViewAdapter extends RecyclerView.Adapter<Recycler
 
                 long callTimeMillis = displayedMyPartners.get(position).callTime;
 
-                String elapsedTime = callTimeMillis != 0 ? TimeConverter.convertMillisToElapsedTime(System.currentTimeMillis(), callTimeMillis) : "";
+                String elapsedTime = callTimeMillis != 0 ? TimeUtil.convertMillisToElapsedTime(System.currentTimeMillis(), callTimeMillis) : "";
                 String vendorName = displayedMyPartners.get(position).name;
 
                 ((SimpleVendorInfoViewHolder)holder).bind(vendorName, elapsedTime);

@@ -20,6 +20,7 @@ public class CharacterWrapTextView extends android.support.v7.widget.AppCompatTe
     }
 
     @Override public void setText(CharSequence text, BufferType type) {
+        if(text == null) return;
         super.setText(text.toString().replace(" ", "\u00A0"), type);
     }
 }

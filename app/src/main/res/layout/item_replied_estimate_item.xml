@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="24dp"
+                xmlns:tools="http://schemas.android.com/tools">
+
+
+    <TextView
+        android:id="@+id/tvItemInfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:textSize="14sp"
+        android:lineSpacingExtra="36sp"
+        tools:text="새송이 버섯, 1박스"/>
+
+    <com.rena21c.voiceorder.view.widgets.CurrencyFormatTextView
+        android:id="@+id/tvPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="15sp"
+        android:lineSpacingExtra="35sp"
+        android:layout_alignParentRight="true"
+        android:textStyle="bold"
+        tools:text="45000"/>
+
+</RelativeLayout>

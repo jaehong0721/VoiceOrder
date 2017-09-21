@@ -1,5 +1,6 @@
 package com.rena21c.voiceorder.activities;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -55,7 +56,7 @@ public class VendorDetailActivity extends AppCompatActivity {
                 .setBackButtonClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        ActivityCompat.finishAfterTransition(VendorDetailActivity.this);
+                    callFinish();
                     }
                 })
                 .setTitle("업체상세");
@@ -129,6 +130,11 @@ public class VendorDetailActivity extends AppCompatActivity {
         });
     }
 
+    @Override public void onBackPressed() {
+        super.onBackPressed();
+        callFinish();
+    }
+
     private void setVendorImage() {
         final Handler handler = new Handler(getMainLooper());
         final List<String> imageUrls = new ArrayList<>();
@@ -160,5 +166,12 @@ public class VendorDetailActivity extends AppCompatActivity {
 
         String majorItems = getIntent().getStringExtra("majorItems");
         businessInfoContainer.setOnlyMajorItems(majorItems);
+    }
+
+    private void callFinish() {
+        Intent intent = new Intent();
+        intent.putExtra("itemPosition", getIntent().getIntExtra("itemPosition", -1));
+        setResult(RESULT_OK, intent);
+        ActivityCompat.finishAfterTransition(VendorDetailActivity.this);
     }
 }

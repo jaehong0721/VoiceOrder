@@ -10,6 +10,7 @@ import com.google.firebase.crash.FirebaseCrash;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.rena21c.voiceorder.util.Container;
+import com.rena21c.voiceorder.util.StringUtil;
 import com.rena21c.voiceorder.view.actionbar.TabActionBar;
 
 import java.util.HashMap;
@@ -116,6 +117,7 @@ public class AppPreferenceManager extends Observable {
     }
 
     public void setCallTime(String vendorPhoneNumber, long callTime) {
+        vendorPhoneNumber = StringUtil.removeSpecialLetter(vendorPhoneNumber);
 
         TypeToken<Container<HashMap<String,Long>>> callTimeMapTypeToken = new TypeToken<Container<HashMap<String,Long>>>(){};
 
@@ -133,6 +135,7 @@ public class AppPreferenceManager extends Observable {
     }
 
     public long getCallTime(String vendorPhoneNumber) {
+        vendorPhoneNumber = StringUtil.removeSpecialLetter(vendorPhoneNumber);
 
         TypeToken<Container<HashMap<String,Long>>> callTimeMapTypeToken = new TypeToken<Container<HashMap<String,Long>>>(){};
 
@@ -153,7 +156,14 @@ public class AppPreferenceManager extends Observable {
         return callTimeMapContainer == null ? new HashMap<String,Long>() : callTimeMapContainer.getObject();
     }
     
-    public void setCalledVendors(HashMap<String, String> calledVendorsMap) {
+    public void addCalledVendor(String phoneNumber, String name) {
+        HashMap<String, String> calledVendorsMap = getCalledVendors();
+
+        if(calledVendorsMap == null)
+            calledVendorsMap = new HashMap<>();
+
+        calledVendorsMap.put(StringUtil.removeSpecialLetter(phoneNumber), name);
+
         TypeToken<Container<HashMap<String,String>>> calledVendorsMapTypeToken = new TypeToken<Container<HashMap<String,String>>>(){};
 
         Container<HashMap<String,String>> calledVendorsMapContainer = getMapContainer("calledVendorsMapContainer", calledVendorsMapTypeToken);
@@ -193,5 +203,17 @@ public class AppPreferenceManager extends Observable {
                 .edit()
                 .putString(key, serializedMap)
                 .apply();
+    }
+
+    public void setEstimateKey(String estimateKey) {
+        sharedPreference
+                .edit()
+                .putString("estimateKey", estimateKey)
+                .apply();
+    }
+
+    public String getEstimateKey() {
+        return sharedPreference
+                .getString("estimateKey", null);
     }
 }

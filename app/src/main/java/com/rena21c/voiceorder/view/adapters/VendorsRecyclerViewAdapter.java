@@ -12,7 +12,7 @@ import com.rena21c.voiceorder.R;
 import com.rena21c.voiceorder.etc.AppPreferenceManager;
 import com.rena21c.voiceorder.pojo.Vendor;
 import com.rena21c.voiceorder.util.AddressUtil;
-import com.rena21c.voiceorder.util.TimeConverter;
+import com.rena21c.voiceorder.util.TimeUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
     }
 
     public interface ClickVendorListener {
-        void onClickVendor(String phoneNumber, String vendorName, String vendorAddress, String majorItems, View sharedView);
+        void onClickVendor(int itemPosition, String phoneNumber, String vendorName, String vendorAddress, String majorItems, View sharedView);
     }
 
     private class VendorInfoViewHolder extends RecyclerView.ViewHolder {
@@ -125,11 +125,11 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
             final String phoneNumber = vendor.phoneNumber;
 
             final String vendorName = vendor.name;
-            String address = AddressUtil.convertToSimpleAddress(vendor.address);
-            String businessContent = vendor.items;
+            final String address = AddressUtil.convertToSimpleAddress(vendor.address);
+            final String businessContent = vendor.majorItems != "" ? vendor.majorItems : vendor.orderItems;
 
             long callTime = appPreferenceManager.getCallTime(phoneNumber);
-            String elapsedTime = callTime == -1 ? null : TimeConverter.convertMillisToElapsedTime(System.currentTimeMillis(), callTime) + " 통화";
+            String elapsedTime = callTime == -1 ? null : TimeUtil.convertMillisToElapsedTime(System.currentTimeMillis(), callTime) + " 통화";
 
             ((VendorInfoViewHolder)holder)
                     .bindVendorName(vendorName)
@@ -143,8 +143,9 @@ public class VendorsRecyclerViewAdapter extends RecyclerView.Adapter<RecyclerVie
                     })
                     .setClickVendorListener(new View.OnClickListener() {
                         @Override public void onClick(View v) {
-                            clickVendorListener.onClickVendor(phoneNumber, vendor.name, vendor.address,vendor.items,
-                                                             ((VendorInfoViewHolder) holder).ivCall);
+                            clickVendorListener.onClickVendor(holder.getAdapterPosition(), phoneNumber,
+                                                              vendorName, address, businessContent,
+                                                              ((VendorInfoViewHolder) holder).ivCall);
                         }
                     });
         } else {

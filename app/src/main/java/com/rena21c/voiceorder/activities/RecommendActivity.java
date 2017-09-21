@@ -11,8 +11,6 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.AppCompatAutoCompleteTextView;
 import android.support.v7.widget.LinearLayoutManager;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -47,7 +45,6 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
-import rx.Observable;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
 import rx.functions.Func1;
@@ -58,7 +55,8 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
     public static final int TEXT_INPUT_THRESHOLD = 500;
 
-    public static final int REQUEST_CHECK_SETTINGS = 0x1;
+    public static final int REQUEST_CHECK_SETTINGS = 0;
+    public static final int VENDOR_DETAIL= 1;
 
     private static boolean located = false;
     private static double latitude;
@@ -85,6 +83,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
 
     private HashMap<String, String> calledVendors;
 
+    private String restoPhoneNum;
     private String vendorPhoneNumber;
     private String vendorName;
     private int position;
@@ -102,6 +101,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         appPreferenceManager = App.getApplication(getApplicationContext()).getPreferenceManager();
         eventManager = App.getApplication(getApplicationContext()).getEventManager();
 
+        restoPhoneNum = appPreferenceManager.getPhoneNumber();
         calledVendors = appPreferenceManager.getCalledVendors();
         rvAdapter = new VendorsRecyclerViewAdapter(appPreferenceManager,
                 new VendorsRecyclerViewAdapter.CallButtonClickListener() {
@@ -122,14 +122,14 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                     }
                 },
                 new VendorsRecyclerViewAdapter.ClickVendorListener() {
-                    @Override public void onClickVendor(final String phoneNumber, final String vendorName, final String vendorAddress,
+                    @Override public void onClickVendor(final int itemPosition, final String phoneNumber, final String vendorName, final String vendorAddress,
                                                         final String majorItems, final View sharedView) {
                         dbManager.hasVendor(StringUtil.removeSpecialLetter(phoneNumber), new HasDbListener(RecommendActivity.this) {
                             @Override protected void hasDb() {
-                                goToVendorDetail(phoneNumber,vendorName,vendorAddress,majorItems,sharedView, false);
+                                goToVendorDetail(itemPosition, phoneNumber,vendorName,vendorAddress,majorItems,sharedView, false);
                             }
                             @Override protected void hasNone() {
-                                goToVendorDetail(phoneNumber,vendorName,vendorAddress,majorItems,sharedView, true);
+                                goToVendorDetail(itemPosition, phoneNumber,vendorName,vendorAddress,majorItems,sharedView, true);
                             }
                         });
                     }
@@ -166,6 +166,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                         bodyMap.put("latitude", latitude);
                         bodyMap.put("longitude", longitude);
                         bodyMap.put("keyWord", s.toString());
+                        bodyMap.put("restoPhoneNum", restoPhoneNum);
                         requestVendor(bodyMap);
 
                         rvVendors.scrollToPosition(0);
@@ -196,6 +197,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                 Log.d("test", "latitude : " + latitude + "," + "longitude : " + longitude);
                 bodyMap.put("latitude", latitude);
                 bodyMap.put("longitude", longitude);
+                bodyMap.put("restoPhoneNum", restoPhoneNum);
                 requestVendor(bodyMap);
                 actvSearch.getText().clear();
             }
@@ -220,6 +222,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                 HashMap<String, Object> bodyMap = new HashMap<>();
                 bodyMap.put("latitude", latitude);
                 bodyMap.put("longitude", longitude);
+                bodyMap.put("restoPhoneNum", restoPhoneNum);
 
                 RecommendActivity.latitude = latitude;
                 RecommendActivity.longitude = longitude;
@@ -280,9 +283,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         switch (requestCode) {
 
             case REQUEST_CHECK_SETTINGS:
-
                 switch (resultCode) {
-
                     case Activity.RESULT_CANCELED:
                         Toast.makeText(this, "업체추천 기능을 사용하려면 '위치'를 활성화해야 합니다", Toast.LENGTH_SHORT).show();
                         moveTab(TabActionBar.Tab.VOICE_ORDER);
@@ -290,7 +291,13 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                         finish();
                         break;
                 }
+                break;
 
+            case VENDOR_DETAIL:
+                int itemPosition = data.getIntExtra("itemPosition", -1);
+                if(itemPosition == -1) break;
+
+                rvAdapter.notifyItemChanged(itemPosition);
                 break;
         }
     }
@@ -305,8 +312,7 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         beforeCallDialog.dismiss();
 
         appPreferenceManager.setCallTime(vendorPhoneNumber, System.currentTimeMillis());
-        calledVendors.put(vendorPhoneNumber, vendorName);
-        appPreferenceManager.setCalledVendors(calledVendors);
+        appPreferenceManager.addCalledVendor(vendorPhoneNumber, vendorName);
 
         Intent intent = new Intent(Intent.ACTION_CALL);
         intent.setData(Uri.parse("tel:" + vendorPhoneNumber));
@@ -315,8 +321,11 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         rvAdapter.notifyItemChanged(position);
     }
 
-    private void goToVendorDetail(String phoneNumber, String vendorName, String vendorAddress, String majorItems, View sharedView, boolean awsRdb) {
+    private void goToVendorDetail(int itemPosition, String phoneNumber, String vendorName, String vendorAddress,
+                                  String majorItems, View sharedView, boolean awsRdb) {
+
         Intent intent = new Intent(RecommendActivity.this, VendorDetailActivity.class);
+        intent.putExtra("itemPosition", itemPosition);
         intent.putExtra("awsRdb", awsRdb);
         intent.putExtra("vendorPhoneNumber", phoneNumber);
         intent.putExtra("vendorName", vendorName);
@@ -324,10 +333,10 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
         intent.putExtra("majorItems", majorItems);
 
         ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(this,sharedView,"vendor_detail");
-        ActivityCompat.startActivity(this, intent, options.toBundle());
+        ActivityCompat.startActivityForResult(this, intent, VENDOR_DETAIL, options.toBundle());
     }
 
-    private void requestVendor(HashMap<String, Object> bodyMap) {
+    private void requestVendor(final HashMap<String, Object> bodyMap) {
         apiService
                 .getNearbyVendors(bodyMap)
                 .enqueue(new Callback<List<Vendor>>() {
@@ -337,7 +346,6 @@ public class RecommendActivity extends HasTabActivity implements TwoButtonDialog
                             for (Vendor vendor : response.body()) {
                                 Log.d("test", i++ + vendor.name);
                             }
-
                             rvAdapter.setVendors(response.body());
                         } else {
                             rvAdapter.clearVendors();

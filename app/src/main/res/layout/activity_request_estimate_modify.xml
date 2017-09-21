@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+                android:id="@+id/estimate_root_view"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/primaryYellow"
+                android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="104dp"
+        android:lineSpacingExtra="10sp"
+        android:text="견적요청 완료되었습니다"
+        android:textSize="30sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/tvSubTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvTitle"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="6dp"
+        android:gravity="center_horizontal"
+        android:lineSpacingExtra="8sp"
+        android:text="납품업체에서 품목 및 납품량을 확인하고\n 견적 제안을 드릴 예정입니다"
+        android:textSize="14sp"/>
+
+    <TextView
+        android:id="@+id/label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tvSubTitle"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="42dp"
+        android:background="@drawable/timestamp_button_shape"
+        android:paddingBottom="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="15dp"
+        android:paddingTop="8dp"
+        android:text="견적 요청 품목"
+        android:textColor="@color/white"
+        android:textSize="13sp"
+        android:textStyle="bold"/>
+
+    <TextView
+        android:id="@+id/tvItems"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/label"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="41dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginTop="11dp"
+        android:gravity="center_horizontal"
+        android:lineSpacingExtra="9sp"
+        android:textSize="17sp"
+        android:textStyle="bold"
+        tools:text="양파 3단, 돼지고기 브라질산 1kg, 김치 두 박스, 양송이, 각종 야채"/>
+
+    <Button
+        android:id="@+id/btnModifyEstimate"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="18dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:background="@drawable/shape_colorful_border_transperent_solid"
+        android:text="품목 수정하기"
+        android:textSize="16sp"
+        android:textStyle="bold"/>
+</RelativeLayout>

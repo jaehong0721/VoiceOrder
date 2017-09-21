@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/estimate_root_view"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/black_05"
+    android:paddingBottom="22dp"
+    android:paddingLeft="20dp"
+    android:paddingRight="19dp"
+    android:paddingTop="24dp">
+
+    <FrameLayout
+        android:id="@+id/header_container"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <RadioGroup
+            android:id="@+id/rdGroupToSorting"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/rbOrderByPrice"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="true"
+                android:text="가격순"
+                android:textSize="13sp"
+                android:textStyle="bold"/>
+
+            <android.support.v7.widget.AppCompatRadioButton
+                android:id="@+id/rbOrderByTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="25dp"
+                android:text="최근 견적순"
+                android:textSize="13sp"
+                android:textStyle="bold"/>
+        </RadioGroup>
+
+
+        <TextView
+            android:id="@+id/tvHeadMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="‘내 거래처’ 탭에서 새 거래처를 확인하세요!"
+            android:textColor="@color/dark_maroon_40"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:visibility="gone"/>
+    </FrameLayout>
+
+
+    <android.support.v4.view.ViewPager
+        android:id="@+id/vpEstimate"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/header_container"
+        android:layout_marginTop="17dp">
+    </android.support.v4.view.ViewPager>
+</RelativeLayout>

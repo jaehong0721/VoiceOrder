@@ -6,6 +6,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
+import com.rena21c.voiceorder.model.Estimate;
 import com.rena21c.voiceorder.pojo.MyPartner;
 
 import java.util.HashMap;
@@ -25,6 +26,7 @@ public class FirebaseDbManager {
     private static final String RANKING_INFO = "rankingInfo";
     private static final String VISIT_COUNT = "visitCount";
     private static final String NAME = "name";
+    private static final String ADDRESS = "address";
 
     private final FirebaseDatabase instance;
 
@@ -175,12 +177,22 @@ public class FirebaseDbManager {
                 .addOnFailureListener(listener);
     }
 
-    public void getRestaurantName(String phoneNumber, ToastErrorHandlingListener listener) {
+    public void getRestaurantName(String phoneNumber, ValueEventListener listener) {
         DatabaseReference dr = getRootRef()
                 .child(RESTAURANTS)
                 .child(phoneNumber)
                 .child(INFO)
                 .child(RESTAURANT_NAME);
+        dr.keepSynced(true);
+        dr.addListenerForSingleValueEvent(listener);
+    }
+
+    public void getRestaurantAddress(String phoneNumber, ValueEventListener listener) {
+        DatabaseReference dr = getRootRef()
+                .child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(INFO)
+                .child(ADDRESS);
         dr.keepSynced(true);
         dr.addListenerForSingleValueEvent(listener);
     }
@@ -229,6 +241,94 @@ public class FirebaseDbManager {
                 .child(VISIT_COUNT);
         dr.keepSynced(true);
         dr.addListenerForSingleValueEvent(listener);
+    }
+
+    public void setEstimate(String estimateKey, Estimate estimate, OnCompleteListener listener) {
+        DatabaseReference dr = getRootRef()
+                .child("estimate")
+                .child(RESTAURANTS)
+                .child(estimateKey);
+        dr.setValue(estimate).addOnCompleteListener(listener);
+        dr.keepSynced(true);
+    }
+
+    public void subscribeEstimateItem(String estimateKey, ValueEventListener listener) {
+        DatabaseReference dr = getRootRef()
+                .child("estimate")
+                .child(RESTAURANTS)
+                .child(estimateKey)
+                .child("items");
+        dr.keepSynced(true);
+        dr.addValueEventListener(listener);
+    }
+
+    public void cancelSubscriptionEstimateItem(String estimateKey, ValueEventListener listener) {
+        DatabaseReference dr = getRootRef()
+                .child("estimate")
+                .child(RESTAURANTS)
+                .child(estimateKey)
+                .child("items");
+        dr.removeEventListener(listener);
+    }
+
+    public void subscribeReply(String estimateKey, ChildEventListener listener) {
+        DatabaseReference dr = getRootRef()
+                .child("estimate")
+                .child(RESTAURANTS)
+                .child(estimateKey)
+                .child("reply");
+        dr.keepSynced(true);
+        dr.addChildEventListener(listener);
+    }
+
+    public void cancelSubscriptionReply(String estimateKey, ChildEventListener listener) {
+        DatabaseReference dr = getRootRef()
+                .child("estimate")
+                .child(RESTAURANTS)
+                .child(estimateKey)
+                .child("reply");
+        dr.removeEventListener(listener);
+    }
+
+    public void setEstimateFinish(String estimateKey, String vendorKey) {
+        HashMap<String, Object> pathMap = new HashMap<>();
+        pathMap.put("/estimate/restaurants/" + estimateKey + "/isFinish", true);
+        pathMap.put("/estimate/restaurants/" + estimateKey + "/reply/" + vendorKey + "/isPicked", true);
+        pathMap.put("/estimate/vendors/" + vendorKey + "/" + estimateKey + "/isPicked", true);
+
+        getRootRef().updateChildren(pathMap);
+    }
+
+    public void checkFinishEstimate(String estimateKey, ToastErrorHandlingListener listener) {
+        DatabaseReference dr = getRootRef()
+                .child("estimate")
+                .child(RESTAURANTS)
+                .child(estimateKey)
+                .child("isFinish");
+        dr.keepSynced(true);
+        dr.addListenerForSingleValueEvent(listener);
+    }
+
+    public void addMyPartner(String phoneNumber, String vendorPhoneNumber, HashMap<String, Object> venorInfoMap) {
+        DatabaseReference dr = getRootRef()
+                .child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(VENDORS)
+                .child(vendorPhoneNumber);
+
+        dr.setValue(venorInfoMap);
+        dr.keepSynced(true);
+    }
+
+    public void setRestaurantName(String phoneNumber, String restaurantName) {
+        DatabaseReference dr = getRootRef()
+                .child(RESTAURANTS)
+                .child(phoneNumber)
+                .child(INFO)
+                .child(RESTAURANT_NAME);
+
+        dr.keepSynced(true);
+        dr.setValue(restaurantName);
     }
 
     private DatabaseReference getRootRef() {
